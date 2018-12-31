@@ -1,0 +1,189 @@
+;  spi - SPI read/write functions for TheCart SPI EEPROM
+;
+;  Copyright (C) 2011 Matthias Reichl <hias@horus.com>
+;
+;  This program is free software; you can redistribute it and/or modify
+;  it under the terms of the GNU General Public License as published by
+;  the Free Software Foundation; either version 2 of the License, or
+;  (at your option) any later version.
+;
+;  This program is distributed in the hope that it will be useful,
+;  but WITHOUT ANY WARRANTY; without even the implied warranty of
+;  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;  GNU General Public License for more details.
+;
+;  You should have received a copy of the GNU General Public License
+;  along with this program; if not, write to the Free Software
+;  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+
+; write a byte to SPI
+; in: A: byte to write
+SPI_WRITE
+	LDX #8
+	STA SPITMP
+?SPIW1	ASL SPITMP
+	LDA #0
+	ROR
+	STA TC_SPI
+	ORA #TC_SPI_CLK
+	STA TC_SPI
+	AND #[TC_SPI_CLK^$ff]
+	STA TC_SPI
+	DEX
+	BNE ?SPIW1
+	RTS
+
+; read a byte from SPI
+; out: A: byte read
+SPI_READ
+	LDX #8
+?SPIR1	LDA #0
+	STA TC_SPI
+	LDA TC_SPI
+	ASL
+	ROL SPITMP
+	LDA #TC_SPI_CLK
+	STA TC_SPI
+	DEX
+	BNE ?SPIR1
+	LDA #0
+	STA TC_SPI
+	LDA SPITMP
+	RTS
+
+; read X bytes from SPI address Y and store them in (SPIVEC)
+; return: C=0 if OK, C=1 on error
+SPI_READ_DATA
+; check for presence of SPI register, to avoid problems on emulator
+	LDA TC_SPI
+        AND #TC_SPI_MSK
+        BEQ ?SPI_READ_DATA1
+        SEC
+        RTS
+
+?SPI_READ_DATA1
+	STX SPICOUNT
+	LDA #TC_SPI_CLK
+	STA TC_SPI
+	LDA #0
+	STA TC_SPI
+	LDA #$03	; read data
+	JSR SPI_WRITE
+	TYA		; address
+	JSR SPI_WRITE
+	LDY #0
+?SPI_READ_DATA_LP
+	JSR SPI_READ
+	STA (SPIVEC),Y
+	INY
+	CPY SPICOUNT
+	BNE ?SPI_READ_DATA_LP
+	LDA #TC_SPI_CS
+	STA TC_SPI
+	CLC
+	RTS
+
+; write X bytes from (SPIVEC) to SPI address Y
+; return: C=0 if OK, C=1 on error
+SPI_WRITE_DATA
+; check for presence of SPI register, to avoid problems on emulator
+	LDA TC_SPI
+        AND #TC_SPI_MSK
+        BEQ ?SPI_WRITE_DATA1
+        SEC
+        RTS
+
+?SPI_WRITE_DATA1
+	STX SPICOUNT
+	STY SPIADR
+
+	LDA #TC_SPI_CLK
+	STA TC_SPI
+
+	LDY #0
+
+?SPI_WRITE_DATA_LP
+	JSR ?SPI_WREN
+	LDA (SPIVEC),Y
+	JSR ?SPI_WRBYTE
+
+; maximum time to wait for write to complete
+	CLC
+	LDA 20
+	ADC #2
+	STA SPIMAXTIME
+
+; wait for write to complete
+?SPI_WRITE_DATA_WT
+	LDA 20
+	CMP SPIMAXTIME
+	BEQ ?SPI_WRITE_DATA_TIMEOUT
+
+	JSR ?SPI_RDSR	; read status register
+	AND #1		; bit 1 is "write-in-progress"
+	BNE ?SPI_WRITE_DATA_WT
+
+	INC SPIADR
+	INY
+	CPY SPICOUNT
+	BNE ?SPI_WRITE_DATA_LP
+
+; write finished
+	CLC
+	RTS
+
+?SPI_WRITE_DATA_TIMEOUT
+	JSR ?SPI_WRDI
+	SEC
+	RTS
+
+; enable writes
+?SPI_WREN
+	LDA #0
+	STA TC_SPI
+	LDA #$06	; write enable
+	JSR SPI_WRITE
+	LDA #TC_SPI_CS
+	STA TC_SPI
+	RTS
+
+; disable writes
+?SPI_WRDI
+	LDA #0
+	STA TC_SPI
+	LDA #$04	; write disable
+	JSR SPI_WRITE
+	LDA #TC_SPI_CS
+	STA TC_SPI
+	RTS
+
+; write byte A to SPI address SPIADR
+?SPI_WRBYTE
+	PHA
+	LDA #0
+	STA TC_SPI
+	LDA #$02	; write data
+	JSR SPI_WRITE
+	LDA SPIADR
+	JSR SPI_WRITE
+	PLA		; byte
+	JSR SPI_WRITE
+	LDA #TC_SPI_CS
+	STA TC_SPI
+	RTS
+
+; read status register
+; return: status register in A
+?SPI_RDSR
+	LDA #0
+	STA TC_SPI
+	LDA #$05	; read status register
+	JSR SPI_WRITE
+	JSR SPI_READ
+	PHA
+	LDA #TC_SPI_CS
+	STA TC_SPI
+	PLA
+	RTS
+

@@ -1,0 +1,4 @@
+Manifest-Version: 1.0
+Main-Class: com.wudsn.productions.windows.windowsfoldermagic.WindowsFolderMagic
+Class-Path: .
+Permissions: sandbox

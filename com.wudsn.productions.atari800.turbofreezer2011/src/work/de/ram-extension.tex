@@ -1,0 +1,22 @@
+\chapter{512k RAM-Erweiterung}
+
+Die eingebaute RAM-Erweiterung des \frzs ist kompatibel zu den verbreiteten
+Rambo/AtariMagazin Erweiterungen. Bit 4 von \freg{PORTB} aktiviert den Zugriff
+auf die RAM-Erweiterung (0~=~ RAM-Erweiterung bei \fhexr{4000}{7FFF} einblenden,
+1 ~=~ internen Atari Speicher verwenden). Die Bits 2,3,5,6 und 7 wählen eine
+der 32 16k Bänke aus. Ein separater ANTIC Zugriff, wie beim Atari
+130 XE und einigen anderen RAM-Erweiterungen vorhanden, wird nicht
+unterstützt. Zum einen liegt das dazu benötigte HALT Signal nicht am
+PBI an. Zum anderen gibt es nur ganz wenige Demos, welche diesen Modus
+überhaupt verwenden und die meisten davon sind mittlerweile auch für
+RAM-Erweiterungen ohne separaten ANTIC Zugriff angepasst worden.
+
+Beim Einsatz von Programmen, die eine RAM-Erweiterung mit separatem ANTIC
+Zugriff erfordern, ist folgende Einschränkung zu beachten. Befindet sich im Atari eine
+interne RAM-Erweiterung, die den separaten ANTIC Zugriff unterstützt, kann es
+bei aktivierter 512k RAM-Erweiterung am Freezer zu Fehlfunktionen kommen. Ist
+nur der ANTIC Zugriff auf die RAM-Erweiterung aktiviert (über Bit 5 von
+\freg{PORTB}), nicht aber der CPU (bzw. kombinierter ANTIC/CPU) Zugriff (über
+Bit 4), so greift der ANTIC auf die interne RAM-Erweiterung zu statt auf die
+RAM-Erweiterung am Freezer. Die beste Lösung ist diese Situation erst gar nicht
+auftreten zu lassen und eine der beiden RAM-Erweiterungen zu deaktivieren.

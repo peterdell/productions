@@ -1,0 +1,564 @@
+;  flashraw.src - The!Cart raw flasher code
+;
+;  Copyright (C) 2005-2014 Matthias Reichl <hias@horus.com>
+;
+;  This program is free software; you can redistribute it and/or modify
+;  it under the terms of the GNU General Public License as published by
+;  the Free Software Foundation; either version 2 of the License, or
+;  (at your option) any later version.
+;
+;  This program is distributed in the hope that it will be useful,
+;  but WITHOUT ANY WARRANTY; without even the implied warranty of
+;  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;  GNU General Public License for more details.
+;
+;  You should have received a copy of the GNU General Public License
+;  along with this program; if not, write to the Free Software
+;  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+; ask for drive / filename
+; return C=1 on error
+COMASKDRIVE
+.if .def ENABLE_POKEYRND
+	LDA MODE
+	AND #MODE_RND
+	BEQ ?COMASKNORND
+; no need to ask for drive, just initialize DAUX to 0
+	LDA #0
+	STA DAUX1
+	STA DAUX2
+	CLC
+	RTS
+?COMASKNORND
+.endif
+	LDA MODE
+	AND #MODE_SIO
+	BNE ?COMASKDRSIO
+
+; file mode, ask for filename
+	BPUT0 TFILNA
+	JSR GETFN
+	BPL ?COMASKDROK
+	SEC
+	RTS
+?COMASKDROK
+	CLC
+	RTS
+
+?COMASKDRSIO
+; SIO mode, input drive number
+	JSR INPUTDRV
+	BCC ?COMASKDRSIO1
+	JMP RETABORT
+
+?COMASKDRSIO1
+; check drive and density
+	LDA CURDRIVENO
+	JSR CHKDENS
+	BCC ?COMASKDRSIO2
+	JSR PNODISK
+	RTS
+
+?COMASKDRSIO2
+; check for valid density
+	STA DRIVEDNS
+	CMP #DRIVEDNS_8K
+	BEQ ?COMASKDRSIO3
+	PRINT0 TUNSUPDNS
+	RTS
+
+?COMASKDRSIO3
+; output disk size
+	BPUT0 TDSKSIZ
+	LDX PERCBUF+3
+	STX MAXSEC
+	LDY PERCBUF+2
+	STY MAXSEC+1
+	JSR PRDEC
+	LDA #155
+	JSR PUTCHAR
+
+; and ask for starting sector
+	BPUT0 TSTSEC
+	JSR GETDEC
+	BCC ?COMASKDRSIO4
+	RTS
+
+?COMASKDRSIO4
+; store starting sector
+	STX DAUX1
+	STY DAUX2
+	CLC
+	RTS
+
+; open file / disk
+; return: C=1 on error
+COMOPENFILE
+.if .def ENABLE_POKEYRND
+	LDA MODE
+	AND #MODE_RND
+	BEQ ?COMOPENNORND
+; nothing to do
+	CLC
+	RTS
+?COMOPENNORND
+.endif
+	LDA MODE
+	AND #MODE_SIO
+	BEQ ?COMOPENF1
+; nothing to do in SIO mode
+	CLC
+	RTS
+
+?COMOPENF1
+	BIT MODE
+	BMI ?COMOPENF2
+	OPEN 1,4,0,FNBUF
+	JMP ?COMOPENF3
+?COMOPENF2
+	OPEN 1,8,0,FNBUF
+?COMOPENF3
+	BPL ?COMOPENF4
+	CLOSE 1
+	PRINT 0, TOPENER
+	SEC
+	RTS
+?COMOPENF4
+	CLC
+	RTS
+
+; close file / disk
+; return: C=1 on error
+COMCLOSEFILE
+.if .def ENABLE_POKEYRND
+	LDA MODE
+	AND #MODE_RND
+	BEQ ?COMCLOSENORND
+; nothing to do
+	CLC
+	RTS
+?COMCLOSENORND
+.endif
+	LDA MODE
+	AND #MODE_SIO
+	BEQ ?COMCLOSEF1
+; nothing to do in SIO mode
+	CLC
+	RTS
+?COMCLOSEF1
+	CLOSE 1
+	CLC
+	RTS
+
+; check if we have some more data
+; return C=1 on EOF
+COMCHECKEOF
+.if .def ENABLE_POKEYRND
+	LDA MODE
+	AND #MODE_RND
+	BEQ ?COMCHKEOFNORND
+; check if DAUX < 256
+	LDA DAUX2
+	CMP #1
+	RTS
+?COMCHKEOFNORND
+.endif
+	LDA MODE
+	AND #MODE_SIO
+	BEQ ?COMCHECKEOF1
+
+; SIO mode: check if DAUX <= MAXSEC
+	LDA DAUX2
+	CMP MAXSEC+1
+	BCC ?COMCHECKEOFOK
+	BNE ?COMCHECKEOFEND
+	LDA DAUX1
+	CMP MAXSEC
+	BCC ?COMCHECKEOFOK
+	BEQ ?COMCHECKEOFOK
+
+?COMCHECKEOFEND
+	SEC
+	RTS
+
+?COMCHECKEOF1
+; file mode: read 1 byte
+	BGET 1, 1, DATABUF
+	BMI ?COMCHECKEOFEND
+
+?COMCHECKEOFOK
+	CLC
+	RTS
+
+; read data block
+; return C=1 on error
+COMREADBLK
+.if .def ENABLE_POKEYRND
+	LDA MODE
+	AND #MODE_RND
+	BEQ ?COMREADNORND
+; setup datavec
+	LDA #<DATABUF
+	STA DATAVEC
+	LDA #>DATABUF
+	STA DATAVEC+1
+; setup X,Y depending on DAUX
+	LDA DAUX1
+	TAY
+	AND #$0F
+	TAX
+	JSR RND8K
+	CLC
+	RTS
+?COMREADNORND
+.endif
+	LDA MODE
+	AND #MODE_SIO
+	BEQ ?COMREADBLK1
+
+; SIO mode: do 8k sector read
+	JSR LOAD8KSIO
+	BPL ?COMREADBLKOK
+
+?COMREADBLKERR
+	SEC
+	RTS
+
+?COMREADBLK1
+; file mode: read remainder of block
+	BGET 1, 8191, DATABUF+1
+	BMI ?COMREADBLKERR
+
+?COMREADBLKOK
+	CLC
+	RTS
+
+; write data block
+; return C=1 on error
+COMWRITEBLK
+.if .def ENABLE_POKEYRND
+	LDA MODE
+	AND #MODE_RND
+	BEQ ?COMWRITENORND
+; writing to random is not supported
+	SEC
+	RTS
+?COMWRITENORND
+.endif
+	LDA MODE
+	AND #MODE_SIO
+	BEQ ?COMWRITEBLK1
+
+; SIO mode: not implemented yet
+?COMWRITEBLKERR
+	SEC
+	RTS
+
+?COMWRITEBLK1
+	BPUT 1, 8192, DATABUF
+	BMI ?COMWRITEBLKERR
+
+?COMWRITEBLKOK
+	CLC
+	RTS
+
+; advance to next block
+; return C=1 if end is reached
+COMNEXTBLOCK
+.if .def ENABLE_POKEYRND
+	LDA MODE
+	AND #MODE_RND
+	BNE ?COMNEXTBLOCK0
+.endif
+	LDA MODE
+	AND #MODE_SIO
+	BEQ ?COMNEXTBLOCK1
+
+?COMNEXTBLOCK0
+; SIO mode: increment sector
+	INC DAUX1
+	BNE ?COMNEXTBLOCK1
+	INC DAUX2
+
+?COMNEXTBLOCK1
+; increment flash address
+	CLC
+	LDA FLASHADR+1
+	ADC #$20
+	STA FLASHADR+1
+	BCC ?COMNEXTBLOCK2
+	INC FLASHADR+2
+	BNE ?COMNEXTBLOCK2
+	INC FLASHADR+3
+
+?COMNEXTBLOCK2
+	LDA FLASHADR+3
+	CMP ENDADR+3
+	BCC ?COMNEXTBLOCKOK
+	BNE ?COMNEXTBLOCKEND
+	LDA FLASHADR+2
+	CMP ENDADR+2
+	BCC ?COMNEXTBLOCKOK
+	BNE ?COMNEXTBLOCKEND
+	LDA FLASHADR+1
+	CMP ENDADR+1
+	BCC ?COMNEXTBLOCKOK
+
+?COMNEXTBLOCKEND
+	SEC
+	RTS
+
+?COMNEXTBLOCKOK
+	CLC
+	RTS
+
+; print error, close file, and return
+COMERROR
+	JSR PERROR
+	JSR COMCLOSEFILE
+	RTS
+
+; print error plus address, close file, and return
+COMERRORADR
+	JSR PERRADR
+	JSR PERRTYP
+	JSR COMCLOSEFILE
+	RTS
+
+; close file, print success, and return
+COMSUCCESS
+	BPUT0 TFINI
+	JSR COMCLOSEFILE
+	RTS
+
+; common entry point
+DOCOMMON
+; flash offset 0
+	JSR FADRZERO
+
+; ask for starting/ending bank etc
+	JSR RRANGE
+	BPL ?DOCOMM1
+	SEC
+	RTS
+
+?DOCOMM1
+; set data buffer address
+	JSR SETDATABUF
+
+; ask for drive / filename
+	JSR COMASKDRIVE
+	BCC ?DOCOMM2
+	RTS
+
+?DOCOMM2
+; open file / drive
+	JSR COMOPENFILE
+	BCC ?DOCOMM3
+	RTS
+
+?DOCOMM3
+
+	LDA #155
+	JSR PUTCHAR
+
+; main flash loop
+DOLOOP
+; disable atract mode
+	LDA #0
+	STA 77
+
+; flash/write/verify data, depending on MODE
+	BIT MODE
+	BPL ?DOLOOP1		; flash/verify mode
+	JMP ?DOLOOPWRITE	; write mode
+
+; flash/verify mode
+; check if we have some more data
+?DOLOOP1
+	JSR COMCHECKEOF
+	BCC ?DOLOOP2
+
+; end of file, finished!
+	JMP COMSUCCESS
+
+?DOLOOP2
+; print flash bank
+	JSR PFLBNK
+
+; read data block
+	BPUT0 TRDDAT
+	JSR COMREADBLK
+	BCC ?DOLOOP3
+	JMP COMERROR
+
+?DOLOOP3
+	BIT MODE
+	BVS ?DOLOOPVERIFY	; verify flash
+
+; flash chip
+; check if we need to erase the block
+	LDA NEEDERAS
+	BEQ ?DOLOOPNOERAS
+
+	BPL ?DOLOOPFLCHK	; normal check for block boundary
+	AND #$7F		; clear force-block-1 flag
+	STA NEEDERAS
+	BPL ?DOLOOPERAS		; force erasing of first block
+
+?DOLOOPFLCHK
+	LDA FLASHADR
+	AND FBLKMSK
+	BNE ?DOLOOPNOERAS
+
+	LDA FLASHADR+1
+	AND FBLKMSK+1
+	BNE ?DOLOOPNOERAS
+
+	LDA FLASHADR+2
+	AND FBLKMSK+2
+	BNE ?DOLOOPNOERAS
+
+	LDA FLASHADR+3
+	AND FBLKMSK+3
+	BNE ?DOLOOPNOERAS
+
+?DOLOOPERAS
+; erase block
+	BPUT0 TERAF
+	JSR FENABLE
+	JSR FPERAS
+	PHP
+	JSR FDISABLE
+	PLP
+	BPL ?DOLOOPERASOK
+	JMP COMERRORADR
+
+?DOLOOPERASOK
+
+?DOLOOPNOERAS
+; program block
+	BPUT0 TPROGF
+	JSR FENABLE
+	LDX #$20
+	JSR FWPAGE
+	PHP
+	JSR FDISABLE
+	PLP
+	BPL ?DOLOOPVERIFY
+	JMP COMERRORADR
+
+?DOLOOPVERIFY
+; verify block
+	BPUT0 TVERIF
+	JSR FENABLE
+	LDX #$20
+	JSR FCPAGE
+	PHP
+	JSR FDISABLE
+	PLP
+
+; entry: check for error
+?DOLOOPCHKERROR
+	BPL ?DOLOOPOK
+	JMP COMERRORADR
+
+?DOLOOPOK
+; print ok and go on to next block
+DOLOOPN	JSR POK
+
+	JSR COMNEXTBLOCK
+	BCC ?DOLOOPNEXT
+	JMP COMSUCCESS
+?DOLOOPNEXT
+	JMP DOLOOP
+
+; write block to file
+?DOLOOPWRITE
+	JSR PFLBNK
+	JSR FENABLE
+	LDX #$20
+	JSR FRPAGE
+	JSR FDISABLE
+
+	BPUT0 TWRDAT
+	JSR COMWRITEBLK
+	BCS ?DOLOOPWRITEERR
+	JMP ?DOLOOPOK
+?DOLOOPWRITEERR
+	JMP COMERROR
+
+.if .def FLASHSIO
+	LDA #'P
+	STA $302
+	LDA #$80
+	STA $303
+	JSR $E459
+.else
+	BPUT 1, 8192, DATABUF
+.endif
+	BPL DOLOOPW1
+	JMP COMERROR
+
+DOLOOPW1 JMP DOLOOPN
+
+; erase flash chip (manually)
+DOERAS	
+	BPUT0 TASKER
+	JSR YESNO
+	BEQ DOERAS1
+	JMP MAINLP
+
+DOERAS1	LDA #155
+	JSR PUTCHAR
+	LDA #155
+	JSR PUTCHAR
+
+	JSR ERASEF
+
+	BMI DOCONT
+
+DOCONTS	BPUT0 TFINI
+
+DOCONT	BPUT0 TCONT
+	LDA #255
+	STA 764
+	JSR GETCHAR
+	JMP MAINLP
+
+; common chip erase code
+ERASEF	BPUT0 TERAS
+
+	JSR FADRZERO
+	JSR FENABLE
+	JSR FCERAS
+
+	PHP
+	LDA NUMCHIP
+	CMP #2
+	BCC ERASEF1
+
+	PLA
+	STA TMPSTAT
+	LDA FSIZE+2
+	STA FLASHADR+2
+	JSR FCERAS
+	PHP
+	PLA
+	ORA TMPSTAT
+	PHA
+	LDA #0
+	STA FLASHADR+2
+ERASEF1	PLP
+
+	PHP
+	PHP
+	JSR FDISABLE
+	PLP
+	JSR PSTAT
+	PLP
+	RTS
+.if .def FLASHSIO
+MAXSEC	.WORD 0
+.endif
+

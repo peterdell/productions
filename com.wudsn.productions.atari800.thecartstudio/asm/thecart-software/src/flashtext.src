@@ -1,0 +1,215 @@
+;  flashtext - TheCart flash writer texts
+;
+;  Copyright (C) 2013-2014 Matthias Reichl <hias@horus.com>
+;
+;  This program is free software; you can redistribute it and/or modify
+;  it under the terms of the GNU General Public License as published by
+;  the Free Software Foundation; either version 2 of the License, or
+;  (at your option) any later version.
+;
+;  This program is distributed in the hope that it will be useful,
+;  but WITHOUT ANY WARRANTY; without even the implied warranty of
+;  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;  GNU General Public License for more details.
+;
+;  You should have received a copy of the GNU General Public License
+;  along with this program; if not, write to the Free Software
+;  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+TTITLE
+	.BYTE 125
+	.BYTE "The!Cart Flash Writer V1.02",155
+	.BYTE "(c) 2014 by Matthias Reichl",155,155
+TTITLEL	= * - TTITLE
+
+TPRESS	.BYTE "Press button on The!Cart then RETURN",155
+	.BYTE "or BREAK to exit",155
+TPRESSL	= * - TPRESS
+
+.if 0
+TMENU	.BYTE 155
+	.BYTE "1) Program flash",155
+	.BYTE "2) Verify flash",155
+	.BYTE "3) Write flash to file",155
+	.BYTE "4) Erase flash",155
+	.BYTE "5) Start Cartridge",155
+	.BYTE "0) Exit program",155
+	.BYTE "> "
+TMENUL	= * - TMENU
+.endif
+
+TMENU	.BYTE 155
+	.BYTE "1) Program cartridge",155
+	.BYTE 155
+	.BYTE "2) Program from raw file",155
+	.BYTE "3) Program from raw image",155
+	.BYTE "4) Write cartridge to raw file",155
+	.BYTE 155
+	.BYTE "E) Erase cartridge",155
+	.BYTE 155
+	.BYTE "H) Toggle highspeed SIO",155
+	.BYTE "S) Start cartridge",155
+	.BYTE 155
+	.BYTE "Q) Quit program",155
+	.BYTE "> "
+TMENUL	= * - TMENU
+
+TNAME	.BYTE "name: "
+TNAMEL	= * - TNAME
+
+TASKER	.BYTE "Warning: this erases all data!",155
+	.BYTE "Erasing can take up to 30 minutes",155,155
+	.BYTE "Completely erase cartridge (y/n)? "
+TASKERL	= * - TASKER
+
+TREALLY		.BYTE 155, "Are you really sure (y/n)? "
+TREALLYL	= * - TREALLY
+
+TASKSC  .BYTE "Start Cartridge (y/n)? "
+TASKSCL = * - TASKSC
+
+TASKSC2	.BYTE "Start Cartridge: 'E' for expert menu",155
+	.BYTE "(y/e/n)? "
+TASKSC2L = * - TASKSC2
+
+TASKQUIT	.BYTE "Quit program (y/n)? "
+TASKQUITL	= * - TASKQUIT
+
+TFILNA	.BYTE "Filename > "
+TFILNAL	= * - TFILNA
+
+TOPENER	.BYTE "Error opening file!",155
+
+TERAF	.BYTE " erase"
+TERAFL	= * - TERAF
+
+TERAS	.BYTE 155, 155, "erasing cartridge"
+TERASL	= * - TERAS
+
+TRDDAT	.BYTE " read"
+TRDDATL	= * - TRDDAT
+
+TWRDAT	.BYTE " write"
+TWRDATL	= * - TWRDAT
+
+TPROGF	.BYTE " program"
+TPROGFL	= * - TPROGF
+
+TVERIF	.BYTE " verify"
+TVERIFL	= * - TVERIF
+
+TSEMPTY	.BYTE " empty"
+TSEMPTYL	= * - TSEMPTY
+
+TSBANK	.BYTE "starting bank (0-"
+TSBANKL	= * - TSBANK
+
+TSBANK2	.BYTE ") > 0",30
+TSBANK2L = * - TSBANK2
+
+TERBNK	.BYTE "bank not on block boundary,",155
+	.BYTE "erase block (y/n)? "
+TERBNKL	= * - TERBNK
+
+TNBANK	.BYTE "number of banks (0=to end) > 0",30
+TNBANKL	= * - TNBANK
+
+TDSKSIZ	.BYTE "disk size (8k sectors): "
+TDSKSIZL = * - TDSKSIZ
+
+TSTSEC	.BYTE "starting sector > 1",30
+TSTSECL	= * - TSTSEC
+
+THISIO	.BYTE 155, "Highspeed SIO: "
+THISIOL	= * - THISIO
+
+TON	.BYTE "on"
+TONL	= * - TON
+
+TOFF	.BYTE "off"
+TOFFL	= * - TOFF
+
+; new stuff
+; signature in programming file
+HDRSIG		.BYTE "The!CartPROG0100"
+; signature in flash / checksum area
+FLASHSIG	.BYTE "The!CartCSUM0100"
+
+; signature in main menu bank
+MAINSIG		THECART_SIGNATURE
+MAINSIGL	= * - MAINSIG
+
+TILLPSIG	.BYTE "no or incompatible data image",155
+TNOTPART1	.BYTE "not first part of multi-image",155
+TWRONGIMG	.BYTE "ID mismatch, wrong image",155
+TWRONGIMGNO	.BYTE "wrong image number "
+TWRONGIMGNOL	= * - TWRONGIMGNO
+
+TLOADHDR	.BYTE 155, "loading header",155
+TLOADHDRL	= * - TLOADHDR
+
+TLOADCS		.BYTE 155, "loading checksum data",155
+TLOADCSL	= * - TLOADCS
+
+TPROGD		.BYTE 155, "programming flash data",155
+TPROGDL		= * - TPROGD
+
+TPROGCS		.BYTE 155, "programming checksum data",155
+TPROGCSL	= * - TPROGCS
+
+TUBANK		.BYTE " banks used",155
+TUBANKL		= * - TUBANK
+
+TTOOBIG		.BYTE "error: image is too large!",155
+TTOOBIGL	= * - TTOOBIG
+
+TTOTPART	.BYTE " part multi-image",155
+
+TSUBSEQ		.BYTE 155, "load from subsequent drives (y/n)? "
+TSUBSEQL 	= * - TSUBSEQ
+
+TDOINCR		.BYTE "perform incremental update (y/n)? "
+TDOINCRL	= * - TDOINCR
+
+TDOPROG		.BYTE "start programming (y/n)? "
+TDOPROGL	= * - TDOPROG
+
+TCSEQU		.BYTE 155,"cart is up to date, nothing to do!",155
+TCSEQUL		= * - TCSEQU
+
+; last drive number is set in MAXDRIVENO
+TDISKNO		.BYTE "drive number (1-15) > "
+TDISKNOL 	= * - TDISKNO
+
+TINVDRV		.BYTE "invalid drive number",155
+
+TFINI		.BYTE 155, "operation successfully completed",155
+TFINIL		= * - TFINI
+
+TABRT		.BYTE 155, "operation aborted",155
+TABRTL	= * - TABRT
+
+TNODSK1 .BYTE "drive "
+TNODSK1L = * - TNODSK1
+TNODSK2 .BYTE " not responding!",155
+TNODSK2L = * - TNODSK2
+
+TREADERR	.BYTE "error reading drive "
+TREADERRL	= * - TREADERR
+
+TRETRY		.BYTE "retry (y/n)? "
+TRETRYL		= * - TRETRY
+
+TUNSUPDNS	.BYTE "unsupported disk density!",155
+
+TINSIMG1	.BYTE 155,"insert part "
+TINSIMG1L	= * - TINSIMG1
+
+TINSIMG2	.BYTE " in drive "
+TINSIMG2L	= * - TINSIMG2
+
+TCONT	.BYTE 155
+	.BYTE "Press any key to continue > "
+TCONTL	= * - TCONT
+
+

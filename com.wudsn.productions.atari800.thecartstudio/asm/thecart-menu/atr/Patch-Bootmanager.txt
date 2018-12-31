@@ -1,0 +1,13 @@
+0971: A9 FF     L0971   LDA #$FF
+0973: 8D FC 02          STA CH
+0976: AD FC 02  L0976   LDA CH
+0979: C9 FF             CMP #$FF
+097B: F0 F9             BEQ $0976
+097D: A2 00             LDX #$00
+097F: DD F1 09          CMP $09F1,X
+0982: F0 07             BEQ $098B
+0984: E8                INX
+0985: E0 10             CPX #$10
+0987: D0 F6             BNE $097F
+0989: F0 E6             BEQ $0971
+098B: A9 18             LDA #$18

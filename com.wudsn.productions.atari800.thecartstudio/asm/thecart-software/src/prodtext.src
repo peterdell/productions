@@ -1,0 +1,95 @@
+;  prodtext - TheCart production tool texts
+;
+;  Copyright (C) 2013-2014 Matthias Reichl <hias@horus.com>
+;
+;  This program is free software; you can redistribute it and/or modify
+;  it under the terms of the GNU General Public License as published by
+;  the Free Software Foundation; either version 2 of the License, or
+;  (at your option) any later version.
+;
+;  This program is distributed in the hope that it will be useful,
+;  but WITHOUT ANY WARRANTY; without even the implied warranty of
+;  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;  GNU General Public License for more details.
+;
+;  You should have received a copy of the GNU General Public License
+;  along with this program; if not, write to the Free Software
+;  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+TTITLE
+	.BYTE 125
+	.BYTE "The!Cart production tool V0.33",155
+.if .def CARTSWITCH_D406
+	.BYTE "cartridge select by $D406",155
+.else
+	.BYTE "cartridge select by $D300",155
+.endif
+	.BYTE "(c) 2013 by Matthias Reichl",155,155
+TTITLEL	= * - TTITLE
+
+TMASTER	.BYTE "Master: "
+TMASTERL	= * - TMASTER
+
+TDESTC	.BYTE "Target: "
+TDESTCL	= * - TDESTC
+
+TWRMASTER
+	.BYTE 155
+	.BYTE "Error: no or wrong master cart",155
+TWRMASTERL	= * - TWRMASTER
+
+
+TPROGR	.BYTE "program RAM",155
+TPROGRL	= * - TPROGR
+
+TVERIR	.BYTE "verify RAM",155
+TVERIRL	= * - TVERIR
+
+TREADE	.BYTE "read master EEPROM",155
+TREADEL	= * - TREADE
+
+TPROGE	.BYTE "program EEPROM",155
+TPROGEL	= * - TPROGE
+
+TVERIE	.BYTE "verify EEPROM",155
+TVERIEL	= * - TVERIE
+
+TERAS	.BYTE "erase flash",155
+TERASL	= * - TERAS
+
+TPROGF	.BYTE "program flash",155
+TPROGFL	= * - TPROGF
+
+TVERIF	.BYTE "verify flash",155
+TVERIFL	= * - TVERIF
+
+TFINI		.BYTE 155, "operation successfully completed",155
+TFINIL		= * - TFINI
+
+TCONT	.BYTE 155
+	.BYTE "Press any key to continue > "
+TCONTL	= * - TCONT
+
+TNODSK1 .BYTE "drive "
+TNODSK1L = * - TNODSK1
+TNODSK2 .BYTE " not responding!",155
+TNODSK2L = * - TNODSK2
+TREADERR        .BYTE "error reading drive "
+TREADERRL       = * - TREADERR
+; last drive number is set in MAXDRIVENO
+TDISKNO         .BYTE "drive number (1-15) > "
+TDISKNOL        = * - TDISKNO
+TINVDRV         .BYTE "invalid drive number",155
+TSBANK  .BYTE "starting bank (0-"
+TSBANKL = * - TSBANK
+
+TSBANK2 .BYTE ") > 0",30
+TSBANK2L = * - TSBANK2
+
+TERBNK  .BYTE "bank not on block boundary,",155
+        .BYTE "erase block (y/n)? "
+TERBNKL = * - TERBNK
+
+TNBANK  .BYTE "number of banks (0=to end) > 0",30
+TNBANKL = * - TNBANK
+

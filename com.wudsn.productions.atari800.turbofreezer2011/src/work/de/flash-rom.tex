@@ -1,0 +1,143 @@
+\chapter{Programmieren des Flash-ROMs}
+
+\section{Grundlagen}
+Die Software des \frzs ist nicht, wie sonst üblich, in einem EPROM, sondern in
+einem Flash-ROM abgelegt. Der große Vorteil des Flash-ROMs besteht darin, dass
+es direkt vom Atari aus neu programmiert werden kann. Damit können jederzeit
+Software-Updates eingespielt werden und der unbelegte Teil des Flash-ROMs kann
+mit Moduldaten beschrieben werden, ohne dass ein spezielles Programmiergerät
+notwendig ist. Das Flash-ROM am \frz kann übrigens bis zu 1.000.000 Mal neu
+programmiert werden, was für die meisten Experimente wohl ausreichend sein
+sollte.
+
+Das Flash-ROM und das Freezer-RAM im \frz ist normalerweise gegen ein
+Überschreiben geschützt. Um die Schreibfunktion auf beides freizuschalten, muss
+der Schalter \fsw{FlashWrite} nach rechts (\fval{ON}) geschoben werden. Steht
+der Schalter in der linken Position (\fval{OFF}), sind das Flash-ROM und das
+Freezer-RAM schreibgeschützt. Es ist sehr unwahrscheinlich, dass irgendeine
+Software das Flash-ROM im Freezer versehentlich überschreibt. Um das Flash-ROM
+zu programmieren muss eine spezielle Schreibsequenz zum Flash-ROM geschickt
+werden, ansonsten werden Schreibzugriffe einfach ignoriert. Deshalb ist es recht
+ungefährlich den \fsw{FlashWrite} Schalter permanent in der rechten Position
+(\fval{ON}) zu lassen.
+
+Beim Einsatz von \fq{richtigen} Bankswitching Modulen
+im Modulschacht des Ataris sollte aber sowohl der Schalter \fsw{CartEmu} als
+auch der Schalter \fsw{FlashWrite} auf \fval{OFF} geschoben werden. Hierdurch
+wird ein Konflikt zwischen der Cartridge-Emulation und dem
+Bankswitching Modul vermieden.\newline
+
+\textbf{Achtung:} Es ist wichtig, dass beim Flashen der Schalter \fsw{OldOS}
+unbedingt auf \fval{OFF} steht um sicher zu gehen, dass das Flash-ROM exkusiv
+dem Flash-Programm zur Verfügung steht. Wenn gleichzeitig der Oldrunner aktiv
+ist, kommt es zu Konflikten beim Zugriff -- \zB wenn in Interrupt auftritt -- und
+der Atari kann abstürzen.
+
+\section{Bänke und Blöcke im Flash-ROM}
+Um mit dem Flash-ROM perfekt umgehen zu können, ist es hilfreich, ein paar
+Details über seinen internen Aufbau zu kennen. Das eingesetzte Flash-ROM ist
+intern in Blöcke zu je 64k (d.h. acht 8k-Bänke) aufgeteilt. Diese Blöcke können
+unabhängig voneinander neu programmiert werden. Das bedeutet, dass Änderungen
+\zB an den Daten für die Cartridge-Emulation nicht die Freezer-Software
+beeinflussen und umgekehrt.
+
+Die Aufteilung in 64k Blöcke hat leider auch einen kleinen Nachteil. Es ist
+ nicht möglich, nur einen Teil eines 64k Blocks neu zu programmieren. Freie,
+ noch nicht programmierte Teile eines 64k Blocks können
+aber auch später beschrieben werden. So kann man \zB zuerst ein 8k Modul in Bank
+0 schreiben und später ein weiteres 8k Modul in Bank 1 des gleichen Blocks.
+Es empfiehlt sich aber, vorher mehrere \zB 8k ROM Module zu eine großen Datei
+zusammenfassen und diese dann in einem Rutsch zu programmieren. Für das
+Freezer-RAM gilt die Einschränkung auf 64k Blöcke natürlich nicht. Dort kann
+jede 8k Bank separat programmiert werden.
+
+Liegt die Startbank nicht an einer 64k Blockgrenze, so fragt das Flash-Programm
+nach, ob der gesamte Block zuvor gelöscht werden soll oder nicht. Löscht man den
+64k Block nicht, kann man noch unbenutzte (d.h. zuvor gelöschte) Teile eines 64k
+Blocks mit Daten füllen. Wenn man versehentlich einen bereits benutzten Teil
+überschreiben will, so kommt es zu einer Fehlermeldung und man muss den gesamten
+64k Block neu programmieren.
+
+\section{Flash-Programm starten}
+Um das Flash-ROM bzw. das Freezer-RAM zu programmieren, muss zuerst der Schalter
+\fsw{FlashWrite} nach rechts auf \fval{ON} geschoben werden.
+Dann muss das Programm \fcmd{FLASH.COM} von der Systemdiskette gestartet werden.
+Steht der Schalter auf \fval{OFF}, kann das Programm das Flash-ROM nicht finden
+und es wird eine Fehlermeldung ausgegeben. In diesem Fall kann man den Schalter
+auch nachträglich nach rechts schieben und dann die Rückfrage \fmsg{restart
+program?} mit \fkey{Y} antworten. Nach dem Start gibt das Flash-Programm
+folgende Informationen aus:
+
+\begin{itemize*}
+\item Typ des Flash-ROMs
+\item Versionsnummer und Datum der Freezer-Software im Flash-ROM
+\end{itemize*}
+
+Für den Fall, dass das Flash-ROM keine Freezer-Software enthält, wird
+anstatt der Versionsnummer \fval{n/a} ausgegeben. Der Versionsnummer kann auch
+im Debugger mit dem Kommando \fcmd{VER} angezeigt werden.
+
+\section{Flash-Programm verwenden}
+Im Flash-Programm stehen folgende Funktionen zur Auswahl:
+
+\begin{fcmdlist}
+\item[Program CartEmu flash] Programmieren des Flash-ROMs Bereiches für die
+Cartridge-Emulation (Bänke \fdecr{0}{119}). Der Bereich für die Freezer-Software 
+(Bänke \fdecr{120}{127}) bleibt hierbei geschützt und kann nicht
+versehentlich überschrieben werden. Arbeitet man nur mit der Cartridge-Emulation, so sollte
+immer ausschließlich diese Funktion verwenden.
+\item[Program CartEmu+Freezer flash] Programmieren des gesamten Flash-ROMs (Bänke
+\fdecr{0}{127}). Damit lässt sich auch die Freezer-Software (Bänke
+\fdecr{120}{127}) aktualisieren.
+\item[Write flash to file] Sichern des Flash-ROM Inhaltes in eine Datei.
+\item[Program RAM] Programmieren des Freezer-RAMs (Bänke \fdecr{0}{47}).
+\item[Write RAM to file] Sichern des Freezer-RAM Inhaltes in eine Datei.
+\item[Erase flash] Löschen des gesamten Flash-ROMs.\newline
+
+\textbf{Achtung:} Damit wird das gesamte Flash-ROM, inklusive der
+Freezer-Software gelöscht. Damit der \frz danach wieder wie gewohnt verwendet
+werden kann, muss unbedingt die Freezer-Software erneut ab Bank 120
+programmiert werden. Ansonsten stürzt der Atari beim Drücken des
+Knopfes \fsw{Freeze}, bei aktivierter Cartridge-Emulation oder bei
+aktiviertem Oldrunner einfach ab.
+\item[Start CartEmu] Springt in das Menü der Cartridge-Emulation. So kann man
+ein gerade programmiertes Module direkt ausprobieren.
+\end{fcmdlist}
+
+\section{Flash-ROM und Freezer-RAM programmieren}
+Beim Programmieren von Flash-ROM bzw. Freezer-RAM geht man im wie folgt vor. Als
+erstes erfragt das Flash-Programm vom Benutzer die Nummer der ersten zu
+programmierende Bank. Zulässige Werte sind \fdecr{0}{127} beim Flash-ROM und
+\fdecr{0}{47} beim Freezer-RAM. Dann fragt das Flash-Programm nach der Anzahl
+der zu programmierenden 8k Bänke. Bestätigt man den Standardwert \fval{0}, so
+wird bis automatisch zum Ende der Datei programmiert. 
+
+Danach muss man den Namen der Datei mit den zu programmierenden Daten eingeben.
+Die Datei darf nur die zu programmierenden Daten enthalten, d.h. sie darf keinen
+COM-Header oder ähnliches besitzen und die Dateigröße musss ein Vielfaches von
+8k. Es werden dann die einzelnen 8k Bänke des Flash-ROMs (oder des Freezer-RAMs)
+der Reihe nach programmiert. Beim Programmieren des Flash-ROMs wird am Beginn
+jeder 64k Block-Grenze der Block vorher automatisch gelöscht. Falls vor dem Ende der Datei
+das Flash-ROM bzw. Freezer-RAM-Bereiches erreicht wird, wird die Programmierung
+an dieser Stelle beendet.
+
+Während der Tastatureingaben und während des Programmierens kann die aktuelle
+Funktion jederzeit mit der \fkey{BREAK} Taste abgebrochen werden.
+
+\clearpage
+\section{Freezer-Software aktualisieren}
+Hat man versehentlich die Freezer-Software im Flash-ROM überschrieben oder
+gelöscht, oder möchte man die Software durch eine neuere Version ersetzen, so
+muss die Datei \fval{FREEZER.ROM} von der Systemdiskette in die Bänke
+\fdecr{120}{127} des Flash-ROMs geschrieben werden. Hierzu sind folgende
+Schritte erforderlich:
+\begin{enumerate*}
+\item Den \fsw{FlashWrite} Schalter nach rechts (\fval{ON}) schieben.
+\item Das Flash-Programm \fcmd{FLASH.COM} von der Systemdiskette
+laden.
+\item Den 2. Menüpunkt (\fmsg{Program CartEmu+Freezer flash}) auswählen.
+\item Als Startbank \fval{120} eingeben.
+\item Den Standardwert \fval{0} bei der Bank-Anzahl mit \fkey{RETURN}
+bestätigen.
+\item Als Dateinamen \fval{FREEZER.ROM} eingeben.
+\end{enumerate*}

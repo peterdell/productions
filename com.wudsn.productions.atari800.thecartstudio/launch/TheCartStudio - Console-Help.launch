@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<launchConfiguration type="org.eclipse.jdt.launching.localJavaApplication">
+<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
+<listEntry value="/com.wudsn.productions.atari800.thecartstudio/src/com/wudsn/tools/thecartstudio/TheCartStudio.java"/>
+</listAttribute>
+<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
+<listEntry value="1"/>
+</listAttribute>
+<stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="com.wudsn.tools.thecartstudio.TheCartStudio"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="-help -createSampleFiles:C:\jac\system\Atari800\Tools\ROM\TheCartStudio\Examples\ROMs\UnitTest"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="com.wudsn.productions.atari800.thecartstudio"/>
+</launchConfiguration>

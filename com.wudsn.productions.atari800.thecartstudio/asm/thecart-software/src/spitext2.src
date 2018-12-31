@@ -1,0 +1,76 @@
+;  spitext2 - test SPI code texts
+;
+;  a special adapter is needed, setting PA7=high enables the
+;  destination cart, setting PA7=low the source cart.
+;
+;  Copyright (C) 2013-2014 Matthias Reichl <hias@horus.com>
+;
+;  This program is free software; you can redistribute it and/or modify
+;  it under the terms of the GNU General Public License as published by
+;  the Free Software Foundation; either version 2 of the License, or
+;  (at your option) any later version.
+;
+;  This program is distributed in the hope that it will be useful,
+;  but WITHOUT ANY WARRANTY; without even the implied warranty of
+;  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;  GNU General Public License for more details.
+;
+;  You should have received a copy of the GNU General Public License
+;  along with this program; if not, write to the Free Software
+;  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+TTITLE
+        .BYTE 125
+        .BYTE "The!Cart SPI test V0.01",155
+        .BYTE "(c) 2014 by Matthias Reichl",155,155
+TTITLEL = * - TTITLE
+
+TPRESS  .BYTE "Press button on The!Cart then RETURN",155
+        .BYTE "or BREAK to exit",155
+TPRESSL = * - TPRESS
+
+TNODSK1 .BYTE "drive "
+TNODSK1L = * - TNODSK1
+TNODSK2 .BYTE " not responding!",155
+TNODSK2L = * - TNODSK2
+
+TREADERR        .BYTE "error reading drive "
+TREADERRL       = * - TREADERR
+
+TRETRY          .BYTE "retry (y/n)? "
+TRETRYL         = * - TRETRY
+
+; last drive number is set in MAXDRIVENO
+TDISKNO         .BYTE "drive number (1-15) > "
+TDISKNOL        = * - TDISKNO
+
+TINVDRV         .BYTE "invalid drive number",155
+
+TFINI           .BYTE 155, "operation successfully completed",155
+TFINIL          = * - TFINI
+
+TABRT           .BYTE 155, "operation aborted",155
+TABRTL  = * - TABRT
+
+TSBANK  .BYTE "starting bank (0-"
+TSBANKL = * - TSBANK
+
+TSBANK2 .BYTE ") > 0",30
+TSBANK2L = * - TSBANK2
+
+TERBNK  .BYTE "bank not on block boundary,",155
+        .BYTE "erase block (y/n)? "
+TERBNKL = * - TERBNK
+
+TNBANK  .BYTE "number of banks (0=to end) > 0",30
+TNBANKL = * - TNBANK
+
+TSTAT	.BYTE "status register: "
+TSTATL	= * - TSTAT
+
+TRD0	.BYTE "read spi address 0: "
+TRD0L	= * - TRD0
+
+TWR0	.BYTE "write spi address 0: "
+TWR0L	= * - TWR0
+

@@ -1,0 +1,84 @@
+mads 2.0.6 build 58 (28 Jan 17)
+Source: C:\jac\system\Java\Programming\Workspaces\Productions\com.wudsn.productions.atari800.thecartstudio\asm\thecart-studio\CartridgeTypeSampleCreator.asm
+     1 				;
+     2 				;	Sample BIN ROM image for creating sample ".ROM" and ".CAR" files.
+     3 				;
+     4 				;	(c) 2013-06-07 JAC!	
+     5
+     6 				;	Define in main program depending on architecture.
+     7 				;antic	= $d400
+     8 				;pokey	= $d200
+     9 				;gtia	= $c000
+    10
+    11 = 0080			p1	= $80
+    12 = 0082			p2	= $82
+    13
+    14 					opt h-f+
+    15
+    16 					org $0600
+    17
+    18 					.proc main
+    19
+    20 0600 A9 06			lda #>main			;High byte of PC, updated by external program at startOffset+1
+    21 0602 2C 7A 00			.byte $2c,a(ram.text-main)	;BIT abs to store text offset read by external program at startOffset+4/5
+    22 0605 85 81			sta p1+1
+    23 0607 A9 06			lda #>main
+    24 0609 85 83			sta p2+1
+    25 060B A0 00			ldy #0
+    26 060D 84 00			sty antic+$0e
+    27 060F 84 80			sty p1
+    28 0611 84 84			sty p2+2
+    29 0613 A2 02			ldx #>[.len main + $ff]
+    30 0615			copy_loop
+    31 0615 B1 80			lda (p1),y
+    32 0617 91 82			sta (p2),y
+    33 0619 C8				iny
+    34 061A D0 F9			bne copy_loop
+    35 061C E6 81			inc p1+1
+    36 061E E6 83			inc p2+1
+    37 0620 CA				dex
+    38 0621 D0 F2			bne copy_loop
+    39 0623 4C 26 06			jmp ram
+    40 					
+    41 0626				.proc ram
+    42 0626 D8				cld
+    43 0627 A9 00 85 00 85 00		mwa #xitvbv vbiv
+    44 062D A9 40 85 00			mva #$40 antic+$0e
+    45 0631 A9 00 85 00			mva #0 gtia+$18
+    46 0635 A9 0E 85 00			mva #14 gtia+$17
+    47 0639 A9 61 85 00 A9 06 + 	mwa #dl antic+$02
+    48 0641 A9 22 85 00			mva #$22 antic+$00
+    49 0645 A9 00 85 00			mva #>font antic+$09
+    50
+    51 0649 A2 F0			ldx #[.len text]
+    52 064B			text_loop
+    53 064B BD 79 06			lda text-1,x		;Convert ASCII to screen code
+    54 064E C9 60			cmp #96
+    55 0650 B0 02			scs
+    56 0652 E9 1F			sbc #31
+    57 0654 9D 79 06			sta text-1,x
+    58 0657 CA				dex
+    59 0658 D0 F1			bne text_loop
+    60 					
+    61 065A			forver_loop
+    62 065A A5 00			lda antic+$0b
+    63 065C 85 00			sta gtia+$1a
+    64 065E 4C 5A 06			jmp forver_loop
+    65
+    66 0661				.local dl
+    67 0661 70 70 70 70 70 70 + :9	.byte $70
+    68 066A 42 7A 06			.byte $42,a(text)
+    69 066D 70 02 70 02 70 02 + :5	.byte $70,$02
+    70 0677 41 61 06			.byte $41,a(dl)
+    71 					.endl
+    72
+    73 067A				.local text		;6 lines of text
+    74 067A 00 00 00 00 00 00 + :240	.byte 0
+    75 					.endl
+    76
+    77 					.endp			;End of ram
+    78 				  	
+    79 				  	.endp			;End of main
+    80
+    81 				  	.print .len main
+    81 				$016A

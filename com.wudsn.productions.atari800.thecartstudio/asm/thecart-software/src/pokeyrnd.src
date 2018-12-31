@@ -1,0 +1,74 @@
+;  pokeyrnd - use POKEY as a PRNG
+;
+;  Copyright (C) 2013-2014 Matthias Reichl <hias@horus.com>
+;
+;  This program is free software; you can redistribute it and/or modify
+;  it under the terms of the GNU General Public License as published by
+;  the Free Software Foundation; either version 2 of the License, or
+;  (at your option) any later version.
+;
+;  This program is distributed in the hope that it will be useful,
+;  but WITHOUT ANY WARRANTY; without even the implied warranty of
+;  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;  GNU General Public License for more details.
+;
+;  You should have received a copy of the GNU General Public License
+;  along with this program; if not, write to the Free Software
+;  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+; read 8k of (pseudo) random data from POKEY and store it
+; to (DATAVEC)
+; input: X=VCOUNT start value (min 1)
+; Y=pokey value to start with
+
+
+RND8K	SEI
+	LDA #0
+	STA $D40E
+; reset POKEY
+	STA $D20F
+	STA $D208
+
+; wait for VCOUNT to reset
+?RNDWTV0
+	LDA $D40B
+	BEQ ?RNDWTV0
+
+?RNDWTV1
+	LDA $D40B
+	BNE ?RNDWTV1
+
+	INC $D40A
+
+; start POKEY
+	LDA #3
+	STA $D20F
+
+	NOP
+	NOP
+	NOP
+	NOP
+	NOP
+
+; wait for starting scanline
+?RNDWTV2
+	CPX $D40B
+	BNE ?RNDWTV2
+
+; wait for pokey start value
+?RNDLP1	CPY $D20A
+	BNE ?RNDLP1
+	LDY #0
+	LDX #32		; 32 pages = 8k
+?RNDLP2	LDA $D20A
+	STA (DATAVEC),Y
+	INY
+	BNE ?RNDLP2
+	INC DATAVEC+1
+	DEX
+	BNE ?RNDLP2
+
+	LDA #$40
+	STA $D40E
+	CLI
+	RTS

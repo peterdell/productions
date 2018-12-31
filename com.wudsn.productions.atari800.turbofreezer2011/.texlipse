@@ -1,0 +1,14 @@
+#TeXlipse project settings
+#Sat Mar 16 16:36:28 CET 2013
+markTmpDer=true
+builderNum=2
+outputDir=out/
+makeIndSty=
+bibrefDir=
+outputFormat=pdf
+tempDir=tmp
+mainTexFile=FreezerManualEn.tex
+outputFile=FreezerManualEn.pdf
+langSpell=en
+markDer=true
+srcDir=src/work

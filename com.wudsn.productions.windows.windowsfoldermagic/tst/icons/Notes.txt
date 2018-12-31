@@ -1,0 +1,2 @@
+default-folder.ico: SHELL32.dll,16786
+empty-folder.ico  : SHELL32.dll,319

@@ -1,0 +1,72 @@
+;  cartswitch.src - production tool helper to switch between
+;  master and destination cart
+;
+;  Copyright (C) 2013-2014 Matthias Reichl <hias@horus.com>
+;
+;  This program is free software; you can redistribute it and/or modify
+;  it under the terms of the GNU General Public License as published by
+;  the Free Software Foundation; either version 2 of the License, or
+;  (at your option) any later version.
+;
+;  This program is distributed in the hope that it will be useful,
+;  but WITHOUT ANY WARRANTY; without even the implied warranty of
+;  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;  GNU General Public License for more details.
+;
+;  You should have received a copy of the GNU General Public License
+;  along with this program; if not, write to the Free Software
+;  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+PORTA	= $D300
+PACTL	= $D302
+
+CS_BIT	= $80
+CS_MASK	= $7F
+
+; PACTL value for setting direction with PORTA
+CTLDIR	= $FB
+
+; PACTL value for I/O mode of PORTA
+CTLIO	= $04
+
+CS_INIT
+	INC $42
+	LDA #$FF
+	STA PORTA
+
+	LDA PACTL
+	AND #CTLDIR
+	STA PACTL
+
+	LDA #CS_BIT
+	STA PORTA
+
+	LDA PACTL
+	ORA #CTLIO
+	STA PACTL
+
+	LDA #CS_BIT
+	STA PORTA
+
+	JSR CS_SRC
+	JSR FINIT
+	JSR CS_DEST
+	JSR FINIT
+
+	DEC $42
+	RTS
+
+CS_SRC	LDA PORTA
+	AND #CS_MASK
+	STA PORTA
+	STA $D40A
+	STA $D40A
+	RTS
+
+CS_DEST	LDA PORTA
+	ORA #CS_BIT
+	STA PORTA
+	STA $D40A
+	STA $D40A
+	RTS
+

@@ -1,0 +1,532 @@
+\chapter{Für Experten: Technische Details}
+
+\section{Hardware}
+Herzstück des Freezers ist der CPLD Xilinx XC95144XL. Er enthält die gesamte
+Logik des Freezers und steuert das Freezer-RAM und das Flash-ROM an.
+Insgesamt sind 1MB Flash-ROM und 1MB batteriegepuffertes Freezer-RAM vorhanden,
+die sich einzelnen Funktionsblöcke Freezer, Cartridge-Emulation und 512k
+RAM-Erweiterung untereinander teilen.
+
+Wenn das Freezer-RAM oder das Flash-ROM des Freezers in den Atari eingeblendet
+werden soll, muss das interne RAM und ROM im Atari deaktiviert werden. Das
+geschieht durch einen kleinen Trick. Der Freezer zieht hierbei den eigentlich als Ausgang
+gedachten Refresh-Pin auf \fq{Low}. Die veranlasst die MMU im Atari zu glauben,
+dass der ANTIC einen Speicher-Refresh durchführt, woraufhin sie den eingebauten
+Speicher deaktiviert. Laut Bernhard Engl, der heute hauptberuflicher
+Chipdesigner ist, ist es bei der damaligen NMOS-Depletion-Load-Technologie
+ungefährlich, einen \fq{High}-Pegel extern auf \fq{Low} zu ziehen, weil das bei
+NMOS ohnehin intern so geschieht.
+Wäre der ANTIC in CMOS-Technologie gefertigt gewesen, dann wäre das
+möglicherweise gefährlich gewesen, hätte den ANTIC beschädigen können -- und es
+hätte niemals einen \frz gegeben.
+
+\section{Speicheraufteilung}
+
+\subsection{Freezer-RAM}
+512k des Freezer-RAMs sind fest der 512k RAM-Erweiterung zugeordnet.
+Die restlichen 512k RAM teilen sich der Freezer und die Cartridge-Emulation.
+Der Freezer kann auf die oberen 128k (Bänke \fdecr{48}{63}) davon zugreifen.
+Die obersten 16k (Bänke 62 und 63) sind rein für den Freezer (\zB für das
+Hardware Register Shadowing) reserviert. Das Bankswitching im Freezer adressiert
+das Freezer-RAM aber nicht in 8k Bänken, wie die Cartridge-Emulation, sondern in
+4k großen Bänken. Die Cartridge-Emulation hat Zugriff auf das gesamte RAM, mit
+Ausnahme der letzten 16k. Insgesamt also maximal 496k (Bänke \fdecr{0}{61}).
+
+\subsection{Flash-ROM}
+Die Cartridge-Emulation hat Zugriff auf das gesamte 1MB Flash-ROM, der Freezer
+auf die obersten 512k davon. Die obersten 64k sind für die Freezer-Software, das
+Oldrunner-OS und das Menü der Cartridge-Emulation reserviert. Die obersten
+64k (Bänke \fdecr{120}{127}) sind aktuell wie folgt belegt.
+
+\begin{itemize*}
+\item Bank 120: Frei
+\item Bank 121: Frei
+\item Bank 122: Frei
+\item Bank 123: Freezer-Software Bank 3
+\item Bank 124: Freezer-Software Bank 1 (Startbank)
+\item Bank 125: Freezer-Software Bank 2
+\item Bank 126: Menü der Cartridge-Emulation
+\item Bank 127: Oldrunner-OS
+\end{itemize*}
+
+Die Bänke 127 (Oldrunner-OS), 126 (Cartridge-Emulation) und 124
+(Freezer-Software) sind in der CPLD Logik \fq{fest verdrahtet}. Die Belegung der
+restlichen Bänke \fdecr{120}{123} und 125 können sich in späteren Versionen noch
+ändern.
+
+\section{Freezer}
+Solange man den Knopf \fsw{Freeze} nicht drückt, ist der Freezer vom Atari
+aus absolut unsichtbar. Das heißt, keine Software kann feststellen ob, ein Freezer
+am Atari angesteckt ist. Erst wenn der Knopf gedrückt wird, tritt der
+Freezer sichtbar in Aktion.
+
+\subsection{Shadowing der Hardwareregister}
+
+Um den Inhalt der nicht auslesbaren Hardwareregister von ANTIC, GTIA und POKEY
+auslesen zu können, verwendet der Freezer folgenden
+\fq{Trick}. Bei Schreibzugriffen in den Bereich \fhexr{D000}{D7FF}
+wird auch das Freezer-RAM aktiviert. Die Freezer-Software kann so später die
+Daten der Custom Chips von dort problemlos auslesen. Das Fortschreiben geschieht
+aber nur, solange der Knopf \fsw{Freeze} noch nicht gedrückt wurde. Ansonsten
+würde die Freezer-Software selbst die gespeicherten Daten überschreiben.
+
+Im Atari sind die Adressen der Custom Chips nicht vollständig ausdekodiert. Der
+ANTIC ist \zB über die Adressen \fhex{D40x}, \fhex{D41x}, \dots erreichbar.
+Schreibt man \zB zuerst \fhex{22} nach \fhex{D400} und danach \fhex{00} nach
+\fhex{D410}, so landen beide Werte im ANTIC \freg{DMACTL} Register.
+\freg{DMACTL} ist steht nach dem 2. Schreibzugriff auf \fhex{00}.
+
+Einige Programme verwenden diese Tricks. Damit der Freezer nach dem Auftauen den
+Zustand wieder exakt herstellen kann, muss die Freezer-Logik darauf Rücksicht
+nehmen. Beim Shadowing der Hardwareregister werden deshalb die nicht
+ausdekodierten Adressleitungen auf \fq{Low} gezogen. Bei ANTIC (\fhex{D4xx}) und
+POKEY (\fhex{D2xx}) sind das A4--A7, bei GTIA (\fhex{D0xx}) sind es A5--A7.
+
+Befindet sich im Atari eine Stereo-POKEY-Erweiterung, so ist der erste POKEY
+über \fhex{D20x}, \fhex{D22x}, \dots erreichbar, der zweite POKEY über
+\fhex{D21x}, \fhex{D23x}, \dots . Schiebt man den Schalter \fsw{Stereo} am
+Freezer nach rechts (\fval{ON}), ändert sich die Shadowing-Logik. Bei Zugriffen
+auf \fhex{D2xx} werden dann die Adressleitungen A5--A7 auf \fq{Low} gezogen und
+die Daten beider POKEYs werden korrekt gespeichert.
+
+\subsection{Einblenden des Freezer-Speichers}
+
+Wenn der Freezer aktiviert ist, wird im Bereich \fhexr{0000}{3FFF} das
+Freezer-RAM bzw. des Flash-ROM eingeblendet. Mittels Bankswitching kann zwischen
+32 jeweils 4k großen RAM-Bänken (insgesamt 128k) und 64 jeweils 8k großen ROM
+Bänken (insgesamt 512k) umgeschaltet werden. Die Speicherbelegung im Atari
+sieht wie folgt aus.
+
+\begin{itemize*}
+\item \fhexr{0000}{0FFF}: Feste 4k RAM-Bank (Bank 31)
+\item \fhexr{1000}{1FFF}: Umschaltbare 4k RAM-Bank (Bank \fdecr{0}{31})
+\item \fhexr{2000}{3FFF}: Umschaltbare 8k ROM-Bank (Bank \fdecr{64}{127})
+\end{itemize*}
+
+Die 64 jeweils 8k großen Freezer-ROM-Bänke befinden sich am Ende des
+Flash-ROMs und entsprechen damit den Bänken \fdecr{64}{127} der
+Cartridge-Emulation. Die 32 jeweils 4k großen RAM-Bänke befinden sich am Ende
+des Freezer-RAMs und entsprechen den Bänken \fdecr{48}{63} der
+Cartridge-Emulation. Die letzte 4k Bank (Bank 31) wird für das Shadowing der
+Hardware Register verwendet und wird bei aktiviertem Freezer ab Adresse
+\fhex{0000} im Atari eingeblendet.
+
+\subsection{Aktivierung des Freezers}
+
+Intern kennt die Freezer-Logik 5 verschiedene Zustände.
+
+\begin{itemize*}
+\item Freezer deaktiviert
+\item Freezer halb aktiviert
+\item Freezer Aktivierung ausgelöst
+\item Freezer aktiviert
+\item Freezer temporär deaktiviert
+\end{itemize*}
+
+Nach dem Einschalten des Ataris befindet sich der Freezer im Zustand
+\fq{deaktiviert}. In diesem Zustand und im Zustand \fq{halb aktiviert} werden
+Schreibzugriffe in den Custom Chips Bereich im Shadow-RAM gespeichert.
+
+Drückt man den Knopf \fsw{Freeze}, so passiert erst einmal noch nichts. Erst,
+wenn der erste Zugriff auf den Bereich \fhexr{FFF8}{FFFF} (hier liegen unter
+anderem die IRQ und NMI-Vektoren) erfolgt und der Knopf \fsw{Freeze} noch
+gedrückt ist, regiert der Freezer. Er merkt sich den Zustand der A2
+Leitung (das wird später benötigt um zwischen IRQ und NMI unterscheiden zu
+können) und geht in den Zustand \fq{halb aktiviert} über. Im nächsten Taktzyklus
+gibt es nun folgende beiden Möglichkeiten:
+
+\begin{itemize*}
+\item Wenn der Knopf \fsw{Freeze} nicht mehr gedrückt ist, oder wenn ein Zugriff auf
+einen anderen Speicherbereich als \fhexr{FFF8}{FFFF} erfolgt, geht der
+Freezer wieder in den Zustand \fq{deaktiviert} zurück.
+\item Wenn der Knopf \fsw{Freeze} immer noch gedrückt ist, und wieder ein
+Zugriff auf den Speicherbereich \fhexr{FFF8}{FFFF} erfolgt, beginnt der
+nachfolgend beschriebene Übergang in den Zustand \fq{Aktivierung ausgelöst}.
+\end{itemize*}
+
+Der Freezer deaktiviert den Speicher im Atari und legt den Wert \fhex{21} an
+den Datenbus. Damit werden die Interrupt-Vektoren an die Adresse \fhex{21xx}
+verbogen, da die CPU ja gerade versucht das High-Byte des Vektors zu laden. Das
+Low-Byte stammt vom vorherigen Zugriff auf den \fhexr{FFF8}{FFFF} Bereich und
+hat den originalen Wert.
+
+Danach geht der Freezer in den Zustand \fq{Aktivierung ausgelöst} über.
+Genauso wie im Zustand \fq{aktiviert} blendet der \frz nun seinen eigenen
+Speicher ein. In den Speicherbereich \fhexr{2000}{3FFF} wird die ROM-Bank 124
+mit dem Start-Code der Freezer-Software eingeblendet. Ab \fhex{2000} liegt eine Page voller \fq{RTI}
+Befehle. Danach, also ab \fhex{2100}, liegt eine sogenannte \fq{NOP Slide}, d.h.
+eine Page voller \fq{NOP} Befehle für die \fq{umgebogene} Interrupt-Routine. Darauf
+folgt die eigentliche Freezer-Software, beginnend mit der
+Initialisierungs-Routine.
+
+In der Aktivierungs-Phase auftretende IRQs sind kein Problem, denn während der
+Ausführung einer Interrupt-Routine werden die IRQs von der CPU automatisch
+gesperrt. Tritt während der Aktivierungs-Phase ein NMI auf, so biegt der Freezer
+den Interrupt-Vektor auf die Adresse \fhex{20xx} um. Dort liegen aber nur
+\fq{RTI} Befehle und der NMI wird sofort wieder verlassen. Der Freezer
+\fq{unterdrückt} also alle weiteren Interrupts während der Aktivierungs-Phase.
+
+Nach dem Durchlaufen der NOP-Slide und dem Sperren der Interrupts versetzt die
+Software per Schreibzugriff auf die Adresse \fhex{D720} den Freezer schließlich
+in den Zustand \fq{aktiviert}. Möchte die nun aktivierte Freezer-Software auf den
+Atari-Speicher im Bereich\linebreak
+\fhexr{0000}{3FFF} zugreifen so muss zuerst das
+Freezer-RAM bzw. das Flash-ROM vorübergehend ausgeblendet werden. Dies geschieht
+durch einen Schreibzugriff auf die Adresse \fhex{D700}, wodurch der Freezer in
+den Zustand \fq{temporär deaktiviert} übergeht.
+Ein weiterer Schreibzugriff auf die Adresse \fhex{D700} versetzt den Freezer
+wieder in den Zustand \fq{aktiviert} und das Freezer-RAM bzw. das Flash-ROM wird wieder
+eingeblendet.
+
+Beim Beenden der Freezer-Software und der Rückkehr zum unterbrochenen
+Programm soll der Freezer natürlich wieder in den Zustand \fq{deaktiviert}
+versetzt werden. Dies geschieht mit einem Lesezugriff auf die Adresse \fhex{D700}.
+
+\subsection{Konfigurationsregister}
+
+Wenn der Freezer aktiviert ist, werden im Bereich \fhexr{D700}{D7FF}
+eine Reihe von Konfigurationsregistern eingeblendet. Bei Zugriffen
+auf diese Register wird der Speicher im Atari deaktiviert, um
+Probleme mit evtl. vorhandenen internen Erweiterungen zu vermeiden.
+
+
+\begin{fadrdef}{\fhexr{D700}{D70F}}{Freezer State Control}{w}
+- & - & - & - & - & - & - & -
+\end{fadrdef}
+\noindent Schreibzugriffe auf dieses Register schalten den Freezer zwischen
+den Zuständen \fq{aktiviert} und \fq{temporär deaktiviert} um.
+
+\clearpage
+
+\begin{fadrdef}{\fhexr{D700}{D70F}}{Freezer Disable}{r}
+- & - & - & - & - & - & - & -
+\end{fadrdef}
+\noindent Ein Lesezugriff auf dieses Register versetzt den Freezer in den
+Zustand \fq{deaktiviert}.
+
+\begin{fadrdef}{\fhexr{D710}{D71F}}{Freezer-RAM A4/A5}{r/w}
+- & - & - & - & - & - & - & -
+\end{fadrdef}
+\noindent Ein Lesezugriff auf dieses Register verändert die Steuerung der
+Adressleitungen A4 und A5 beim Zugriff auf das Freezer-RAM (\fhexr{0000}{1FFF}). A4 wird auf den Zustand
+von A2 bei der Aktivierung des Freezers gesetzt, A5 auf den aktuellen Zustand
+des \fsw{Stereo} Schalters. Dadurch kann die Freezer-Software ermitteln, ob der
+Freezer bei einem NMI oder einen IRQ aktiviert wurde und ob der Stereo POKEY
+Modus aktiviert ist oder nicht. Ein Schreibzugriff auf das Register stellt den
+Normalzustand wieder her.
+
+\begin{fadrdef}{\fhexr{D720}{D72F}}{Freezer Startup Complete}{r/w}
+- & - & - & - & - & - & - & -
+\end{fadrdef}
+\noindent Ein Lese- oder Schreibzugriff auf dieses Register versetzt den Freezer
+vom Zustand \fq{Aktivierung ausgelöst} in den Zustand \fq{aktiviert}.
+
+\begin{fadrdef}{\fhexr{D740}{D77F}}{Flash ROM Bank Select}{r/w}
+- & - & - & - & - & - & - & -
+\end{fadrdef}
+\noindent Ein Lese- oder Schreibzugriff auf diese Register wählt die 8k
+Flash-ROM-Bank aus, die bei \fhexr{2000}{3FFF} eingeblendet wird. Ein Zugriff
+auf \fhex{D740} wählt die Bank 64, \fhex{D741} die Bank 65, \dots
+\fhex{D77F} die Bank 127.
+
+\begin{fadrdef}{\fhexr{D780}{D79F}}{Freezer RAM Bank Select}{r/w}
+- & - & - & - & - & - & - & -
+\end{fadrdef}
+\noindent Ein Lese- oder Schreibzugriff auf diese Register wählt die 4k
+Freezer-RAM-Bank aus, die bei bei \fhexr{1000}{2FFF} eingeblendet wird. Ein
+Zugriff auf \fhex{D780} wählt die Bank 0, \fhex{D781} die Bank 1, \dots
+\fhex{D79F} die Bank 31.
+
+
+\subsection{Freezer-Software und OS-ROMs}
+
+Die Freezer-Software verwendet für die meisten Funktionen (wie \zB
+Tastatureingabe) nicht die Routinen des Betriebssystems sondern enthält dafür
+eigenen Code. Dadurch ist die Software weitgehend unabhängig vom eingesetzten
+Betriebssystem und vor allem auch vom Zustand des Ataris während des
+Einfrierens. Um die korrekte Funktion der Freezer-Software zu gewährleisten muss
+das eingesetzte Betriebssystem dennoch die folgenden Funktionen zur Verfügung
+stellen und sich dabei so wie die originalen Betriebssystemversionen verhalten.
+
+\begin{itemize*}
+\item Standard-Zeichensatz bei \fhexr{E000}{E3FF}
+\item NMI und IRQ Verarbeitung
+\item SIO-Funktion (\fhex{E459}), wird verwendet durch das Kommando
+\fcmd{SIO} im Debugger und beim Laden oder Speichern auf Kassette
+\end{itemize*}
+
+Alle bisher erhältlichen alternativen OS-Versionen wie \zB \fq{QMEG
+OS} oder \fq{Romdisk OS} erfüllen diese Voraussetzungen. Probleme gibt es aber
+aktuell mit dem \fq{Ultimate~1MB BIOS}. Es enthält weder eine standardmäßige
+Interrupt-Verarbeitung noch einen Zeichensatz ab \fhex{E000}, deshalb ist der
+Bildschirmaufbau komplett gestört falls man versucht im \fq{Ultimate~1MB BIOS}
+den Freezer zu aktivieren.
+
+
+\section{512k RAM-Erweiterung}
+Für die 512k RAM-Erweiterung steht ein separater 512k RAM Chip zur Verfügung.
+Der Freezer, die Cartridge-Emulation im Freezer-RAM und die RAM-Erweiterung sind
+dadurch in vollem Umfang parallel nutzbar.
+
+Da die PIA-Signale nicht am PBI anliegen, muss im CPLD das Verhalten der
+PIA-Register  nachgebildet werden.  Die PIA im Atari läuft dabei \fq{parallel}
+weiter, damit BASIC, OS-ROM und Self Test wie gewohnt gesteuert werden können.
+Lesezugriffe auf die PIA werden im CPLD ignoriert, d.h. bei ihnen liest der
+Atari wie gewohnt die echten Register der PIA aus.  Die Logik reagiert dabei nur
+auf Schreibzugriffe auf die Adressen \fhex{D301} (\freg{PORTB}) und
+\fhex{D303} (\freg{PBCTL}). Hierbei speichert der CPLD auch den Wert von Bit 2
+von \freg{PBCTL}, welches den Zugriff auf das \freg{PORTB} Daten-Register (Bit
+2~=~1) bzw. das Daten-Richtungs-Register (Bit 2~=~0) steuert.
+
+Schreibzugriffe auf \fhex{D301} speichert der CPLD entweder in dem internen
+Daten- oder dem internen Datenrichtungsregister.  Wird ein PIA-Pin auf Eingang
+geschaltet, so ziehen Pull-Up-Widerstände im Atari die entsprechenden Pins auf
+\fq{High}. Wird ein PIA-Pin auf Ausgang geschaltet, legen die Werte im
+Datenregister fest, ob ein \fq{Low} oder ein \fq{High} Signal ausgegeben werden
+soll.
+
+Der CPLD emuliert nun genau dieses Verhalten und verhält sich damit exakt so wie
+jede andere RAM-Erweiterung im Atari. So schaltet beispielsweise das
+Oldrunner-OS \freg{PORTB} auf Eingang, denn der Atari 400/800 hatte ja 4
+Joystick-Eingänge -- dafür aber keine \freg{PORTB} RAM/ROM-Steuerung. Hierdurch
+wir automatisch jede RAM-Erweiterung deaktiviert denn Bit 4 von \freg{PORTB}
+muss ja \fq{Low} sein, um die RAM-Erweiterung zu aktivieren. Der emulierte
+Pull-Up-Widerstand im CPLD zieht diesen Pin aber automatisch auf \fq{High}, so
+wie es auch an der PIA der Fall wäre.
+
+Der Rest der RAM-Erweiterungs-Logik ist relativ simpel. Steht der Schalter\linebreak
+\fsw{Ramdisk} auf \fval{ON} und hat das Bit 4 des emulierten \freg{PORTB}
+Registers den Wert \fval{0}, so wird bei Zugriffen auf \fhexr{4000}{7FFF} der
+interne Speicher des Ataris ausgeblendet und stattdessen eine 16k Bank des 512k
+RAM-Erweiterung eingeblendet. Die Bits 2,3,5,6,7 des emulierten
+\freg{PORTB}-Register legen dabei fest, welche der insgesamt 32 jeweils 16k
+großen Bänke verwendet werden soll.
+
+
+\section{Oldrunner}
+Ist Schalter \fsw{OldOS} auf \fval{ON}), so ist der Oldrunner aktiv.
+Bei Zugriffen auf den Bereich \fhexr{E000}{FFFF} wird dann die Bank 127
+eingeblendet und bei Zugriffen auf den Bereich \fhexr{C000}{CFFF} der interne
+Speicher ausgeblendet. Dadurch verhält sich der Atari genauso wie der originale Atari
+400/800, der bei \fhexr{C000}{CFFF} über keinen Speicher verfügte. Bei Zugriffen
+auf das Math Pack (\fhexr{D800}{DFFF}) wird weiterhin das interne Atari OS-ROM
+eingeblendet, also das dort vorhandene Math Pack verwendet.
+
+
+\section{Cartridge-Emulation}
+
+Die Cartridge-Emulation bietet sehr umfangreiche Konfigurationsmöglichkeiten.
+Eine\linebreak
+Konfiguration rein durch Schalter wäre sehr unübersichtlich
+geworden. Deshalb erfolgt der Großteil der Konfiguration per Software \zB im
+Menü der Cartridge-Emulation oder auch per Debugger im Freezer.
+
+\subsection{Konfigurationsschalter}
+
+Eine Funktion der Schalter \fsw{CartEmu} und \fsw{FlashWrite} ist die Steuerung
+des Zugriffs auf die Konfigurationsregister. Stehen beide Schalter auf
+\fval{OFF}, sind die Konfigurationsregister nicht erreichbar.
+Steht mindestens einer der beiden Schalter auf \fval{ON}, so kann bei
+\fhexr{D590}{D596} auf die Konfigurationsregister zugegriffen werden.
+
+Steht während des Einschaltens des Ataris der Schalter \fsw{CartEmu} in der
+Position \fval{ON}, so wird Bit 2 von Register \fhex{D595} mit \fval{1}
+initialisiert. Damit wird die restliche Konfiguration der Cartridge-Emulation
+außer Kraft gesetzt und das Menü der Cartridge-Emulation aktiviert.
+
+Steht der Schalter \fsw{FlashWrite} in der Position \fval{OFF}, so sind keine
+Schreibzugriffe auf das Flash-ROM bzw. Freezer-RAM möglich. The einzige Ausnahme
+ist der \fval{8k+RAM} Modus, bei dem Schreibzugriffe auf die optionale 8k
+Freezer-RAM-Bank bei \fhexr{8000}{9FFF} immer möglich sind. Steht der Schalter
+\fsw{FlashWrite} auf \fval{ON}, sind Schreibzugriffe auf das Flash-ROM und
+Freezer-RAM nach vorheriger Freigabe durch Bit 0 des Registers \fhex{D595}
+möglich.
+
+\subsection{Konfigurationsregister}
+
+Steht mindestens einer der beiden Schalter \fsw{CartEmu} oder \fsw{Flash Write}
+auf \fval{ON}, so werden bei \fhexr{D590}{D596} die Konfigurationsregister der
+Cartridge-Emulation eingeblendet. Diese Register sind sowohl schreib- als auch
+lesbar. Alle unbenutzten Bits dieser Register sollten mit \fval{0} beschrieben
+werden. Beim Lesen sind die unbenutzten Bits ebenfalls auf \fval{0} gesetzt.
+Nach dem Einschalten sind alle Register außer Register \fhex{D595} auf \fhex{00}
+gesetzt. Steht der Schalter \fsw{CartEmu} auf \fval{OFF}, wird es auf \fhex{00}
+gesetzt, bei \fval{ON} auf \fhex{04}. Je nach gesetztem Modus (\zB im OSS oder
+AtariMax Modus) werden im Bereich \fhexr{D500}{D5FF} weitere Register
+eingeblendet.
+
+\clearpage
+\begin{fadrdef}{\fhex{D590}}{Bank}{r/w}
+- & \multicolumn{7}{c|}{\fcmd{bank}}
+\end{fadrdef}
+\noindent Nummer der ausgewählten Bank für die Cartridge-Emulation. Im 16k
+Modus wird Bit 0 ignoriert.
+
+\begin{fadrdef}{\fhex{D591}}{Bank Enable}{r/w}
+- & - & - & - & - & - & - & \fcmd{enable}
+\end{fadrdef}
+\noindent Status der ROM-Bank des Moduls. Der Wert \fval{0} blendet das Modul
+aus, \fval{1} blendet es ein. Im \fval{8k+RAM} Modus kontrolliert dieses Bit nur den Bereich
+bei \fhexr{A000}{BFFF}. Der optionale RAM-Bereich bei \fhexr{8000}{9FFF} wird
+durch das Register \fhex{D593} gesteuert.
+
+\begin{fadrdef}{\fhex{D592}}{RAM Bank}{r/w}
+- & - & \multicolumn{6}{c|}{\fcmd{bank}}
+\end{fadrdef}
+\noindent Nummer der ausgewählten die RAM-Bank (\fdecr{0}{63}) im \fval{8k+RAM}
+Modus.
+
+\begin{fadrdef}{\fhex{D593}}{RAM Bank Enable}{r/w}
+- & - & - & - & - & - & - & \fcmd{enable}
+\end{fadrdef}
+\noindent Status der RAM-Bank des Moduls. Im \fval{8k+RAM} Modus blendet der
+Wert \fval{0} die RAM-Bank aus, \fval{1} blendet sie ein.
+
+\begin{fadrdef}{\fhex{D594}}{Mode}{r/w}
+- & - & - & - & - & \multicolumn{3}{c|}{\fcmd{mode}}
+\end{fadrdef}
+\noindent Typ der emulierten Moduls. Folgende Modultypen werden unterstützt.
+\begin{itemize*}
+\item \fval{0}: Cartridge-Emulation deaktiviert
+\item \fval{1}: 8k Modul
+\item \fval{2}: 8k+RAM Modul
+\item \fval{3}: 8k Modul mit \frz 2005 Bankswitching
+\item \fval{4}: 16k Modul
+\item \fval{5}: OSS Modul
+\item \fval{6}: AtariMax Modul
+\item \fval{7}: reserviert, nicht verwenden!
+\end{itemize*}
+
+\clearpage
+
+\begin{fadrdef}{\fhex{D595}}{Misc Configuration}{r/w}
+- & - & - & - & - & \fcmd{menu} & \fcmd{source} & \fcmd{write}
+\end{fadrdef}
+\begin{fcmdlist}	
+\item[menu] Steuerung des Menüs der Cartridge-Emulation 
+  \begin{fvallistn}
+  \item[0] Normale Cartridge-Emulation
+  \item[1] Menü der Cartridge-Emulation einblenden (Bank 126)
+  \end{fvallistn}
+\item[source] Quelle der Moduldaten
+  \begin{fvallistn}
+  \item[0] Flash-ROM
+  \item[1] Freezer-RAM
+  \end{fvallistn}
+\item[write] Steuerung des Schreibzugriffs
+  \begin{fvallistn}
+  \item[0] Schreibzugriffe unterbunden
+  \item[1] Schreibzugriffe erlaubt, wenn zusätzlich der Schalter
+  \fsw{FlashWrite} in der Position \fval{ON} steht
+  \end{fvallistn}
+\end{fcmdlist}
+
+\begin{fadrdef}{\fhex{D596}}{SDX Configuration}{r/w}
+- & - & - & - & - & - & \multicolumn{2}{c|}{\fcmd{config}}
+\end{fadrdef}
+
+\begin{fvallist}
+\item[00] SpartaDOS~X deaktiviert
+\item[01] SpartaDOS~X im Freezer-RAM ab Bank 0
+\item[10] SpartaDOS~X im Flash-ROM ab Bank 0
+\item[11] SpartaDOS~X im Flash-ROM ab Bank 64
+\end{fvallist}
+
+\subsubsection{Zusätzliche Register im 8k Modus mit \frz 2005 Bankswitching}
+
+\begin{fadrdef}{\fhexr{D540}{D57F}}{Bank Select}{r/w}
+- & - & - & - & - & - & - & -
+\end{fadrdef}
+\noindent Ein Lese- oder Schreibzugriff auf diesen Bereich wählt die Bank aus.
+Ein Zugriff auf Adresse \fhex{D540} wählt Bank 0, \fhex{D541} wählt Bank 1,
+\dots, \fhex{D57F} wählt Bank 63. Ist das Bankregister \fhex{D590} auf eine Bank im
+Bereich \fdecr{64}{127} gesetzt, werden über \fhexr{D540}{D57F} statt der Bänke
+\fdecr{0}{63} die Bänke \fdecr{64}{127} angesprochen.
+
+\begin{fadrdef}{\fhex{D580}}{Cart Disable}{r/w}
+- & - & - & - & - & - & - & -
+\end{fadrdef}
+\noindent Ein Lese- oder Schreibzugriff auf dieses Register blendet das Modul
+aus.
+
+\clearpage
+
+\begin{fadrdef}{\fhex{D581}}{Cart Enable}{r/w}
+- & - & - & - & - & - & - & -
+\end{fadrdef}
+\noindent Ein Lese- oder Schreibzugriff auf dieses Register blendet das Modul
+ein.
+
+\begin{fadrdef}{\fhex{D584}}{Write Disable}{r/w}
+- & - & - & - & - & - & - & -
+\end{fadrdef}
+\noindent Ein Lese- oder Schreibzugriff auf dieses Register deaktiviert
+Schreibzugriffe auf das Modul.
+
+\begin{fadrdef}{\fhex{D585}}{Write Enable}{r/w}
+- & - & - & - & - & - & - & -
+\end{fadrdef}
+\noindent Ein Lese- oder Schreibzugriff auf dieses Register erlaubt
+Schreibzugriffe auf das Modul.
+
+
+\subsubsection{Zusätzliche Register im OSS Modus}
+
+\begin{fadrdef}{\fhexr{D500}{D50F}}{OSS Bank Select}{r/w}
+- & - & - & - & - & - & - & -
+\end{fadrdef}
+\noindent Diese Register realisieren die Bankauswahl bzw. Cart Disable wie bei
+den OSS Modulen vom Typ \fq{M091}. Ein Lese- oder Schreibzugriff auf die
+jewelige Adresse bewirkt folgendes.
+\begin{flist}
+\item[\fhex{D500}] Modul eingeblendet, \fhexr{A000}{AFFF} Bank 1,
+\fhexr{B000}{BFFF} Bank 0
+\item[\fhex{D501}] Modul eingeblendet, \fhexr{A000}{AFFF} Bank 3,
+\fhexr{B000}{BFFF} Bank 0
+\item[\fhex{D508}] Modul ausgeblendet
+\item[\fhex{D509}] Modul eingeblendet, \fhexr{A000}{AFFF} Bank 2,
+\fhexr{B000}{BFFF} Bank 0
+\end{flist}
+
+
+\subsubsection{Zusätzliche Register im AtariMax Modus}
+
+\begin{fadrdef}{\fhexr{D500}{D57F}}{Bank Select}{r/w}
+- & - & - & - & - & - & - & -
+\end{fadrdef}
+\noindent Ein Lese- oder Schreibzugriff auf diesen Bereich aktiviert das
+Modul und wählt die Bank aus. Ein Zugriff auf Adresse \fhex{D500} wählt Bank 0,
+\fhex{D501} wählt Bank 1, \dots, \fhex{D57F} wählt Bank 127. 
+
+\begin{fadrdef}{\fhex{D580}}{Cart Disable}{r/w}
+- & - & - & - & - & - & - & -
+\end{fadrdef}
+\noindent Ein Lese- oder Schreibzugriff auf dieses Register blendet das Modul
+aus.
+
+\textbf{Achtung:} Beim original AtariMax Modul können zum Ausblenden
+auch die Adressen \fhexr{D581}{D5FF} verwendet werden, die Cartridge-Emulation
+stellt nur diese einzige\linebreak
+Adresse zur Verfügung.
+
+\subsubsection{Zusätzliche Register bei aktiviertem SpartaDOS~X}
+
+\begin{fadrdef}{\fhex{D5E0}}{Bank Select}{r/w}
+\multicolumn{2}{|c|}{\fcmd{control}} & \multicolumn{6}{c|}{\fcmd{bank}}
+\end{fadrdef}
+
+\begin{fcmdlist}
+\item[control] SpartaDOS~X Steuerung
+  \begin{fvallistn}
+  \item[00] SpartaDOS~X eingeblendet, zusätzliches Modul ausgeblendet
+  \item[01] SpartaDOS~X eingeblendet, zusätzliches Modul ausgeblendet
+  \item[10] SpartaDOS~X ausgeblendet, zusätzliches Modul eingeblendet
+  \item[11] SpartaDOS~X ausgeblendet, zusätzliches Modul ausgeblendet
+  \end{fvallistn}
+\item[bank] SpartaDOS~X Bankauswahl (Bank \fdecr{0}{63})
+\end{fcmdlist}
+
+Wenn die SpartaDOS~X Emulation über das Register \fhex{D596} aktiviert wurde,
+hat sie Vorrang gegenüber der restlichen Cartridge-Emulation. Die
+Cartridge-Emulation verhält sich dadurch so, als ob sie auf ein original
+SpartaDOS~X Modul \fq{aufgesteckt} wäre.

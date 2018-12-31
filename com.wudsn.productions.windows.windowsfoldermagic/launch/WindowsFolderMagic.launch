@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<launchConfiguration type="org.eclipse.jdt.launching.localJavaApplication">
+<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
+<listEntry value="/com.wudsn.productions.windows.windowsfoldermagic/src/com/wudsn/productions/windows/windowsfoldermagic/WindowsFolderMagic.java"/>
+</listAttribute>
+<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
+<listEntry value="1"/>
+</listAttribute>
+<stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="com.wudsn.productions.windows.windowsfoldermagic.WindowsFolderMagic"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="-setDefaultIconFile:C:\Users\D025328\Documents\Eclipse\workspace.jac\com.wudsn.productions.windows.windowsfoldermagic\tst\icons\default-folder.ico&#13;&#10;-setDefaultIconIndex:0&#13;&#10;-setEmptyIconFile:%SystemRoot%\system32\SHELL32.dll &#13;&#10;-setEmptyIconIndex:319&#13;&#10;-updateFolderIcon:C:\Users\D025328\Documents\Eclipse\workspace.jac\com.wudsn.productions.windows.windowsfoldermagic\tst\xp"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="com.wudsn.productions.windows.windowsfoldermagic"/>
+</launchConfiguration>

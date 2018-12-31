@@ -1,0 +1,133 @@
+\chapter{Programming the flash ROM}
+
+\section{Basics}
+The software of the \frzs is not, as this is normally the case, stored in an
+EPROM but in a flash ROM. The big advantage of the flash ROM is that it can be
+re- programmed directly via the Atari. This means software updates can be
+installed at any time and the unused parts of the flash ROM can be filled with
+module data without the need for a special programming device. The flash ROM in
+the \frz can be re-programmed up to 1.000.000 times, which should be enough for
+most experiments.
+
+The flash ROM and the freezer RAM of the \frz are normally protected against
+overwriting. The \fsw{FlashWrite} must be moved to the right position
+(\fval{ON}) to enable write access to both memories. If the switch is in the left position
+(\fval{OFF}), the flash ROM and the freezer RAM are write protected. It is very
+unlikely that any software overwrites the flash ROM accidentally. To program
+the flash ROM a special write sequence must be sent to the flash ROM, otherwise
+write access is simply ignored. Therefore is not really dangerous to have the
+\fsw{FlashWrite} switch in the right position (\fval{ON}) permanently.
+
+When using \fq{real} bank switching cartridges in the cartridge port both the\linebreak
+\fsw{CartEmu} as well as the \fsw{FlashWrite} switch should be turned \fval{OFF}.
+This prevents a conflict between the cartridge emulation and the bank switching
+cartridges.\newline
+
+\textbf{Caution:} It is important that the \fsw{OldOS} switch is turned
+\fval{OFF} during flashing in order to ensure that the flash ROM is exclusively
+accessible by the flashing program. If the Oldrunner is active at the same time
+conflicts can occur -- \eg when an interrupt is raised -- and the Atari can crash.
+
+\section{Banks and blocks in the flash ROM}
+It is helpful to know some details about the inner structure of the flash
+ROM in order to use it best. The used flash ROM is partitioned into blocks of
+64k each (\ie eight 8k banks). These blocks can be re-programed completely
+independent of each other. This means that \eg changes to the data of the
+cartridge emulation to not impact the freezer software and vice versa.
+
+Unfortunately the partitioning into 64k blocks also has a small disadvantage. It
+is not possible to re-program only a part of a 64k block. Still free, not yet
+programmed parts can be programmed later on. You can for example first program
+an 8k module into bank 0 and program later another 8k module into bank 1 of the
+same block. But is it recommended to merge several \eg 8k modules into a large
+file and program them then in one go. The restriction to 64k blocks does of
+course not apply to the freezer RAM. There every 8k bank can be programmed
+separately.
+
+If the start bank is not at a 64k block boundary, then the flash program asks if
+the complete 64k block shall first be erased or not. If the 64k block is not
+erased, unused (\eg previously erased) parts of a 64k block can be filled with
+data. If you accidentally try to overwrite already used parts, an error message
+appears and you have to re-program the complete 64k block.
+
+\section{Starting the flash program}
+To program the flash ROM resp. the freezer RAM the \fsw{FlashWrite} switch must
+be turned right (\fval{ON}). The program \fcmd{FLASH.COM} must be loaded
+from the system disk. If the switch is turned \fval{OFF}, then the program will not
+find the flash ROM and will output an error message.
+In this case you can turn the switch right and confirm the question
+\fmsg{restart program?} with \fkey{Y}. The flash program outputs the following
+information when it starts:
+
+\begin{itemize*}
+\item Type of the flash ROM
+\item Version number and date of freezer software in the flash ROM
+\end{itemize*}
+
+In case no freezer software is present in the flash ROM, the output reads
+\fval{n/a} instead of the version number. The version number can also be
+displayed in the debugger via the \fcmd{VER} command.
+
+\section{Using the flash program}
+The flash program offers the following operations:
+
+\begin{fcmdlist}
+\item[Program CartEmu flash] Program the flash ROM area of the cartridge
+emulation (banks \fdecr{0}{119}). The area for the freezer software (banks
+\fdecr{120}{127}) remains protected in this case and cannot be overwritten
+accidentally. If you only work with the cartridge emulation, then you should
+always only use this operation.
+\item[Program CartEmu+Freezer flash] Program the complete flash ROM (banks
+\fdecr{0}{127}). With this you can update also the freezer software (banks
+\fdecr{120}{127}).
+\item[Write flash to file] Write the flash ROM content to a file.
+\item[Program RAM] Program the freezer RAM (banks \fdecr{0}{47}).
+\item[Write RAM to file] Write the freezer RAM content to a file.
+
+\clearpage
+\item[Erase flash] Erase the complete flash ROM.\newline
+
+\textbf{Caution:} This will erase the complete flash ROM, including the freezer
+software. In order to then use the \frz in a normal fashion you have to first
+re-program the freezer software again starting at bank 120. Otherwise the Atari
+will crash if the \fsw{Freeze} button is pressed or if the cartridge emulation
+or the Oldrunner is activated.
+\item[Start CartEmu] Jump to the menu of the cartridge emulation. With this you
+can test the module you have just programmed.
+\end{fcmdlist}
+
+\section{Programming the flash ROM and freezer RAM}
+The following steps are performed when programing the flash ROM resp. the
+freezer RAM. At first the flash program asks the user for the first bank number
+to be programmed. Valid values are \fdecr{0}{127} for the flash ROM and
+\fdecr{0}{47} for the freezer RAM. Then the flash program asks for the number
+of 8k banks to be programmed. If you confirm the default value \fval{0}, the
+complete file will be programmed automatically. 
+
+Now the name of the file which contains the data to be programmed must be
+entered. The file must only contain the data to be programmed, \ie it must not
+contain a COM header or something similar and the file size must be a multiple
+of 8k. The single 8k banks of the flash ROM (or the freezer RAM) are
+now programmed sequentially. When programing the flash ROM, every 64k block will
+be erased when a 64k block boundary is reached. Programming will also stop if
+the end of the flash ROM or freezer RAM area is reached before the end of the
+file is reached.
+
+During keyboard input and during programming, the current operation can be
+aborted with the \fkey{BREAK} key at any time.
+
+\section{Updating the freezer software}
+If the freezer software in the flash ROM was overwritten or erased
+accidentally, or if the software shall be replaced by a newer version, then
+the file \fval{FREEZER.ROM} from the system disk must be programmed to the banks
+\fdecr{120}{127} of the flash ROM. To this end the following steps are required:
+
+\begin{enumerate*}
+\item Turn the \fsw{FlashWrite} switch right (\fval{ON}).
+\item Load the flash program \fcmd{FLASH.COM} from the system disk.
+\item Choose the 2nd menu item (\fmsg{Program CartEmu+Freezer
+flash}).
+\item Enter start bank \fval{120}.
+\item Confirm the default value \fval{0} for the number of banks with \fkey{RETURN}.
+\item Enter \fval{FREEZER.ROM} as file name.
+\end{enumerate*}

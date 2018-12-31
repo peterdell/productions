@@ -1,0 +1,43 @@
+\chapter{Oldrunner -- Atari OS Rev. B}
+Der Atari 400/800 ist der einzige 8-Bit Homecomputer, der ein sauber
+gegliedertes und durchdachtes Betriebssystem (OS) enthält. Es ermöglicht
+jederzeit Änderungen, Erweiterungen und Verbesserungen, ohne dass vorhandene
+Programme angepasst werden müssten. Daher konnte Atari bei der XL-Serie ein
+neues, leistungsfähigeres OS verwenden. Ärgerlicherweise existieren doch
+Programme (Jahrgang 1980-1983), die auf der Atari XL/XE Serie nicht
+funktionieren. Die Schuld liegt bei den Programmierern der betroffenen
+Programme, die die offiziellen Programmierrichtlinien nicht eingehalten hatten.
+
+Um die unverträglichen Programme trotzdem auch auf den Atari XL/XE laufen lassen
+zu können, wurden sogenannte \fq{Translator} Disketten herausgebracht.
+Diese schalten das OS-ROM ab und kopieren die alte OS-Version \fq{Rev. B} in das
+das unter dem OS-ROM befindliche RAM. Diese Softwarelösung funktioniert zwar in
+den meisten Fällen, ist aber wegen des dauernden Ladens unbequem und
+zeitraubend. Ideal ist nur eine Hardwarelösung, bei der das alte OS auf einem
+ROM abgelegt ist und damit jederzeit unveränderlich zur Verfügung steht. Nur
+diese Lösung funktioniert mit allen unverträglichen Programmen. Leider
+erforderten solche sogenannten \fq{Oldrunner} normalerweise Eingriffe in den
+Atari.
+
+Mit dem \frz ist es nun möglich, einen Oldrunner ohne Eingriffe in den Atari zu
+realisieren. Die Memory-Management-Logik macht dies möglich. Mit dem Schalter am
+\frz, der mit \fsw{OldOS} beschriftet ist, kann der Oldrunner ein- und
+ausgeschaltet werden. Eingeschaltet ist er, wenn der Schalter in der rechten
+Position  \fval{ON} steht. Es ist ratsam, diesen Schalter nicht bei
+eingeschaltetem Atari zu betätigen. Ansonsten passt der Inhalt des RAMs nicht
+zur neu ausgewählten OS-Version und das System stürzt ab.
+
+Aufgrund einiger Umstände ist es ratsam, nur dann den Oldrunner zu aktivieren,
+wenn das Programm anders nicht läuft. Beim aktivem Oldrunner gibt es kein
+eingebautes BASIC, keine RAM-Erweiterung und keinen Warmstart.
+Die \fkey{RESET} Taste beim Atari XL/XE bewirkt bei aktivem Oldrunner immer (!)
+einen Kaltstart und der Inhalt des RAMs geht verloren. Die dem \fkey{RESET} beim
+XL/XE entsprechende Taste beim Atari 400/800 hieß \fkey{SYSTEM RESET} und
+bewirkte einen nicht-maskierbaren Interrupt (NMI). Sie kann zwar ohne großen
+Aufwand nachgerüstet werden (siehe Abschnitt \ref{sec:systemreset}), das
+erfordert aber einen Eingriff in den Atari und ist damit Experten vorbehalten.
+Abgesehen davon ist diese Taste ohnehin nicht unbedingt notwendig, da die
+meisten unverträglichen Programme Spiele sind, die den \fq{SYSTEM RESET} in vielen
+Fällen auf Kaltstart oder Absturz programmiert haben. Es handelt sich dabei um
+einen lächerlichen Versuch, die \fq{Cracker} zu ärgern, der aber seinen Zweck
+verfehlt hat und nur den Benutzer ärgert.

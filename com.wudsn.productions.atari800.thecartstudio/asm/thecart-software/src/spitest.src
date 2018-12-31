@@ -1,0 +1,124 @@
+;  spitest - TheCart SPI test program
+;
+;  Copyright (C) 2005-2011 Matthias Reichl <hias@horus.com>
+;
+;  This program is free software; you can redistribute it and/or modify
+;  it under the terms of the GNU General Public License as published by
+;  the Free Software Foundation; either version 2 of the License, or
+;  (at your option) any later version.
+;
+;  This program is distributed in the hope that it will be useful,
+;  but WITHOUT ANY WARRANTY; without even the implied warranty of
+;  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;  GNU General Public License for more details.
+;
+;  You should have received a copy of the GNU General Public License
+;  along with this program; if not, write to the Free Software
+;  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+	.include "cio.inc"
+	.include "flash.inc"
+
+	SPITMP	= $E0	; temporary storage for SPI read/write byte code
+
+START	= $2000
+
+	.BANK
+	* = START
+
+LOOP
+	JSR STATUS
+
+	JSR READ
+	JSR WRITE
+	JSR STATUS
+	JSR STATUS
+	JSR READ
+	LDA #155
+	JSR PUTCHAR
+	JSR GETCHAR
+	JMP LOOP
+
+STATUS
+	LDA #0		; chip-select, clock, data = low
+	STA TC_SPI
+
+	LDA #5		; read status register
+	JSR SPI_WRITE
+	JSR SPI_READ
+	JSR PUTHEX
+	LDA #155
+	JSR PUTCHAR
+	LDA #TC_SPI_CS
+	STA TC_SPI
+	RTS
+
+READ
+	LDA #0		; chip-select, clock, data = low
+	STA TC_SPI
+
+	LDA #3		; read
+	JSR SPI_WRITE
+	LDA #0		; address 0
+	JSR SPI_WRITE
+
+	LDA #8
+	STA BYTECNT
+RDLP	JSR SPI_READ
+	JSR PUTHEX
+	LDA #32
+	JSR PUTCHAR
+	DEC BYTECNT
+	BNE RDLP
+
+	LDA #TC_SPI_CS
+	STA TC_SPI
+
+	LDA #155
+	JSR PUTCHAR
+	RTS
+
+WRITE
+	LDA #0		; chip-select, clock, data = low
+	STA TC_SPI
+
+	LDA #6		; write enable
+	JSR SPI_WRITE
+
+	LDA #TC_SPI_CS	; chip select high to set write enable latch
+	STA TC_SPI
+
+	LDA #0		; chip-select, clock, data = low
+	STA TC_SPI
+
+	LDA #2		; write
+	JSR SPI_WRITE
+	LDA #0		; address 0
+	JSR SPI_WRITE
+
+	LDA #'H
+	JSR SPI_WRITE
+	LDA #'i
+	JSR SPI_WRITE
+	LDA #'a
+	JSR SPI_WRITE
+	LDA #'s
+	JSR SPI_WRITE
+	LDA 20
+	JSR SPI_WRITE
+
+	LDA #TC_SPI_CS
+	STA TC_SPI
+	RTS
+
+
+BYTECNT	.BYTE 0
+
+	.include "spi.src"
+	.include "cio.src"
+	.include "iohelp.src"
+
+	.BANK
+	* = $2E0
+	.WORD START
+

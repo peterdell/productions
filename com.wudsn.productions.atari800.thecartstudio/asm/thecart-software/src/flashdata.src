@@ -1,0 +1,177 @@
+;  flashdata.src - The!Cart flasher RAM data
+;
+;  Copyright (C) 2013-2014 Matthias Reichl <hias@horus.com>
+;
+;  This program is free software; you can redistribute it and/or modify
+;  it under the terms of the GNU General Public License as published by
+;  the Free Software Foundation; either version 2 of the License, or
+;  (at your option) any later version.
+;
+;  This program is distributed in the hope that it will be useful,
+;  but WITHOUT ANY WARRANTY; without even the implied warranty of
+;  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;  GNU General Public License for more details.
+;
+;  You should have received a copy of the GNU General Public License
+;  along with this program; if not, write to the Free Software
+;  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+; dry-run flag: if set to $ff no flash programming will be done
+;DRYRUN		.BYTE $FF
+DRYRUN		.BYTE 0
+
+; programming file information
+; number of blocks in programming file
+IBLOCKCOUNT	.WORD 0
+; number of blocks in flash
+FBLOCKCOUNT	.WORD 0
+
+; start of checksum area in blocks
+ICSUMSTART	.WORD 0
+; size of checksum area
+ICSUMCOUNT	.BYTE 0
+
+; start of checksum area in bytes
+CSUMADR		.WORD 0, 0
+
+; use incremental mode (1), initial incremental mode ($81) or full mode (0)
+; initialized by flash signature verification
+INCREMENTAL	.BYTE 0
+
+; selected drive number (1-8)
+DRIVENO		.BYTE 0
+
+; current drive number (for multi-image mode)
+CURDRIVENO	.BYTE 0
+
+; current disk image number (for multi-image mode)
+CURDISK		.BYTE 0
+
+; subsequent disk mode (for multi-image mode)
+SUBSEQUENT	.BYTE 0
+
+; drive density (1 = DD, 8 = 8k sectors)
+DRIVEDNS_DD	= 1
+DRIVEDNS_8K	= 8
+DRIVEDNS	.BYTE 0
+
+; current block number
+BLOCKNO		.WORD 0
+
+; current block number converted to bank + disk
+BLOCKBANK	.WORD 0
+BLOCKDISK	.BYTE 0
+
+; temp copy of DAUX for LOAD8KSIO_RETRY
+DAUX_SAVE	.WORD 0
+
+; current bank number inside block (0-7)
+BANKNO		.BYTE 0
+
+; block usage bitmap
+BLOCKMAP	.WORD 0
+
+; flash memory address of current block
+BLOCKFADR	.WORD 0,0
+
+; block checksum address
+BLOCKCSADR	.WORD 0,0
+
+; temporary sector counter in DD mode
+DDSECCNT	.BYTE 0
+
+; temporary counter for load/program checksum data
+CSCOUNT		.BYTE 0
+
+; temporary address storage for programming checksum
+CSADRTMP	.WORD 0
+
+; 0 if checksum in flash and programming file is identical
+; set by LOADCSUM
+CSEQUAL		.BYTE 0
+
+; block offset table for DD images
+DDBLOCKNO	.WORD 0
+		.WORD PIBLOCKS_DD
+		.WORD PIBLOCKS_DD*2
+		.WORD PIBLOCKS_DD*3
+		.WORD PIBLOCKS_DD*4
+		.WORD PIBLOCKS_DD*5
+		.WORD PIBLOCKS_DD*6
+		.WORD PIBLOCKS_DD*7
+		.WORD PIBLOCKS_DD*8
+		.WORD PIBLOCKS_DD*9
+DDBLOCKNOL	= [* - DDBLOCKNO] / 2 - 1
+
+; buffer for percom block
+PERCBUF		.DC 12 0
+
+; buffers for flash/ram state
+STATEFLASH	.DC FSTATESIZE 0
+STATERAM	.DC FSTATESIZE 0
+
+; storage for numhelp
+NUMASCL = 10
+NUMASC  .DC NUMASCL 0
+NUMBIN  .DC 2 0
+NUMMOD  .DC 1 0
+
+; old (raw) flasher data
+
+; common loop mode
+MODE    .BYTE 0
+MODEP		= $00   ; program flash
+MODEV		= $40   ; verify
+MODED		= $80   ; dump flash to file
+MODE_SIO	= $01
+
+MODEP_SIO	= MODEP + MODE_SIO	; program flash from 8k sector image
+.if .def ENABLE_POKEYRND
+MODE_RND	= $02
+MODEP_RND	= MODEP + MODE_RND
+MODEV_RND	= MODEV + MODE_RND
+.endif
+
+; total flash size
+SIZE    .WORD 0,0
+
+; total ram size
+RAMSIZE    .WORD 0,0
+
+; flash size in 8k banks
+SIZEB   .WORD 0
+
+; ending address of read/write/verify
+ENDADR  .WORD 0,0
+
+;ENDHI  .BYTE 0
+
+; number of flash chips
+NUMCHIP .BYTE 0
+
+; flag: chip needs erasing (0/1),
+; bit 7 used to force erase of first bank
+NEEDERAS .BYTE 0
+
+; bank status:
+; $00 = empty
+; $40 = empty, but first bank inside block
+; $C0 = bank contains data
+BNKSTAT	.BYTE 0
+
+TMPSTAT .BYTE 0
+
+; total sectors on (image) disk
+MAXSEC	.WORD 0
+
+; range starting bank
+RSBANK  .WORD 0
+
+; range number of banks (0 = to end)
+RNBANK  .WORD 0
+
+; checksum cache info
+CSCACHE_VALID	.BYTE 0
+
+; flash address (bytes 1-3)
+CSCACHE_ADR	.BYTE 0,0,0

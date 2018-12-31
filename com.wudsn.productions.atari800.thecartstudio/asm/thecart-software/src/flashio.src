@@ -1,0 +1,172 @@
+;  flashio.src - The!Cart flasher I/O code
+;
+;  Copyright (C) 2013-2014 Matthias Reichl <hias@horus.com>
+;
+;  This program is free software; you can redistribute it and/or modify
+;  it under the terms of the GNU General Public License as published by
+;  the Free Software Foundation; either version 2 of the License, or
+;  (at your option) any later version.
+;
+;  This program is distributed in the hope that it will be useful,
+;  but WITHOUT ANY WARRANTY; without even the implied warranty of
+;  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;  GNU General Public License for more details.
+;
+;  You should have received a copy of the GNU General Public License
+;  along with this program; if not, write to the Free Software
+;  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+.if 0
+DDEVIC	= $0300
+DUNIT	= $0301
+DCOMND	= $0302
+DSTATS	= $0303
+DBUFLO	= $0304
+DBUFHI	= $0305
+DTIMLO	= $0306
+DBYTLO	= $0308
+DBYTHI	= $0309
+DAUX1	= $030A
+DAUX2	= $030B
+.endif
+
+; read percom block and check density
+; in: DUNIT must be set up with drive number
+; returns: C=1 - no drive
+; A=0, Z=1: unsupported density
+; A=1: DD image
+; A=8: 8k image
+
+CHKDENS
+	STA DUNIT
+	LDA #$31
+	STA DDEVIC
+	
+	LDA #<PERCBUF
+	STA DBUFLO
+	LDA #>PERCBUF
+	STA DBUFHI
+	LDA #0
+	STA DAUX1
+	STA DAUX2
+	STA DBYTHI
+	LDA #12
+	STA DBYTLO
+	LDA #$4E
+	STA DCOMND
+	LDA #7
+	STA DTIMLO
+
+	JSR ?SIOIN
+	BPL ?CHKDENS1
+	SEC
+	RTS
+
+?CHKDENS1
+	LDA PERCBUF+7
+	BEQ ?CHKDENS2
+?CHKDENSE
+	CLC
+	LDA #0
+	RTS
+?CHKDENS2
+	LDA PERCBUF+6
+	CMP #1
+	BNE ?CHKDENS3
+	LDA #DRIVEDNS_DD
+	CLC
+	RTS
+?CHKDENS3
+	CMP #32
+	BNE ?CHKDENSE
+	LDA #DRIVEDNS_8K
+	CLC
+	RTS
+
+; setup DCOMND and DBUF for reading data
+SETRDDATA
+	LDA #'R
+	STA DCOMND
+	LDA #<DATABUF
+	STA DBUFLO
+	LDA #>DATABUF
+	STA DBUFHI
+	RTS
+
+; load 8k into databuf
+; return: N=1 on error
+LOAD8KSIO
+	JSR SETRDDATA
+	LDA #0
+	STA DBYTLO
+	LDA DRIVEDNS
+	CMP #DRIVEDNS_8K
+	BNE ?LOAD8KDD
+
+	LDA #32
+	STA DBYTHI
+	LDA #15		; longer timeout needed
+	STA DTIMLO
+?SIOIN
+	LDA #$40
+	STA DSTATS
+	JMP SIO
+
+?LOAD8KDD
+	LDA #1
+	STA DBYTHI
+	LDA #7
+	STA DTIMLO
+	LDA #32
+	STA DDSECCNT
+?LOAD8KDDLP
+	JSR ?SIOIN
+	BPL ?LOAD8KDD1
+	RTS
+?LOAD8KDD1
+	INC DBUFHI
+	INC DAUX1
+	BNE ?LOAD8KDD2
+	INC DAUX2
+?LOAD8KDD2
+	DEC DDSECCNT
+	BNE ?LOAD8KDDLP
+	LDY DSTATS
+	RTS
+
+; read first sector of header (on subsequent DD images)
+; return: N=1 on error
+LOADHEADER2
+	JSR SETRDDATA
+
+	LDA #<PHSECTOR_DD
+	STA DAUX1
+	LDA #>PHSECTOR_DD
+	STA DAUX2
+
+	LDA #0
+	STA DBYTLO
+	LDA #1
+	STA DBYTHI
+	JMP ?SIOIN
+
+; read full header into databuf
+LOADHEADER
+	LDA DRIVEDNS
+	CMP #DRIVEDNS_8K
+	BEQ ?LOADHDR8K
+
+	LDA #<PHSECTOR_DD
+	STA DAUX1
+	LDA #>PHSECTOR_DD
+	STA DAUX2
+	JMP LOAD8KSIO
+
+?LOADHDR8K
+	LDA #<PHSECTOR_8K
+	STA DAUX1
+	LDA #>PHSECTOR_8K
+	STA DAUX2
+	JMP LOAD8KSIO
+
+

@@ -1,0 +1,1437 @@
+;  cartmenu - cart configuration program adapted for "thecart"
+;
+;  Copyright (C) 2004-2017 Matthias Reichl <hias@horus.com>
+;
+;  This program is free software; you can redistribute it and/or modify
+;  it under the terms of the GNU General Public License as published by
+;  the Free Software Foundation; either version 2 of the License, or
+;  (at your option) any later version.
+;
+;  This program is distributed in the hope that it will be useful,
+;  but WITHOUT ANY WARRANTY; without even the implied warranty of
+;  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;  GNU General Public License for more details.
+;
+;  You should have received a copy of the GNU General Public License
+;  along with this program; if not, write to the Free Software
+;  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+	.include "cio.inc"
+	.include "flash.inc"
+	.include "version.inc"
+
+.if .def HWDEBUG
+	.include "hwdebug.inc"
+.endif
+
+; temp vectors
+CRUNADR = $E0; E1	used by runcfg to store start address
+SRCADR	= $E2; E3
+DSTADR	= $E4; E5
+BYTECNT	= $E6
+
+; vector for SPI data address
+SPIVEC	= SRCADR
+
+; EEPROM address of configuration settings
+EEPROM_CONFIG_ADR	= $F0
+
+; space for exec code in stack area
+EXECS	= $180
+
+; MyPicoDos start address
+MYPDOS_START	= $1000
+; MyPicoDos setup routine
+MYRUNA	= $0F00
+
+; MyDOS boot sector address
+MYDOS_BOOTSEC_START	= $0700
+; MyDOS dos.sys start address
+MYDOS_DOSSYS_START	= $0B0A
+
+; MyDOS 4.53/4 dosini and dosvec
+MYDOS_DOSINI	= $07E0
+MYDOS_DOSVEC	= $1B47
+
+; flasher start + run address
+FLASHER_START	= $4000
+FLASHER_RUN	= $4003
+; address of highspeed code in flasher
+FLASHER_HISIO	= $4006
+
+; special modes
+MODE_8K_THECART	= $F0
+MODE_8K_RIGHT	= $F1
+MODE_FLASHER	= $FD
+MODE_PICODOS	= $FE
+MODE_END	= $FF
+
+	* = $1000
+
+; config
+MAINCFG	= *
+MODE	* = *+1
+BANK	* = *+2
+HEXMOD	* = *+1		; flag hex/decimal mode: 0=dec, 1=hex
+AUTORUN	* = *+1		; flag autostart config: 0=no, 1=yes
+CFGCS	* = *+1	; checksum
+CFGLEN	= * - MAINCFG
+
+CFGBUF	* = *+CFGLEN	; read-buffer for EEPROM
+
+CFG	* = *+1		; cart config, used by runcfg
+BANK2	* = *+2		; bank 2 value, used by runcfg
+ENABLE	* = *+1		; main enable value, used by runcfg
+ENABLE2	* = *+1		; enable 2 value, used by runcfg
+LOCKCFG	* = *+1		; flag to lock config, used by runcfg
+
+EXEC	= *
+
+; flag if autorun should be skipped
+ENTRYSTART	* = *+1
+
+; temporary storage for SPI
+SPITMP	* = *+1
+
+; counter for SPI read/write data block
+SPICOUNT	* = * + 1
+
+; time limit waiting for SPI write to finish
+SPIMAXTIME	* = * + 1
+
+; byte address address for SPI writes
+SPIADR		* = * + 1
+
+STATLIN	* = *+40
+VERSLIN	* = *+40
+
+; storage for numhelp
+NUMASC	* = *+6
+NUMBIN	* = *+2
+NUMMOD	* = *+1
+
+; storage for INUM
+INLEN	* = * + 1	; input length
+INCUR	* = * + 1	; current cursor position
+INFLAG	* = * + 1	; flag for first keypress (bit 7) and hexmode (bit 6)
+
+; display flags
+DFBANK	= 1
+DFAUTO	= 2
+
+DISFLG	* = *+1		; display flag, setup by PMODE
+
+; delete key
+KDEL	= 126
+
+RAMDL	= *
+
+
+	.bank
+
+	* = $A000
+; external entry points
+
+; $A000: start cartmenu
+ENTRY_CARTMENU
+	JMP START_CARTMENU_ENTRY
+
+; $A003: start cartridge
+; A=mode, X=bank lo, Y=bank hi, C=lockflag
+ENTRY_RUNCART
+	JMP RUNCART_EXT
+
+; $A006: read SPI EEPROM
+; (SPIVEC)=data, X=byte count, Y=eeprom address
+ENTRY_READ_EEPROM
+	JMP SPI_READ_DATA
+
+; $A009: write SPI EEPROM
+; (SPIVEC)=data, X=byte count, Y=eeprom address
+ENTRY_WRITE_EEPROM
+	JMP SPI_WRITE_DATA
+
+; $A00C: init OS variables
+ENTRY_INITOS
+	JMP INITOS
+
+; $A00F: default cartridge start address
+ENTRY_DEFAULT_CARTSTART
+	JMP START_CARTMENU
+
+; $A012: start cartridge at specific address
+; A=mode, X=bank lo, Y=bank hi, C=lockflag
+; $E0/E1: start address
+ENTRY_RUNCART_ADR
+	JMP RUNCART_EXT_ADR
+
+
+	* = $A040
+
+BARLINE	.BYTE 3
+	.DC 8 $FF
+	.BYTE $C0
+	.SBYTE "  THE!CART  CONFIG  "
+	.SBYTE "    (c) 2014-2017 HiassofT & mega-hz    "
+;THELPT	.SBYTE "      HELP      "
+
+; keyhelp macro
+	.MACRO KH
+	.BYTE 66
+	.SBYTE +$80,%$1
+	.BYTE 86
+	.SBYTE %$2
+	.ENDM
+
+; keyhelp macro escape
+	.MACRO KHESC
+	.BYTE 66
+	.SBYTE +$80,27
+	.BYTE 86
+	.SBYTE %$1
+	.ENDM
+
+;	        0123456789012345678901234567890123456789
+MENU	.SBYTE "    AUTORUN        MODE        BANK     "
+VERSLDF	.SBYTE "      software version: 0000-00-00      "
+; software version offset in version line
+VERSOFS	= 24
+
+OARUN	= 6
+OMODE	= 12
+MODEL	= 18	; 18 characters for mode
+OBANK	= 31
+BANKL	= 5	; 5 digit bank number, plus one character for cursor!
+
+THELP
+	.DC 40 0
+	.DC 40 0
+
+	.DC 3 0
+	KH "A", "autorun "	; 11
+	KH "M", "mode"		; 7
+	.DC 5 0
+	KH "B", "bank"		; 7
+	.DC 7 0
+
+	.DC 3 0
+	KH "H", "dec/hex "	; 11
+	KH "F", "flasher "	; 11
+	.DC 1 0
+	KH "P", "PicoDos "	; 11
+	.DC 3 0
+
+	.DC 3 0
+	KHESC "exit "		; 8
+	.DC 3 0
+	KH "O", "off"		; 6
+	.DC 3 0
+	KH "RETURN", "start"	; 13
+	.DC 4 0
+
+
+THELPM
+;	        0123456789012345678998765432109876543210
+
+	.SBYTE "              select mode               "
+
+	.DC 2 0
+	KH "1", "The!Cart"	; 11
+	.DC 2 0
+	KH "2", "8k"		; 5
+	.DC 1 0
+	KH "3", "16k"	; 6
+	.DC 5 0
+	KH "4", "OSS"		; 6
+	.DC 2 0
+
+	.DC 2 0
+	KH "5", "AtariMax 1Mbit"; 17
+	.DC 2 0
+	KH "6", "AtariMax 8Mbit"; 17
+	.DC 2 0
+
+	.DC 2 0
+	KH "M", "MegaCart"	; 11
+	.DC 8 0
+	KH "S", "SWXEGS"	; 9
+	.DC 1 0
+	KH "X", "XEGS"		; 7
+	.DC 2 0
+
+	.DC 2 0
+	KH "O", "Other"		; 8
+	.DC 11 0
+	KH "0", "off"		; 6
+	.DC 4 0
+	KHESC "back"		; 7
+	.DC 2 0
+
+THELPO
+;	        0123456789012345678998765432109876543210
+	.SBYTE "              select mode               "
+
+	.DC 1 0
+	KH "1", "SDX 64k"	; 10
+	KH "2", "Diamond 64k"	; 14
+	KH "3", "Express 64k"	; 14
+	.DC 1 0
+
+	.DC 1 0
+	KH "4", "Atrax 128k"	; 13
+	.DC 10 0
+	KH "5", "Williams 64k"	; 15
+	.DC 1 0
+
+	.DC 1 0
+	KH "6", "Blizzard 16k"	; 15
+	.DC 11 0
+	KH "7", "Sic! 512k"	; 12
+	.DC 1 0
+
+	.DC 1 0
+	KH "8", "MegaMax 16k"	; 14
+	.DC 3 0
+	KH "9", "8k right"	; 11
+	.DC 3 0
+	KHESC "back"		; 7
+	.DC 1 0
+
+THELPX
+
+	.DC 40 0
+	.DC 40 0
+;	        0123456789012345678998765432109876543210
+	.SBYTE "               XEGS mode                "
+
+	.DC 2 0
+	KH "1", "32k"		; 6
+	.DC 3 0
+	KH "2", "64k"		; 6
+	.DC 3 0
+	KH "3", "128k"		; 7
+	.DC 3 0
+	KH "4", "256k"		; 7
+	.DC 3 0
+
+	.DC 2 0
+	KH "5", "512k"		; 7
+	.DC 2 0
+	KH "6", "1024k"		; 8
+	.DC 11 0
+	KHESC "back"		; 7
+	.DC 3 0
+
+THELPSX
+	.DC 40 0
+	.DC 40 0
+;	        0123456789012345678998765432109876543210
+	.SBYTE "              SWXEGS mode               "
+
+	.DC 2 0
+	KH "1", "32k"		; 6
+	.DC 3 0
+	KH "2", "64k"		; 6
+	.DC 3 0
+	KH "3", "128k"		; 7
+	.DC 3 0
+	KH "4", "256k"		; 7
+	.DC 3 0
+
+	.DC 2 0
+	KH "5", "512k"		; 7
+	.DC 2 0
+	KH "6", "1024k"		; 8
+	.DC 11 0
+	KHESC "back"		; 7
+	.DC 3 0
+
+THELPMC
+	.DC 40 0
+;	        0123456789012345678998765432109876543210
+	.SBYTE "             MegaCart mode              "
+
+	.DC 5 0
+	KH "1", "16k"		; 6
+	.DC 5 0
+	KH "2", "32k"		; 6
+	.DC 6 0
+	KH "3", "64k"		; 6
+	.DC 6 0
+
+	.DC 5 0
+	KH "4", "128k"		; 7
+	.DC 4 0
+	KH "5", "256k"		; 7
+	.DC 5 0
+	KH "6", "512k"		; 7
+	.DC 5 0
+
+	.DC 5 0
+	KH "7", "1024k"		; 8
+	.DC 3 0
+	KH "8", "2048k"		; 8
+	.DC 4 0
+	KHESC "back"		; 7
+	.DC 5 0
+
+THELPB	
+	.DC 40 0
+	.DC 40 0
+	.DC 40 0
+	.DC 40 0
+	.SBYTE "      enter bank number (0-16383)       "
+
+COLTAB	.BYTE $0A,$0A,$00,$0A,$00
+
+ROMDL	.DC 10 $70
+	.BYTE $49
+	.WORD BARLINE
+	.BYTE 6,2,$49
+	.WORD BARLINE
+	.BYTE $42
+	.WORD MENU
+	.BYTE $42
+	.WORD STATLIN
+	.BYTE $49
+	.WORD BARLINE
+
+	.DC 4 $70
+	
+;	.BYTE $49
+;	.WORD BARLINE
+	.BYTE $42
+ROMDLH	.WORD THELP
+	.BYTE 0,2,0,2,0,2,0,2,$70,$42
+	.WORD VERSLIN
+;	.BYTE $49
+;	.WORD BARLINE
+	.BYTE $41
+	.WORD RAMDL
+ROMDLL	= * - ROMDL
+
+DLHELP	= ROMDLH-ROMDL+RAMDL
+
+AUTOSCR
+;	        0123456789012345678998765432109876543210
+	.SBYTE "      The!Cart autorun in progress      "
+;	.SBYTE "      press SELECT for config menu      "
+	.SBYTE "      press"
+	.BYTE 66
+	.SBYTE +$80,"SELECT"
+	.BYTE 86
+	.SBYTE "for config menu      "
+
+AUTODL	.DC 14 $70
+	.BYTE $42
+	.WORD AUTOSCR
+	.BYTE $0
+	.BYTE $2
+	.BYTE $41
+	.WORD AUTODL
+
+; read config from EEPROM, return C=1 if EEPROM is not present
+READCFG
+	LDA #<CFGBUF
+	STA SPIVEC
+	LDA #>CFGBUF
+	STA SPIVEC+1
+	LDX #CFGLEN
+	LDY #EEPROM_CONFIG_ADR
+	JSR SPI_READ_DATA
+	BCC ?READCFG1
+	RTS
+
+?READCFG1
+; now mask bytes to legal values, but not checksum
+	LDA CFGBUF+[BANK+1-MAINCFG]	; bank hi byte
+	AND #$3F
+	STA CFGBUF+[BANK+1-MAINCFG]
+	LDA CFGBUF+[HEXMOD-MAINCFG]	; hex mode flag
+	AND #1
+	STA CFGBUF+[HEXMOD-MAINCFG]
+	LDA CFGBUF+[AUTORUN-MAINCFG]	; autorun flag
+	AND #1
+	STA CFGBUF+[AUTORUN-MAINCFG]
+	CLC
+	RTS
+
+; calculate config checksum
+CKSUM	LDY #CFGLEN-1
+	LDA #0
+CKSLP	CLC
+	ADC MAINCFG,X
+	INX
+	DEY
+	BNE CKSLP
+	RTS
+
+; write config to EEPROM, return C=1 if EEPROM is not present
+WRITECFG
+	LDX #0
+	JSR CKSUM
+	STA CFGCS	; calculate checksum
+	LDY #0
+WRCFG1	LDA MAINCFG,Y	; compare current config with eeprom config
+	CMP CFGBUF,Y
+	BNE WRCFG2
+	INY
+	CPY #CFGLEN
+	BNE WRCFG1
+	CLC
+	RTS		; config identical - just return
+
+; config differs - save
+WRCFG2
+	LDA #<MAINCFG
+	STA SPIVEC
+	LDA #>MAINCFG
+	STA SPIVEC+1
+	LDX #CFGLEN
+	LDY #EEPROM_CONFIG_ADR
+	JSR SPI_WRITE_DATA
+	RTS
+
+INITOS
+	LDA #$E0	; character set
+	STA 756
+
+	LDA #$CC	; alternate character set
+	STA 619 
+	LDA #2		; character control
+	STA 755
+
+	LDA 16		; enable keyboard and break interrupts
+	ORA #$C0
+	STA 16
+	STA $D20E 
+
+	LDA #$40	; enable VBI
+	STA $D40E
+	RTS
+
+START_CARTMENU
+	LDA #0
+; bit $xxxx - skip over next instruction
+	.BYTE $2C
+START_CARTMENU_ENTRY
+	LDA #1
+	STA ENTRYSTART
+
+; just to be sure, set default config
+	LDA #0
+	STA TC_CFG	; defaut config
+	LDA #TC_MODE_8K
+	STA TC_MODE
+
+; init OS stuff (we start without a graphics 0 screen)
+	JSR INITOS
+
+	JSR DEFAULT
+	LDA #0
+	STA HEXMOD
+	LDA #1
+	STA LOCKCFG
+
+; disable cart by pressing option, but only if started directly
+; (not via entry point)
+
+	LDA ENTRYSTART
+	BNE SKIPOPTION
+
+	LDA $D01F
+	AND #4
+	BNE SKIPOPTION
+
+	JMP DOXIT
+
+SKIPOPTION
+
+; set colors
+	LDX #4
+SETCOL	LDA COLTAB,X
+	STA 708,X
+	DEX
+	BPL SETCOL
+
+	JSR READCFG	; read config from eeprom
+	BCS CFGERR1	; no eeprom present
+
+	LDX #[CFGBUF-MAINCFG]
+	JSR CKSUM	; calculate config checksum
+	CMP CFGBUF+[CFGCS-MAINCFG]
+	BNE CFGERR1
+	LDX #CFGLEN-1
+CFGC1	LDA CFGBUF,X
+	STA MAINCFG,X
+	DEX
+	BPL CFGC1
+
+; check autorun flag from EEPROM config
+	LDA AUTORUN
+	BEQ SKIPAUTO
+; disable autorun when called via external entry point
+	LDA ENTRYSTART
+	BNE SKIPAUTO
+; check if select is pressed
+	LDA $D01F
+	AND #2
+	BEQ SKIPAUTO
+
+; set "autorun in progress" screen
+	LDA #<AUTODL
+	STA 560
+	LDA #>AUTODL
+	STA 561
+	LDA #$22
+	STA 559
+
+; timeout approx. 2 seconds
+	CLC
+	LDA 20
+	ADC #100
+	TAY
+
+AUTOWT	LDA $D01F
+	AND #2
+	BEQ SKIPAUTO
+	CPY 20
+	BNE AUTOWT
+
+	JMP CARTSTART
+
+SKIPAUTO
+
+CFGERR1
+
+; clear screen, init version line
+	LDX #39
+CLSLP	LDA #0
+	STA STATLIN,X
+	LDA VERSLDF,X
+	STA VERSLIN,X
+	DEX
+	BPL CLSLP
+
+; copy software version number to RAM
+	LDA SWVERSION
+	AND #$1F
+	STA VERSLIN+VERSOFS
+	LDA SWVERSION+1
+	AND #$1F
+	STA VERSLIN+VERSOFS+1
+	LDA SWVERSION+2
+	AND #$1F
+	STA VERSLIN+VERSOFS+2
+	LDA SWVERSION+3
+	AND #$1F
+	STA VERSLIN+VERSOFS+3
+
+	LDA SWVERSION+4
+	AND #$1F
+	STA VERSLIN+VERSOFS+5
+	LDA SWVERSION+5
+	AND #$1F
+	STA VERSLIN+VERSOFS+6
+
+	LDA SWVERSION+6
+	AND #$1F
+	STA VERSLIN+VERSOFS+8
+	LDA SWVERSION+7
+	AND #$1F
+	STA VERSLIN+VERSOFS+9
+
+; copy display list to RAM
+	LDX #0
+CPDL	LDA ROMDL,X
+	STA RAMDL,X
+	INX
+	CPX #ROMDLL
+	BNE CPDL
+
+; init os stuff
+
+	LDA #<RAMDL	; set display list
+	STA 560
+	LDA #>RAMDL
+	STA 561
+	LDA #$22	; standard screen
+	STA 559
+
+LOOP	JSR W20
+	LDA #<THELP
+	STA DLHELP
+	LDA #>THELP
+	STA DLHELP+1
+	JSR DISPLAY
+
+LOOPK	JSR GETCHAR
+	CPY #$80
+	BNE NOBRK
+
+DOXIT	LDA #TC_MODE_OFF
+	STA MODE
+	JSR CHKLOCKDIS
+	JMP GONOSAVE
+
+NOBRK	
+	CMP #27		; ESC
+	BEQ DOXIT
+
+	CMP #'A
+	BNE NOKA
+	LDA AUTORUN
+	EOR #1
+	STA AUTORUN
+	JMP LOOP
+
+NOKA
+	CMP #'B
+	BNE NOKB
+
+	LDA DISFLG
+	AND #DFBANK
+	BEQ LOOPK
+	JMP IBANK
+
+NOKB	
+	CMP #'O
+	BNE NOKO
+	LDA #0
+	STA MODE
+	JMP LOOP
+
+NOKO	
+	CMP #'P
+	BNE NOKP
+	LDA #MODE_PICODOS
+	STA MODE
+	JMP LOOP
+
+NOKP
+	CMP #'F
+	BNE NOKF
+	LDA #MODE_FLASHER
+	STA MODE
+	JMP LOOP
+
+NOKF
+	CMP #'M
+	BNE NOKM
+	JMP IMODE
+NOKM
+.if 0
+	CMP #'D
+	BNE NOKD
+	JSR DEFAULT
+	JMP LOOP
+NOKD
+.endif
+	CMP #'H
+	BNE NOKH
+	LDA HEXMOD
+	EOR #1
+	STA HEXMOD
+	JMP LOOP
+NOKH
+	CMP #155
+	BNE NOKRET
+	JSR CHKLOCKDIS
+	JMP GOSAVE
+NOKRET
+	JMP LOOPK
+
+CHKLOCKDIS
+	LDA $D20F	; don't lock config if started with SHIFT+RETURN
+	AND #8
+	BNE CHKLOCKDIS1
+	LDA #0
+	STA LOCKCFG
+CHKLOCKDIS1
+	RTS
+
+; set default values
+DEFAULT
+	LDA #$80
+	STA BANK
+	LDA #0
+	STA BANK+1
+	STA AUTORUN
+	LDA #MODE_8K_THECART
+	STA MODE
+	RTS
+
+SETMOD	STA MODE
+	JMP LOOP
+
+; find key in mode table, end of table indicated by >=$80
+	.MACRO MODEKEY
+	TAX
+	LDY #254
+MKLP	INY
+	INY
+	LDA %1,Y
+	CMP #$FF
+	BEQ NOTFOUND
+	TXA
+	CMP %1,Y
+	BNE MKLP
+	LDA %1+1,Y
+	JMP SETMOD
+NOTFOUND
+	TXA
+	.ENDM
+
+; input mode
+IMODE
+	JSR W20
+	LDA #<THELPM
+	STA DLHELP
+	LDA #>THELPM
+	STA DLHELP+1
+
+IMODEL	JSR GETCHAR
+	CPY #128
+	BNE IMODE1
+IMODEX	JMP LOOP
+IMODE1	CMP #27
+	BEQ IMODEX
+
+	MODEKEY KTMODE
+
+	CMP #'S
+	BNE IMODENS
+	JMP ISXEGS
+IMODENS	CMP #'X
+	BNE IMODENX
+	JMP IXEGS
+IMODENX	CMP #'M
+	BNE IMODENM
+	JMP IMEGA
+IMODENM	CMP #'O
+	BNE IMODENO
+	JMP IMODEO
+IMODENO	JMP IMODEL
+
+KTMODE
+	.BYTE '0, TC_MODE_OFF
+	.BYTE '1, MODE_8K_THECART
+	.BYTE '2, TC_MODE_8K
+	.BYTE '3, TC_MODE_16K
+	.BYTE '4, TC_MODE_OSS
+	.BYTE '5, TC_MODE_ATARIMAX1
+	.BYTE '6, TC_MODE_ATARIMAX8
+	.BYTE $FF
+
+; input more mode
+IMODEO
+	JSR W20
+	LDA #<THELPO
+	STA DLHELP
+	LDA #>THELPO
+	STA DLHELP+1
+
+IMODEOL	JSR GETCHAR
+	CPY #128
+	BNE IMODEO1
+IMODEOX	JMP LOOP
+IMODEO1	CMP #27
+	BEQ IMODEOX
+
+	MODEKEY KTMODEO
+
+	JMP IMODEOL
+
+KTMODEO
+	.BYTE '1, TC_MODE_SDX64
+	.BYTE '2, TC_MODE_DIAMOND64
+	.BYTE '3, TC_MODE_EXPRESS64
+	.BYTE '4, TC_MODE_ATRAX128
+	.BYTE '5, TC_MODE_WILLIAMS64
+	.BYTE '6, TC_MODE_BLIZZARD
+	.BYTE '7, TC_MODE_SIC
+	.BYTE '8, TC_MODE_MEGAMAX16
+	.BYTE '9, MODE_8K_RIGHT
+	.BYTE $FF
+
+
+; input XEGS memory type
+IXEGS
+	JSR W20
+	LDA #<THELPX
+	STA DLHELP
+	LDA #>THELPX
+	STA DLHELP+1
+
+IXEGSL	JSR GETCHAR
+	CPY #128
+	BNE IXEGS1
+IXEGSX	JMP LOOP
+IXEGS1	CMP #27
+	BEQ IXEGSX
+
+	MODEKEY KTXEGS
+	JMP IXEGSL
+
+KTXEGS
+	.BYTE '1, TC_MODE_XEGS_32
+	.BYTE '2, TC_MODE_XEGS_64
+	.BYTE '3, TC_MODE_XEGS_128
+	.BYTE '4, TC_MODE_XEGS_256
+	.BYTE '5, TC_MODE_XEGS_512
+	.BYTE '6, TC_MODE_XEGS_1024
+	.BYTE $FF
+
+; input SXEGS memory type
+ISXEGS
+	JSR W20
+	LDA #<THELPSX
+	STA DLHELP
+	LDA #>THELPSX
+	STA DLHELP+1
+
+ISXEGSL	JSR GETCHAR
+	CPY #128
+	BNE ISXEGS1
+ISXEGSX	JMP LOOP
+ISXEGS1	CMP #27
+	BEQ ISXEGSX
+
+	MODEKEY KTSXEGS
+	JMP ISXEGSL
+
+KTSXEGS
+	.BYTE '1, TC_MODE_SXEGS_32
+	.BYTE '2, TC_MODE_SXEGS_64
+	.BYTE '3, TC_MODE_SXEGS_128
+	.BYTE '4, TC_MODE_SXEGS_256
+	.BYTE '5, TC_MODE_SXEGS_512
+	.BYTE '6, TC_MODE_SXEGS_1024
+	.BYTE $FF
+
+; input MegaCart memory type
+IMEGA
+	JSR W20
+	LDA #<THELPMC
+	STA DLHELP
+	LDA #>THELPMC
+	STA DLHELP+1
+
+IMEGAL	JSR GETCHAR
+	CPY #128
+	BNE IMEGA1
+IMEGAX	JMP LOOP
+IMEGA1	CMP #27
+	BEQ IMEGAX
+
+	MODEKEY KTMEGA
+	JMP IMEGAL
+
+KTMEGA
+	.BYTE '1, TC_MODE_MEGA_16
+	.BYTE '2, TC_MODE_MEGA_32
+	.BYTE '3, TC_MODE_MEGA_64
+	.BYTE '4, TC_MODE_MEGA_128
+	.BYTE '5, TC_MODE_MEGA_256
+	.BYTE '6, TC_MODE_MEGA_512
+	.BYTE '7, TC_MODE_MEGA_1024
+	.BYTE '8, TC_MODE_MEGA_2048
+	.BYTE $FF
+
+
+; input bank number
+; note: DECIDX has to be set up (done in PBANK)
+IBANK	JSR W20
+	LDA #<THELPB
+	STA DLHELP
+	LDA #>THELPB
+	STA DLHELP+1
+
+	LDA #<[STATLIN+OBANK]
+	STA SRCADR
+	LDA #>[STATLIN+OBANK]
+	STA SRCADR+1
+	LDA #BANKL
+	STA INLEN
+	JSR INUM
+	BCS IBANKE	; error/abort, so return
+	LDA NUMBIN+1
+	CMP #$40
+	BCS IBANKE	; max $3fff bank allowed
+	STA BANK+1
+	LDA NUMBIN
+	STA BANK
+IBANKE	JMP LOOP
+
+; input number
+INUM	LDY #0
+; search for end of current number
+INUMC1	LDA (SRCADR),Y
+	BEQ INUMC2
+	TYA
+	INY
+	CMP INLEN
+	BNE INUMC1
+; found end of input, set cursor position
+INUMC2	STY INCUR
+	LDA #$80	; bit 7=1 means "first keypress"
+	BNE INUML1
+
+; input loop (after first keypress)
+INUML	LDA #0		; not first keypress
+
+INUML1	STA INFLAG
+
+	LDY #0		; is first character a "$"?
+	LDA (SRCADR),Y
+	CMP #['$]-$20
+	BNE INUML2
+	LDA INFLAG	; yes, set bit 6 of INFLAG
+	ORA #$40
+	STA INFLAG
+INUML2
+	LDY INCUR	; show cursor
+	LDA (SRCADR),Y
+	ORA #$80
+	STA (SRCADR),Y
+
+INUMKL	JSR GETCHAR
+	CPY #128	; break
+	BNE INUMKL1
+INUMKLX	SEC
+	RTS
+INUMKL1	LDY INCUR
+	LDX HEXMOD
+	CMP #27		; escape
+	BEQ INUMKLX
+	CMP #155	; return
+	BNE INUMNKRET
+	LDA (SRCADR),Y	; clear cursor
+	AND #$7F
+	STA (SRCADR),Y
+	JMP INUMEND
+INUMNKRET
+
+	CMP #126	; delete
+	BNE INUMKNDEL
+	CPY #0		; cursor at position 0?
+	BEQ INUML	; yes, ignore delete
+	LDA #0
+	STA (SRCADR),Y	; clear cursor
+	DEY
+	STA (SRCADR),Y	; clear old character
+	DEC INCUR	; decrease cursor position
+	JMP INUML
+
+INUMKNDEL
+	BIT INFLAG	; first keypress?
+	BMI INUMKL2	; yes, input will be cleared
+	CPY INLEN	; check if cursor position < INLEN
+	BCC INUMKL2
+	JMP INUML	; no, ignore keypress
+
+INUMKL2
+	CMP #'$
+	BNE INUMKNDOL
+	BIT INFLAG	; first keypress?
+	BMI INUMKD1	; yes, "$" is always allowed
+	CPY #0
+	BNE INUMKL	; not on first position: disallowed
+	BEQ INUMKV	; valid key
+INUMKD1	JSR INUMCLR
+	LDA HEXMOD	; hex mode?
+	BNE INUMKD2	; yes, "$" was automatically added
+	LDA #['$]-$20	; no, add it manually
+	STA (SRCADR),Y
+	INY
+	INC INCUR
+INUMKD2	JMP INUML
+
+INUMKNDOL
+	CMP #'0
+	BCC INUMKL
+	CMP #['9]+1
+	BCC INUMKV	; 0-9 is always allowed
+
+	BIT INFLAG	; check for local hex-mode
+	BVC INUMKL	; no, don't check for A-F
+	CMP #'A
+	BCC INUMKL
+	CMP #['F]+1
+	BCS INUMKL
+
+INUMKV	SEC
+	SBC #$20
+	PHA
+	BIT INFLAG	; first keypress?
+	BPL INUMKV1	; no, just print character
+	JSR INUMCLR	; yes, clear input
+INUMKV1	PLA
+	LDY INCUR
+	STA (SRCADR),Y
+	INC INCUR
+	JMP INUML
+
+; clear input buffer, set cursor pos to 0
+; if in hex mode, prefix with "$"
+INUMCLR	LDA #0
+	STA INCUR
+	TAY
+	LDX INLEN
+INUMCL1	STA (SRCADR),Y
+	INY
+	DEX
+	BPL INUMCL1
+	LDY #0
+	LDA HEXMOD
+	BEQ INUMCL2
+	LDA #['$]-$20
+	STA (SRCADR),Y
+	INY
+	STY INCUR
+INUMCL2
+	RTS
+
+; end of number input
+INUMEND	LDY #0
+	LDX INLEN
+INUME1	LDA (SRCADR),Y
+	BEQ INUME2
+	CLC
+	ADC #$20
+	STA NUMASC,Y
+	INY
+	DEX
+	BNE INUME1	; always
+INUME2	LDA #155
+	STA NUMASC,Y
+	JSR ATOI	; convert to binary
+	RTS
+
+W20	LDA 20
+W201	CMP 20
+	BEQ W201
+	RTS
+
+; display current status
+DISPLAY	JSR PMODE
+	JSR PBANK
+	JSR PARUN
+	RTS
+
+; display current mode
+PMODE	LDA #DFBANK+DFAUTO
+
+	LDX MODE
+	CPX #MODE_PICODOS
+	BEQ PMODED1
+	CPX #MODE_FLASHER
+	BNE PMODED2
+PMODED1	LDA #0
+	BEQ PMODE1
+PMODED2	CPX #TC_MODE_OFF
+	BNE PMODE1
+	LDA #DFAUTO
+
+PMODE1	STA DISFLG
+
+PMODE2
+; now search for mode in MODETAB
+	LDA #<MODETAB
+	STA SRCADR
+	LDA #>MODETAB
+	STA SRCADR+1
+PMODE3	LDY #0
+	LDA (SRCADR),Y
+	CMP #MODE_END
+	BNE PMODE4
+; mode not found - should not happen, set it to "off"
+	LDA #TC_MODE_OFF
+	STA MODE
+	JMP PMODE2
+
+PMODE4	CMP MODE
+	BEQ PMODE10	; got it!
+	INY
+	LDA (SRCADR),Y	; add length of text to vector
+	CLC
+	ADC SRCADR
+	STA SRCADR
+	BCC PMODE5
+	INC SRCADR+1
+PMODE5	CLC		; plus 2 for mode/length
+	LDA SRCADR
+	ADC #2
+	STA SRCADR
+	BCC PMODE6
+	INC SRCADR+1
+PMODE6	JMP PMODE3
+	
+; found text, first clear old one
+PMODE10	LDA #0
+	LDX #MODEL-1
+PMODE11	STA STATLIN+OMODE,X
+	DEX
+	BPL PMODE11
+
+	INY
+	LDA (SRCADR),Y
+	STA BYTECNT	; save length of text
+	SEC
+	LDA #MODEL	; total width
+	SBC BYTECNT	; subtract length of text
+	LSR		; divide by 2 - got starting pos (centering)
+	TAX
+	INY		; move to start of text
+PMODE12	LDA (SRCADR),Y
+	STA STATLIN+OMODE,X
+	INY
+	INX
+	DEC BYTECNT
+	BNE PMODE12
+	RTS
+
+; display bank number and setup DECIDX
+PBANK	
+; check if bank display/input is enabled
+	LDA DISFLG
+	AND #DFBANK
+	BNE PBANK2
+; no - display "---"
+	LDA #$0D
+	LDY #0
+PBANK1	STA STATLIN+OBANK,Y
+	INY
+	CPY #4
+	BNE PBANK1
+	BEQ PBANK4
+
+	LDA #0
+PBANK11 STA STATLIN+OBANK,Y
+	INY
+	CPY #BANKL
+	BNE PBANK11
+	BEQ PBANK4
+
+PBANK2	LDA BANK
+	STA NUMBIN
+	LDA BANK+1
+	STA NUMBIN+1
+	LDA HEXMOD
+	ORA #2		; remove leading zeroes
+	STA NUMMOD
+	JSR ITOA
+	LDY #0
+PBANK3	LDA NUMASC,Y
+	CMP #155
+	BEQ PBANK4
+	SEC
+	SBC #$20
+	STA STATLIN+OBANK,Y
+	INY
+	CPY #BANKL
+	BNE PBANK3
+
+; clear remaining characters
+PBANK4	LDA #0
+	STA STATLIN+OBANK,Y
+	INY
+	CPY #BANKL+1
+	BNE PBANK4
+	RTS
+
+; print autorun status
+PARUN	
+	LDA DISFLG
+	AND #DFAUTO
+	BNE PARUN1
+; no - display "---"
+	LDA #$0D
+	STA STATLIN+OARUN
+	STA STATLIN+OARUN+1
+	STA STATLIN+OARUN+2
+	RTS
+
+PARUN1	LDA AUTORUN
+	BEQ PARUN2
+	LDA #'y
+	STA STATLIN+OARUN
+	LDA #'e
+	STA STATLIN+OARUN+1
+	LDA #'s
+	STA STATLIN+OARUN+2
+	RTS
+
+PARUN2	LDA #'n
+	STA STATLIN+OARUN
+	LDA #'o
+	STA STATLIN+OARUN+1
+	LDA #0
+	STA STATLIN+OARUN+2
+	RTS
+
+GETCHAR LDA #0
+	STA 77	; disable atract mode
+	LDA 764
+	CMP #255
+	BEQ GETCHAR
+
+	LDA $E425
+	PHA
+	LDA $E424
+	PHA
+	RTS
+
+
+; save config and start cartridge
+GOSAVE
+	LDA MODE
+	CMP #MODE_PICODOS
+	BEQ GONOSAVE
+	CMP #MODE_FLASHER
+	BEQ GONOSAVE
+
+	JSR WRITECFG
+
+GONOSAVE
+	LDA $D20F
+	AND #4
+	BEQ GONOSAVE ; wait for key release
+
+	JMP CARTSTART
+
+	.include "cartstart.src"
+
+	.MACRO DM
+	.BYTE %1
+	.BYTE TEND-1-*
+	.SBYTE %$2
+TEND	
+	.ENDM
+
+	.BYTE 0,0,0,0
+
+MODETAB
+	DM TC_MODE_OFF, "OFF"
+	DM MODE_8K_THECART, "The!Cart"
+	DM TC_MODE_8K, "8k"
+	DM MODE_8K_RIGHT, "8k right"
+	DM TC_MODE_OSS, "OSS"
+
+	DM TC_MODE_ATARIMAX1, "AtariMax 1Mbit"
+	DM TC_MODE_ATARIMAX8, "AtariMax 8Mbit"
+
+	DM TC_MODE_SDX64, "SDX 64k"
+	DM TC_MODE_DIAMOND64, "Diamond 64k"
+	DM TC_MODE_EXPRESS64, "Express 64k"
+
+	DM TC_MODE_ATRAX128, "Atrax 128k"
+	DM TC_MODE_WILLIAMS64, "Williams 64k"
+
+	DM TC_MODE_16K, "16k"
+	DM TC_MODE_MEGAMAX16, "MegaMax 16k"
+	DM TC_MODE_BLIZZARD, "Blizzard 16k"
+	DM TC_MODE_SIC, "Sic! 512k"
+
+	DM TC_MODE_MEGA_16, "MegaCart 16k"
+	DM TC_MODE_MEGA_32, "MegaCart 32k"
+	DM TC_MODE_MEGA_64, "MegaCart 64k"
+	DM TC_MODE_MEGA_128, "MegaCart 128k"
+	DM TC_MODE_MEGA_256, "MegaCart 256k"
+	DM TC_MODE_MEGA_512, "MegaCart 512k"
+	DM TC_MODE_MEGA_1024, "MegaCart 1024k"
+	DM TC_MODE_MEGA_2048, "MegaCart 2048k"
+
+	DM TC_MODE_XEGS_32, "XEGS 32k"
+	DM TC_MODE_XEGS_64, "XEGS 64k"
+	DM TC_MODE_XEGS_128, "XEGS 128k"
+	DM TC_MODE_XEGS_256, "XEGS 256k"
+	DM TC_MODE_XEGS_512, "XEGS 512k"
+	DM TC_MODE_XEGS_1024, "XEGS 1024k"
+
+	DM TC_MODE_SXEGS_32, "SWXEGS 32k"
+	DM TC_MODE_SXEGS_64, "SWXEGS 64k"
+	DM TC_MODE_SXEGS_128, "SWXEGS 128k"
+	DM TC_MODE_SXEGS_256, "SWXEGS 256k"
+	DM TC_MODE_SXEGS_512, "SWXEGS 512k"
+	DM TC_MODE_SXEGS_1024, "SWXEGS 1024k"
+
+
+	DM MODE_PICODOS, "MyPicoDos"
+	DM MODE_FLASHER, "flasher"
+
+	.BYTE MODE_END
+
+	.include "spi.src"
+	.include "numhelp.src"
+
+.if .def HWDEBUG
+	.include "hwdebsup.src"
+.endif
+
+XEND	= *
+
+	* = TC_MAINSIG
+	THECART_SIGNATURE
+SWVERSION
+	VERSION_DATE
+	
+	* = $BFFA
+	.WORD ENTRY_DEFAULT_CARTSTART
+	.BYTE 0
+	; bibomon sometimes doesn't init a cart, so also run it
+	;.BYTE 0
+	.BYTE 4	; init+run
+	.WORD ENTRY_DEFAULT_CARTSTART
+
+; second bank used for mypicodos
+	.bank
+	* = $A000
+
+MYPDOS	= *
+	.incbin "mypdos-code-t.bin"
+        .IF (*&255)<>0
+        .DC (256-(*&255)) 0
+        .ENDIF
+MYPDOS_END = *
+MYPDOS_PAGES = >[MYPDOS_END - MYPDOS]
+
+	* = $BFFF
+	.BYTE $FF
+
+
+; third bank used for mydos
+	.bank
+	* = $A000
+
+MYDOS_BOOT
+	.incbin "mydos-bootsec.bin"
+
+	* = $A200
+MYDOS_DOSSYS
+	.incbin "mydos-dossys.bin"
+        .IF (*&255)<>0
+        .DC (256-(*&255)) 0
+        .ENDIF
+MYDOS_DOSSYS_END = *
+MYDOS_DOSSYS_PAGES = >[MYDOS_DOSSYS_END - MYDOS_DOSSYS]
+
+	* = $BFFF
+	.BYTE $FF
+
+
+; fourth and fifth bank used for flasher
+	.bank
+	* = $A000
+
+FLASHCODE
+	.incbin "flash.bin"
+        .IF (*&255)<>0
+        .DC (256-(*&255)) 0
+        .ENDIF
+FLASHCODE_END = *
+
+FLASHCODE_PAGES = >[FLASHCODE_END - FLASHCODE]
+	* = $DFFF
+	.BYTE $FF
+

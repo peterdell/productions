@@ -1,0 +1,364 @@
+\chapter{Installation}
+
+Der \frz wird einfach am parallelen Bus angesteckt. Dieser unterscheidet sich bei Atari XL
+und XE Computern. Bei Atari XL Computern besteht der parallele Bus aus dem
+Parallel Bus Interface (PBI), welches mit \fq{Parallel Bus} beschriftet ist. Bei
+Atari XE Computern besteht der parallele Bus aus dem Modulschacht und dem
+Enhanced Cartridge Interface (ECI), die mit \fq{Cartridge} bzw. \fq{Expansion}
+beschriftet sind. Die Stromversorgung erfolgt durch den parallelen Bus. Beim
+Atari 600 XL und bei älteren Atari 800 XL sowie Atari XE Computern liegt die
+notwendige Stromversorgung direkt am parallelen Bus an.
+Bei neueren Atari 800 XL ist sie dort nicht mehr vorhanden und muss über das am
+Freezer angelötete Kabel über den Joystickport zugeführt werden. Ein Öffnen des
+Ataris oder Lötarbeiten gleich welcher Art sind daher nicht notwendig. In
+solchen Dingen erfahrene User mit dem entsprechenden Werkzeug können sich aber
+zusätzliche Möglichkeiten einbauen.
+
+Der \frz besteht aus zwei Teilen, der Freezer-Elektronik im schwarzen Gehäuse
+und einer Adapterplatine, welche die Verbindung zum PBI bzw. ECI herstellt. Die
+Adapterplatinen sind auch separat erhältlich, dadurch lässt sich ein\linebreak
+\frz
+einfach und kostengünstig sowohl an Atari XL als auch an Atari XE Computern
+verwenden. 
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=35em]{adapter.eps}
+  \caption{Atari XL und XE Adapterplatinen}
+\end{figure}
+
+Es gibt einige wenige Modelle der XE-Serie (vornehmlich 65 XE), die
+keinen ECI-\linebreak
+Anschluss besitzen. Diese Rechnermodelle sind daran erkennbar, dass
+sie hinten nur einen Steckplatz für ein Modul \fq{Cartridge}, aber der zweite
+Anschluss \fq{Expansion} fehlt. Bei diesen XE Modellen kann der Freezer leider
+nicht verwendet werden. \newline
+
+\textbf{Achtung:}  Um Beschädigungen beim Transport zu vermeiden wurde
+die Freezer-\linebreak
+Elektronik vor dem Versand von der Adapterplatine getrennt.
+Um Beschädigungen beim Ein- bzw. Ausstecken der Adapterplatine in den Atari oder
+beim Ein- bzw. Ausstecken der Freezer-Platine in die Adapterplatine zu
+vermeiden, sollte man immer den Atari ausschalten.
+
+\section{Überprüfen der Stromversorgung}
+\label{sec:pbi5v}
+
+Vor dem Zusammenbau sollten Besitzer eines Atari XL Computers überprüfen, ob am
+PBI die 5V Stromversorgung vorhanden ist. Besitzer eines Atari XE
+Computers können den diesen Schritt überspringen.
+
+Zuerst den Atari ausschalten. Dann die leere die Atari XL Adapterplatine ohne
+das Freezer-Elektronik Modul am PBI anstecken. Anschließend den Atari einschalten.
+Leuchtet die 5V LED auf der Adapterplatine, so liegen 5V am PBI an und das
+Stromversorgungskabel zum Joystickport wird nicht benötigt. Man sollte es aber
+trotzdem nicht abschneiden, sondern ordentlich zusammenrollen denn es kann ja
+später einmal notwendig sein, den Freezer auch an einem Atari ohne
+Stromversorgung am PBI einzusetzen. Danach den Atari ausschalten und die
+Adapterplatine wieder vom PBI abziehen.
+
+\section{Zusammenbau des Freezers}
+
+\subsection{Schutz vor elektrostatischer Entladung sicherstellen}
+Vor dem Zusammenbau des \frzs sollte man sich  \textbf{unbedingt erden} um
+statische Aufladungen zu entladen, die z.B. durch den Teppich, die Schuhe, die Kleidung
+usw. entstehen. Diese Ladungen können ohne weiteres einige 1000 Volt betragen
+und könnten den XILINX-Chip und weitere ICs des Freezers zerstören. \textbf{Auch 
+die Stiftleisten des Freezers sollte man niemals berühren, ohne geerdet
+zu sein.}
+Dies gilt im Allgemeinen für alles andere an Elektronik, wobei der Atari selber
+nicht ganz so empfindlich ist, aber dennoch Schaden nehmen kann.
+
+Am besten berührt man unmittelbar vor dem Zusammenbau die Heizung
+oder die Schutzleiter-Lasche der Steckdose. Gut geeignet, und im
+professionellen Bereich sehr verbreitet, sind auch ESD-Armbänder (electro-static
+discharge, ESD) zum dauerhaften Erden.
+
+\subsection{Freezer-Elektronik mit der Adapterplatine verbinden}
+
+An der Unterseite des Moduls mit der Freezer-Elektronik befinden sich
+zwei Stiftleisten mit je 2x25 Kontakten. Auf der Adapterplatine befinden sich
+zwei Buchsenleisten mit je 2x25 Kontakten. Das Freezer-Modul mit der
+Freezer-Elektronik muss so auf die Adapterplatine gesetzt werden, dass die
+Vorderseite mit den Schaltern in Richtung des PBI- bzw. ECI-Anschlusses des
+Ataris zeigt. \textbf{Auf keinen Fall darf man das Modul umgekehrt einsetzen,
+ansonsten kann der Freezer zerstört werden.}
+
+Als erstes muss das Modul mit der Freezer-Elektronik mit den Stiften so über den
+Buchsen platziert werden, dass alle Stifte über den jeweiligen Buchsen zu liegen
+kommen. \textbf{Es dürfen nirgends Stifte überstehen.} Am besten nimmt man die
+Adapterplatine in eine und das Modul mit der Elektronik in die andere Hand. Dann
+das Modul vorsichtig aufsetzen aber noch nicht hineindrücken und von allen
+Seiten überprüfen ob die Stifte richtig anliegen. Danach das Modul mit einem
+festen Druck mit der Adapterplatine verbinden. Das geht am einfachsten wenn man
+dazu den Freezer auf den Kopf dreht, mit den Fingern beider Hände das Modul von
+links bzw. rechts hält und dann mit beiden Daumen von unten auf die
+Adapterplatine drückt.
+
+Nach dem Zusammenstecken sollte man noch überprüfen, ob alle Stifte komplett in
+den Buchsen stecken. Stehen auf einer Seite Stifte über, muss das Module
+mit der Freezer-Elektronik wieder abgesteckt und erneut, dieses Mal mit
+korrekter Ausrichtung, auf die Platine gesteckt werden. Sind die Stifte noch nicht komplett in die Buchsen
+eingedrungen, sollte man noch mal etwas kräftiger nachdrücken bis man von der
+Seite nichts mehr von den Stiften sehen kann.
+
+\subsection{Freezer-Elektronik von der Adapterplatine trennen}
+
+Als erstes muss der Atari ausgeschaltet und der Freezer vom PBI bzw.
+ECI-Anschluss abgesteckt werden. Durch die beiden 50-poligen Anschlüsse ist die
+Freezer-Elektronik recht fest mit der Adapterplatine verbunden. \textbf{Man darf
+auf keinen Fall zu große Kraft aufwenden oder ruckartig vorgehen}, ansonsten
+können die Anschlüsse abbrechen und der Freezer dadurch zerstört werden.
+
+Am besten geht man wie folgt vor: Abwechselnd am linken und rechten Rand des
+Freezer-Gehäuses, in der Mitte zwischen beiden Anschlussreihen, mit dem Daumen
+das Freezer-Gehäuse um jeweils $0.5$ bis maximal 1 mm vorsichtig anheben. Dabei
+aufpassen, dass sowohl am linken und am rechten Rand als auch an der vorderen
+und hinteren Anschlussleiste die Kontakte etwa gleich weit herausgezogen werden.
+
+Nach ca. 2 mm lässt die Kraft der Buchsenleisten deutlich nach. Nun muss man
+besonders vorsichtig vorgehen, da sonst leicht die Anschlüsse verbogen werden
+können. Nach rund 5 mm ist es geschafft, die Freezer-Elektronik ist von der
+Adapterplatine getrennt.
+\clearpage
+\section{Anstecken des Freezers}
+
+\subsection{Atari 600 XL (mind. 64k RAM) und Atari 800 XL}
+
+Einfach die eingeschnappte PBI Abdeckung hinten am Atari entfernen, die
+Blechzungen mit den Fingern vorsichtig ein wenig aufbiegen und den
+Freezer ohne Gewaltanwendung einstecken.
+
+\begin{wrapfigure}{r}{8em}
+\centering\includegraphics[width=8em]{joyport.eps}\end{wrapfigure}
+Falls der PBI über eine 5V Stromversorgung verfügt (siehe Abschnitt
+\ref{sec:pbi5v}), kann die Verbindung zum Joystickport entfallen.
+Ist die Stromversorgung am PBI nicht vorhanden, muss Stromversorgungskabel an
+Pin 7 des Joystickports 2 angesteckt werden. Pin 7 ist in der nebenstehenden
+Zeichnung markiert.\newline
+
+\textbf{Achtung:} Das Stromversorgungskabel darf im laufenden Betrieb auf keinen
+Fall abgesteckt werden, ansonsten können der ATARI und/oder der Freezer Schaden
+nehmen. Sollte das Stromversorgungskabel versehentlich abgesteckt worden sein so
+muss der Atari sofort ausgeschaltet werden.
+
+\subsection{Atari 800 XE, 65 XE und 130 XE}
+
+Einfach den Freezer hinten am Atari in Modulschacht und ECI-Anschluss
+einstecken.
+
+\section{Inbetriebnahme des Freezers}
+
+\subsection{Grundkonfiguration setzen}
+\label{sec:baseconfig}
+
+Alle Schalter am Freezer nach links schieben damit wird folgende
+Grundkonfiguration aktiviert:
+\begin{itemize*}
+\item \fsw{CartEmu}: \fval{OFF}, Cartridge-Emulation aus
+\item \fsw{FlashWrite}: \fval{OFF}, Schreibfreigabe für Flash-ROM aus
+\item \fsw{OldOS}: \fval{OFF}, Oldrunner aus
+\item \fsw{Stereo}: \fval{OFF}, Stereo-POKEY-Modus aus (nicht vorhanden)
+\item \fsw{Ramdisk}: \fval{OFF}, 512k RAM-Erweiterung aus
+\end{itemize*}
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=22em]{freezer2011.eps}
+  \caption{Schalter am \frz}
+\end{figure}
+
+\subsection{Freezer starten}
+
+Den Atari Computer einschalten und sonstige Hardware ausgeschaltet lassen. Wenn
+nicht nach der üblichen kurzen Wartezeit die \fmsg{READY} Meldung des BASIC
+erscheint, sondern verdächtige Symptome auftreten (Systemabsturz, dunkles Bild,
+Rauchentwicklung) sofort ausschalten und den Fehler suchen. Ist der Oldrunner
+eingeschaltet, erscheint anstatt der \fmsg{READY} Meldung die Meldung
+\fmsg{ATARI COMPUTER - MEMO PAD}.
+Falls die Cartridge-Emulation eingeschaltet sein sollte, erscheint der grüne
+Bildschirm der mit dem \fmsg{TURBO CARTRIDGE} Menü der Cartridge-Emulation. In
+diesen Fällen die Grundkonfiguration gemäß Abschnitt \ref{sec:baseconfig}
+überprüfen.
+
+Ist die \fmsg{READY} Meldung erschienen, einfach den Knopf \fsw{Freeze} oben
+rechts drücken, so dass das Freezer-Hauptmenü erscheint. Tut sich nichts, ist
+entweder der Freezer schlecht eingesteckt, das Stromversorgungskabel (wenn
+vorhanden) nicht richtig angeschlossen oder der Freezer ist kaputtgegangen.
+Anschließend im Freezer-Hauptmenü die \fkey{Leertaste} drücken.
+Dadurch wird zum BASIC zurückgegangen. Ausprobieren, ob das BASIC Tasteneingaben
+annimmt. Wenn es das nicht tut, liegt ein Fehler vor. Wenn bis zu diesem Punkt
+alles geklappt hat, ist der \frz einsatzbereit.
+
+Sollte der Freezer aus irgendeinem Grund nicht richtig funktionieren, diesen
+nicht gleich zurücksenden, sondern erst einmal einen Brief oder eine E-Mail mit
+einer Beschreibung der Symptome senden. Es ist aufgrund des 100\%-igen
+Endabnahmetests jedes Freezers praktisch ausgeschlossen, dass es am Freezer
+liegt. Es liegt wahrscheinlich an einem Einbaufehler oder am Atari selbst. Es
+ist besser, diese Möglichkeiten durch eine Rückfrage auszuschließen, bevor der
+Freezer selbst zur Überprüfung eingesandt wird. Dies vermeidet unnötige
+Wartezeiten und Kosten.
+
+\subsection{Systemdiskette erstellen}
+
+Gleich nach der erfolgreichen Installation des \frzs sollte die Systemdiskette
+erstellt werden. Auf der Systemdiskette sind das Flash-Programm das Beschreiben
+des Flash-ROMs durch den Atari sowie die Freezer-Software enthalten. Damit kann
+der \frz jederzeit wieder in den Auslieferungszustand zurückgesetzt werden. Im
+Auslieferungszustand enthält das Flash-ROM die dazu notwendige Software. Die
+Systemdiskette wird wie folgt erstellt:
+\clearpage
+
+\begin{enumerate}
+\item Den Atari ausschalten und eine Diskettenstation anschließen.
+\item Den Schalter \fsw{CartEmu} nach rechts schieben, um
+Cartridge-Emulation zu aktivieren.
+\item Nach dem Einschalten des Ataris sollte das Menü der
+Cartridge-Emulation erscheinen.
+\item Mit \fkey{D} die Standardeinstellungen laden und mit \fkey{RETURN}
+bestätigen.
+\item Jetzt befindet man sich in der \fq{\frz System Disk Writer} Software. Eine
+leere Diskette ins Diskettenlaufwerk \fq{D1:} einlegen und \fkey{RETURN}
+drücken. Die Software formatiert nun die Diskette in mittlerer Dichte und
+schreibt die Freezer-Software darauf. Sollte dabei ein Fehler auftreten (\zB auf
+Grund einer defekten Diskette), so wird die Meldung \fmsg{ERROR} ausgegeben und
+man muss eine neue Diskette einlegen und das Programm neu starten.
+Hierzu die Rückfrage \fmsg{restart program?} einfach mit \fkey{Y} bestätigen.
+Zur Sicherheit sollte man eine zweite Kopie der Systemdiskette erstellen,
+schreibschützten an einem sicheren Ort verwahren.
+\item Nach dem erfolgreichen Erstellen der Systemdiskette den Atari
+abschalten und den Schalter \fsw{CartEmu}
+wieder in die Ausgangsposition (nach links) zurück schieben.
+\end{enumerate}
+
+Wenn alle Stricke reißen und man die Systemdiskette verliert oder
+versehentlich überschreibt (ja, so etwas kann schon mal passieren), gibt es im
+Internet immer noch unter \url{http://turbofreezer.horus.com} ein
+ATR-Diskettenimage der Systemdiskette zum Download.
+
+\subsection{Stereo-POKEY-Modus aktivieren (optional)}
+
+Falls der Atari eine Stereo-POKEY-Erweiterung enthält und diese im
+Stereo-POKEY-Modus ist, muss der Schalter \fsw{Stereo} nach rechts geschoben
+werden. Dadurch speichert der Freezer auch die Hardwareregister des zweiten
+POKEYs im Shadow-RAM. Beim Aktivieren des Freezers wird der zweite POKEY
+deaktiviert. Bei Auftauen wird sein Zustand dann wieder korrekt
+wiederhergestellt.
+
+Grundsätzlich gilt, dass die Position dieses Schalters genau mit der
+Konfiguration des Ataris übereinstimmen muss. Eine Änderung der Schalterstellung
+im laufenden Betrieb ist zwar erlaubt, das Shadow-RAM im Freezer enthält dann
+aber falsche Daten. Um das zu korrigieren, muss man \fkey{RESET} drücken, damit
+das Betriebssystem den Custom-Chip Bereich neu initialisiert. Alternativ ändert
+man die Schalterstellung nur bei ausgeschaltetem Atari.
+
+\subsection{Integrierte 512k RAM-Erweiterung aktivieren (optional)}
+
+Als besonderes Feature enthält der Freezer eine integrierte, batteriegepufferte
+512k RAM-Erweiterung. Damit lässt sich jeder Atari so einfach wie bisher noch
+nie von 64k auf insgesamt 576k erweitern. Und die Daten in der RAM-Erweiterung
+bleiben durch die Batteriepufferung sogar nach dem Ausschalten erhalten.
+
+Schiebt man den Schalter \fsw{Ramdisk} nach rechts, wird die RAM-Erweiterung
+aktiviert. Eine eventuell vorhandene interne RAM-Erweiterung im Atari wird dabei
+automatisch deaktiviert.
+
+\subsection{Steckmodule am Atari XE verwenden}
+
+Da der Freezer an Atari XE Computern den Modulport blockiert, ist auf der XE
+Adapterplatine ein Modulanschluss vorhanden. Damit kann man trotz angestecktem
+Freezer weiterhin auch Steckmodule verwenden. Die Module sind dabei so
+einzustecken, dass die Beschriftung des Moduls in Richtung des Ataris zeigt. Man
+darf das Module keinesfalls verkehrt herum einstecken, ansonsten können Modul,
+Freezer und Atari Schaden nehmen.
+
+Rund um den Modulanschluss sind Ausfräsungen vorhanden in die eine evtl.
+vorhandene \fq{Plastikwanne}, wie sie in den Atari XL Computern am Modulschacht
+zu finden ist, eingesetzt werden kann. Dadurch entfällt dann das lästige
+manuelle Entriegeln mancher Module. Diese \fq{Plastikwannen} sind leider nicht
+einzeln erhältlich. Die einzige Möglichkeit eine zu bekommen ist das Schlachten
+eines defekten Atari XL Computers.
+
+\section{Erweiterte Konfigurationen für Lötexperten}
+
+{\bfseries Warnung: Alle folgenden Erweiterungen sind wirklich nur für
+Lötexperten geeignet. Wer kein solcher ist, sollte sich lieber einen solchen Experten
+suchen. Es lohnt sich weder, zu diesem Zweck eine extrem teurere Servicestelle
+aufzusuchen, noch lohnt es sich, durch Ungeschick den armen Atari zu ruinieren.}
+
+\subsection{Interne Stromversorgung bereitstellen}
+\label{sec:add5vpbi}
+
+Wer einen Atari 800 XL ohne Stromversorgung am PBI hat, kann
+diese nachträglich einbauen, was aber sehr schwierig ist und großes
+Geschick erfordert. Wer sich das nicht zutraut, kann auch nur die
+Leitung des Freezers verlängern und im Inneren des Ataris an die
+Stromversorgung anschließen. In beiden Fällen bleibt der Joystickport
+dann für seinen eigentlichen Zweck frei.
+
+Um Anfänger abzuschrecken, ist die folgende Beschreibung des Umbaus auf
+das absolute Minimum beschränkt worden. Experten finden sich damit
+problemlos zurecht. Wer sich einen \fq{Experten} gesucht hat und bemerkt,
+dass dieser im Dunkeln tappt, hat damit noch die letzte Chance, diesen
+offensichtlichen Amateur zu stoppen.
+
+Der Abgriff der Stromversorgung erfolgt an dem Ende von L1, von dem eine
+Leiterbahn in den abgeschirmten Teil führt. Die Ferritperle L1 befindet sich
+unmittelbar neben dem Einschalter. An diesen Punkt wird entweder das verlängerte
+Stromversorgungskabel des Freezers angelötet oder es wird von hier je eine Leitung zu
+Pin 47 und Pin 48 des PBI geführt. Dies sind die vorletzten Kontaktflächen vor
+Pin 49 und 50, je eine auf der Oberseite und eine auf der Unterseite der
+Platine. Das Anbringen an der Unterseite ist schwieriger, weil dazu der Atari
+vollständig zerlegt werden muss. Zudem ist es kniffelig, an den Enden der
+Kontaktflächen zu löten, ohne dass das Zinn auf den aktiven Teil der
+Kontaktfläche kriecht. Letzte muss in jedem Fall vermieden werden.
+
+\subsection{SYSTEM RESET-Taste einbauen}
+\label{sec:systemreset}
+Für die Verwendung des Oldrunners und für das Einfrieren von Programmen die
+keine Interrupts verwenden ist es günstig, eine \fkey{SYSTEM RESET}-Taste
+einzubauen, die einen nicht abschaltbaren Non-Maskable Interrupt (NMI) auslösen
+kann. Der Taster wird so eingebaut, dass Pin 6 des ANTIC auf Ground geschaltet
+werden kann. Der Abgriff erfolgt am besten am zugehörigen Pull-Up Widerstand.
+Beim Atari 800 XL sowie allen Atari XE Modellen ist dies R31. Beim Atari 600 XL
+ist es R34 und beim Atari 1200 XL ist es R7.
+
+{\bfseries Warnung: Zusätzlich der allgemeinen Warnung aus
+dem ersten Abschnitt gilt hier, dass auch mechanischen Arbeiten für
+den Einbau des Tasters notwendig sind. Diese erfordern zusätzliches Werkzeug und
+handwerkliches Geschick, um ein ansehnliches Resultat zu erreichen.}
+
+\subsection{Kompatibilität zu 1MB RAM-Erweiterungen herstellen}
+Der \frz verwendet die Refresh-Leitung, um den Atari anzuhalten. Daher kommt es
+leider zu Kompatibilitätsproblemen mit allen internen RAM-Erweiterungen, die
+eine eigene Refresh-Logik auf Basis des Refresh-Signals des ANTIC einsetzen.
+Dies betrifft hauptsächlich 1MB RAM-Erweiterungen wie \zB die Newell
+RAM-Erweiterung. Die meisten 256k RAM-Erweiterungen sowie der erweiterte
+Speicher des Atari 130 XE sind davon nicht betroffen. Mit zwei zusätzlichen
+Bauteilen lässt sich dieses Problem jedoch sehr einfach beheben. Benötigt werden
+eine Kleinsignal Schottky Diode, \zB vom Typ \fq{BAT 85} und ein 4.7kOhm
+Widerstand.
+
+{\bfseries Warnung: Zusätzlich der allgemeinen Warnung aus dem ersten Abschnitt
+gilt hier, dass der Pin des ANTIC mit besondere Vorsicht behandelt werden muss.
+Der Pin bricht sehr leicht, wenn man ihn zu stark biegt.}
+
+Nach dem Öffnen des Ataris muss der Pin 8 am ANTIC hoch gebogen werden.
+Das Kabel, das von Pin 8 zur RAM-Erweiterung führt, vorher ablöten.
+Ist der ANTIC gesockelt, den ANTIC aus der Fassung ziehen und sehr vorsichtig
+den Pin hoch biegen. Es reicht aus den Pin so weit weg zu biegen, dass er beim
+Einstecken des ANTIC in den Sockel nicht mehr im Sockel sitzt. Ist der ANTIC
+direkt auf der Platine eingelötet, den Pin mit einem Miniatur-Seiten\-schneider
+knapp über der Platine abknipsen und ebenfalls vorsichtig hoch biegen.
+
+Als erstes muss die Diode zwischen dem hoch gebogenen Pin 8 und Pin 8 des
+Sockels (bzw. der Platine) gelötet werden. Die Kathode (am Gehäuse der Diode mit
+einem dunklen Ring markiert) muss mit dem ANTIC, die Anode mit Sockel verbunden
+werden. Die einfachste Lösung dafür ist es, die Diode direkt an Pin 8 des ANTIC
+anzulöten und von der Anode ein dünnes Kabel zur Platinen-Unterseite zu führen,
+das dort mit Pin 8 verbunden wird.
+
+Ein Ende des Widerstandes muss mit der Anode der Diode verbunden werden, das
+andere Ende des Widerstandes mit Pin 21 des ANTIC (+5V). Nun kann das Kabel, das
+von Pin 8 am ANTIC zur RAM-Erweiterung führt wieder an Pin 8 am ANTIC angelötet
+werden.

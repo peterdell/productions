@@ -1,0 +1,458 @@
+;  flash - TheCart flash writer
+;
+;  Copyright (C) 2005-2014 Matthias Reichl <hias@horus.com>
+;
+;  This program is free software; you can redistribute it and/or modify
+;  it under the terms of the GNU General Public License as published by
+;  the Free Software Foundation; either version 2 of the License, or
+;  (at your option) any later version.
+;
+;  This program is distributed in the hope that it will be useful,
+;  but WITHOUT ANY WARRANTY; without even the implied warranty of
+;  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;  GNU General Public License for more details.
+;
+;  You should have received a copy of the GNU General Public License
+;  along with this program; if not, write to the Free Software
+;  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+	.include "cio.inc"
+	.include "libflash.inc"
+	.include "flash.inc"
+	.include "flashdef.inc"
+
+	.BANK
+	* = START
+	JMP FLASHMAIN
+
+; entry point for cartmenu, don't clear highspeed table
+; hopefully this prevents IO errors with AspeQt
+	JMP FLASHMAIN_CARTMENU
+
+DEFSIOVEC	= $E459
+
+SIO	JMP HISIO
+; highspeed SIO code must be at very beginning
+	.include "hisio.src"
+
+FLASHMAIN
+; clear highspeed SIO table
+	LDA #0
+	STA DUNIT
+	JSR HISIO
+
+FLASHMAIN_CARTMENU
+	JSR INIT
+
+
+MAINLP	BPUT0 TTITLE
+	JSR FINIT
+	JSR FENABLE
+	JSR FDETECT
+	JSR FDISABLE
+
+	LDA FTYPE
+	CMP #TNOFLSH
+	BNE MAINFND
+
+	BPUT0 TPRESS
+	INC $42
+	JSR GETCHAR
+	TYA
+	PHA
+	JSR FINIT
+	DEC $42
+
+	PLA
+	CMP #128
+	BNE MAINLP
+
+EXIT	JSR CLEANUP
+	STA TC_LOCKCFG
+	JMP ($A)
+
+MAINFND
+	LDA FTYPE
+	JSR PFTYPE
+
+MOK
+; save current state
+	FSAVESTATE STATEFLASH
+; setup RAM mode
+	LDA #TRAM512
+	STA FTYPE
+	JSR FSETCHP
+	FSAVESTATE STATERAM
+; restore flash state
+	JSR MODEFLASH
+
+; setup variables for old (raw) flasher code
+	FCOPY4 FSIZE,SIZE
+	LDA #1
+	STA NUMCHIP
+	STA NEEDERAS
+
+; setup SIZEB
+	JSR SETSIZEB
+
+.if 0
+	LDA #0
+	STA NEEDERAS
+	LDA FBLKMSK
+	ORA FBLKMSK+1
+	ORA FBLKMSK+2
+	ORA FBLKMSK+3
+	BEQ ?CNOERAS
+	INC NEEDERAS
+?CNOERAS
+.endif
+
+; check for signature in flash
+	JSR CHKFLASHSIG_DFL
+	BCS ?NOFLSIG
+
+; print name of image in flash (reuse FNBUF)
+; add EOL at end, in case name is full length
+	LDA #155
+	STA FNBUF+CNAMELEN
+; copy name to FNBUF
+	LDX #CNAMELEN-1
+?CPFNAME
+	LDA DATABUF+CNAME,X
+	STA FNBUF,X
+	DEX
+	BPL ?CPFNAME
+	PRINT0 FNBUF
+
+; print used banks
+	LDA DATABUF+CBLOCKCOUNT
+	STA BLOCKBANK
+	LDA DATABUF+CBLOCKCOUNT+1
+	STA BLOCKBANK+1
+	JSR MULTBLOCKBANK
+	LDX BLOCKBANK
+	LDY BLOCKBANK+1
+	JSR PRDEC
+	BPUT0 TUBANK
+
+?NOFLSIG
+; print highspeed SIO status
+	BPUT0 THISIO
+	LDA SIO+2
+	CMP #>HISIO
+	BEQ ?THION
+	BPUT0 TOFF
+	JMP ?TENDHISIO
+?THION	BPUT0 TON
+?TENDHISIO
+	LDA #155
+	JSR PUTCHAR
+
+	BPUT0 TMENU
+MENULP	JSR GETCHAR
+	CPY #128
+	BNE ?MENUL1
+	JMP MAINLP
+?MENUL1
+	CMP #'Q
+	BNE NOQ
+
+	JSR PRSEL
+	BPUT0 TASKQUIT
+	JSR YESNO
+	PHP
+	LDA #155
+	JSR PUTCHAR
+	PLP
+
+	BEQ ?DOEXIT
+	JMP MAINLP
+?DOEXIT
+	JMP EXIT
+
+NOQ
+	CMP #'1		; program flash
+	BNE NO1
+
+	JSR PRSEL
+
+	LDA #0
+	STA DRYRUN
+	JSR PROGINCR
+MAINCONT
+	BPUT0 TCONT
+	JSR GETCHAR
+	JMP MAINLP
+
+NO1
+.if 1
+	CMP #'!		; program dry run
+	BNE NOSH1
+
+	JSR PRSEL
+	LDA #$FF
+	STA DRYRUN
+	JSR PROGINCR
+	JMP MAINCONT
+
+NOSH1
+.endif
+	CMP #'2		; program raw file
+	BNE NO2
+
+	JSR PRSEL
+	LDA #MODEP
+	STA MODE
+	JSR DOCOMMON
+	JMP MAINCONT
+
+NO2
+	CMP #'3		; program raw image
+	BNE NO3
+
+	JSR PRSEL
+	LDA #MODEP_SIO
+	STA MODE
+	JSR DOCOMMON
+	JMP MAINCONT
+
+NO3
+	CMP #'4		; write to raw file
+	BNE NO4
+
+	JSR PRSEL
+	LDA #MODED
+	STA MODE
+	JSR DOCOMMON
+	JMP MAINCONT
+
+NO4
+	CMP #'E		; erase flash
+	BNE NOE
+
+	JSR PRSEL
+	JSR DOERASE
+	JMP MAINCONT
+
+NOE
+	CMP #'H		; toggle highspeed SIO
+	BNE NOH
+
+	LDA SIO+2
+	CMP #>HISIO
+	BEQ ?TOGGLHI1
+	LDA #<HISIO
+	STA SIO+1
+	LDA #>HISIO
+	STA SIO+2
+	LDA #0
+	STA DUNIT
+	JSR HISIO
+	JMP MAINLP
+?TOGGLHI1
+	LDA #<DEFSIOVEC
+	STA SIO+1
+	LDA #>DEFSIOVEC
+	STA SIO+2
+	JMP MAINLP
+
+NOH
+	CMP #'S		; start cartridge
+	BNE NOS
+
+	JSR PRSEL
+	JMP DOSTART
+
+NOS
+.if 0
+; testing
+	CMP #'T		; test1
+	BNE ?NOT1
+
+	JSR PRSEL
+	JSR TEST1
+	JMP MAINCONT
+
+?NOT1
+	CMP #'D		; test2
+	BNE ?NOT2
+
+	JSR PRSEL
+	JSR TEST2
+	JMP MAINCONT
+
+?NOT2
+.endif
+	JMP MENULP
+
+; print "aborted" and return with C=1
+RETABORT
+	BPUT0 TABRT
+	SEC
+	RTS
+
+; print menu selection
+PRSEL	JSR PUTCHAR
+	LDA #155
+	JSR PUTCHAR
+	LDA #155
+	JMP PUTCHAR
+
+; start cartridge
+DOSTART
+
+; check if signature is present
+	LDA #<TC_MAINSIG
+	STA FLASHADR
+	LDA #>TC_MAINSIG
+	STA FLASHADR+1
+	LDA #0
+	STA FLASHADR+2
+	STA FLASHADR+3
+	LDA #<MAINSIG
+	STA DATAADR
+	LDA #>MAINSIG
+	STA DATAADR+1
+	JSR FENABLE
+	LDX #MAINSIGL
+	JSR FCBYTE
+	PHP
+	JSR FDISABLE
+	BEQ DOSTART2
+
+; signature not present, do simple start
+	BPUT0 TASKSC
+	JSR YESNO
+	PHP
+	LDA #155
+	JSR PUTCHAR
+	PLP
+	BEQ ?STARTCAR1
+
+	JMP MAINLP
+
+; default cart start using coldstart
+?STARTCAR1
+	JSR STARTCFG
+	JMP $E477
+
+; ask if we should to a normal start or jump directly
+; into the expert menu
+DOSTART2
+	BPUT0 TASKSC2
+?DOSTART2LP
+	JSR GETCHAR
+	CPY #128
+	BEQ ?DOSTART2X
+	CMP #'N
+	BEQ ?DOSTART2X
+	CMP #'Y
+	BEQ ?STARTCAR1
+	CMP #'E
+	BNE ?DOSTART2LP
+
+; jump directly into expert menu
+	JSR STARTCFG
+	LDA $D013
+	STA $3FA
+	DEC $42
+	JMP TC_ENTRYVEC
+
+; cartridge start aborted
+?DOSTART2X
+	JMP MAINLP
+
+; configure cart for start
+STARTCFG
+	INC $42
+	LDA #0
+	STA 9
+	LDA #1
+	STA 580
+	LDA #<TC_MENU_BANK
+	STA TC_BANKLO
+	LDA #>TC_MENU_BANK
+	STA TC_BANKHI
+	LDA #0
+	STA TC_BANK2LO
+	STA TC_BANK2HI
+	STA TC_ENABLE2
+	STA TC_CFG
+	LDA #TC_MODE_8K
+	STA TC_MODE
+	RTS
+
+; erase flash
+DOERASE
+	BPUT0 TASKER
+	JSR YESNO
+	BEQ ?ASKERAS1
+	JMP RETABORT
+?ASKERAS1
+	BPUT0 TREALLY
+	JSR YESNO
+	BEQ ?ASKERAS2
+	JMP RETABORT
+?ASKERAS2
+
+	BPUT0 TERAS
+	JSR FADRZERO
+	JSR FENABLE
+	JSR FCERAS
+	PHP
+	JSR FDISABLE
+	PLP
+	JSR PSTAT
+	RTS
+
+INIT	LDA 106
+	STA M106
+	LDA 740
+	STA M740
+	LDA #$A0
+	STA 106
+	STA 740
+	JSR GR0
+
+	LDA $D301
+	STA MD301
+	ORA #2
+	STA $D301
+	RTS
+
+CLEANUP	LDA MD301
+	STA $D301
+	LDA M106
+	STA 106
+	LDA M740
+	STA 740
+	JMP GR0
+
+M106	.BYTE 0
+M740	.BYTE 0
+MD301	.BYTE 0
+
+
+	.include "flashio.src"
+	.include "flashutil.src"
+	.include "flashincr.src"
+	.include "flashraw.src"
+	.include "flashtext.src"
+
+	.include "libflash.src"
+	.include "cio.src"
+	.include "iohelp.src"
+	.include "iohelpfl.src"
+	.include "numhelp.src"
+
+;	.include "flashtest.src"
+
+	.include "flashdata.src"
+	.include "libflash-ramloc.src"
+
+.if .not .def FLASH_BIN
+	.BANK
+	* = $2E0
+	.WORD START
+.endif
+

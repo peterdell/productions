@@ -1,0 +1,216 @@
+;  spitest2 - test SPI code
+;
+;  a special adapter is needed, setting PA7=high enables the
+;  destination cart, setting PA7=low the source cart.
+;
+;  Copyright (C) 2013-2014 Matthias Reichl <hias@horus.com>
+;
+;  This program is free software; you can redistribute it and/or modify
+;  it under the terms of the GNU General Public License as published by
+;  the Free Software Foundation; either version 2 of the License, or
+;  (at your option) any later version.
+;
+;  This program is distributed in the hope that it will be useful,
+;  but WITHOUT ANY WARRANTY; without even the implied warranty of
+;  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;  GNU General Public License for more details.
+;
+;  You should have received a copy of the GNU General Public License
+;  along with this program; if not, write to the Free Software
+;  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+	.include "cio.inc"
+	.include "libflash.inc"
+	.include "flash.inc"
+	.include "flashdef.inc"
+
+SPIVEC = DATAVEC
+
+;************************************
+; ATR file header
+;************************************
+
+	* = START-16
+
+        .WORD $0296 ; magic
+        .WORD (END-START+15)/16
+        .WORD 128
+        .WORD 0,0,0,0,0
+
+; boot header complete file
+
+        .BYTE 0
+
+        .BYTE (END-START+127)/128
+
+        .WORD START
+        .WORD XRTS
+
+	JSR INIT
+
+MAINLP  BPUT0 TTITLE
+        JSR FINIT
+        JSR FENABLE
+        JSR FDETECT
+        JSR FDISABLE
+
+        LDA FTYPE
+        CMP #TNOFLSH
+        BNE MAINFND
+
+        BPUT0 TPRESS
+        INC $42
+        JSR GETCHAR
+        TYA
+        PHA
+        JSR FINIT
+        DEC $42
+
+        PLA
+        CMP #128
+        BNE MAINLP
+
+EXIT    JSR CLEANUP
+        JMP ($A)
+
+MAINFND
+        LDA FTYPE
+        JSR PFTYPE
+
+	LDA #<SPIBUF
+	STA SPIVEC
+	LDA #>SPIBUF
+	STA SPIVEC+1
+
+; check write enable/disable
+	JSR SSTAT
+	JSR ?SPI_WREN
+	JSR SSTAT
+	JSR ?SPI_WRDI
+	JSR SSTAT
+
+; test read+write
+	JSR RDSPI
+	LDA SPIBUF
+	EOR #$FF
+	STA SPIBUF
+	JSR WRSPI
+	JSR SSTAT
+	JSR RDSPI
+
+	JSR GETCHAR
+	JMP MAINLP
+
+SSTAT
+	BPUT0 TSTAT
+	JSR ?SPI_RDSR
+
+	JSR PUTHEX
+	LDA #155
+	JSR PUTCHAR
+	RTS
+
+
+RDSPI
+	BPUT0 TRD0
+
+	LDX #1
+	LDY #0
+	JSR SPI_READ_DATA
+	BCC RDSPIOK
+	JSR PERROR
+	LDA #42
+	STA SPIBUF
+	RTS
+
+RDSPIOK
+	LDA SPIBUF
+	JSR PUTHEX
+	LDA #155
+	JSR PUTCHAR
+	RTS
+
+WRSPI
+	BPUT0 TWR0
+
+	LDX #1
+	LDY #0
+	JSR SPI_WRITE_DATA
+	BCC WRSPIOK
+	JSR PERROR
+	LDA #42
+	STA SPIBUF
+	RTS
+
+WRSPIOK
+	LDA SPIBUF
+	JSR PUTHEX
+	LDA #155
+	JSR PUTCHAR
+	RTS
+
+
+	
+
+X	JMP X
+
+
+INIT    LDA 106
+        STA M106
+        LDA 740
+        STA M740
+        LDA #$A0
+        STA 106
+        STA 740
+        JSR GR0
+
+        LDA $D301
+        STA MD301
+        ORA #2
+        STA $D301
+        RTS
+
+CLEANUP LDA MD301
+        STA $D301
+        LDA M106
+        STA 106
+        LDA M740
+        STA 740
+        JMP GR0
+
+M106    .BYTE 0
+M740    .BYTE 0
+MD301   .BYTE 0
+
+XRTS	RTS
+
+SPITMP	.BYTE 0
+SPICOUNT	.BYTE 0
+SPIADR	.BYTE 0
+SPIMAXTIME	.BYTE 0
+
+	.include "libflash.src"
+	.include "cio.src"
+	DUNIT   = $0301
+
+	.include "iohelp.src"
+	.include "iohelpfl.src"
+	.include "numhelp.src"
+
+	.include "flashdata.src"
+
+	.include "spi.src"
+	.include "libflash-ramloc.src"
+
+	.include "spitext2.src"
+
+
+        .IF (*&127)<>0
+        .DC (128-(*&127)) 0
+        .ENDIF
+
+	SPIBUF = (*+255) & $ff00
+	SPIBUF2 = (*+511) & $ff00
+
+END     = *
+

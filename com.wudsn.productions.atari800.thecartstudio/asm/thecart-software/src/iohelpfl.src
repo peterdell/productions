@@ -1,0 +1,362 @@
+;  iohelpfl - various I/O helper routines for the libflash apps
+;
+;  Copyright (C) 2010 Matthias Reichl <hias@horus.com>
+;
+;  This program is free software; you can redistribute it and/or modify
+;  it under the terms of the GNU General Public License as published by
+;  the Free Software Foundation; either version 2 of the License, or
+;  (at your option) any later version.
+;
+;  This program is distributed in the hope that it will be useful,
+;  but WITHOUT ANY WARRANTY; without even the implied warranty of
+;  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;  GNU General Public License for more details.
+;
+;  You should have received a copy of the GNU General Public License
+;  along with this program; if not, write to the Free Software
+;  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+; print flash type
+PFTYPE
+; search for flash type in FLASHTXT (end with $FF)
+	LDA #<FLASHTXT
+	STA FLASHTMP
+	LDA #>FLASHTXT
+	STA FLASHTMP+1
+PFTYPEL	LDY #0
+	LDA (FLASHTMP),Y	; check type
+	CMP #$FF
+	BEQ PFTYPEX		; end of table
+	CMP FTYPE
+	BEQ PFTYPE3		; found it!
+	INY
+	CLC
+	LDA (FLASHTMP),Y	; get length
+	ADC FLASHTMP
+	STA FLASHTMP
+	BCC PFTYPE1
+	INC FLASHTMP+1
+PFTYPE1	CLC
+	LDA FLASHTMP
+	ADC #2			; add 2 (type+length byte)
+	STA FLASHTMP
+	BCC PFTYPE2
+	INC FLASHTMP+1
+PFTYPE2	JMP PFTYPEL
+
+; print "detected" plus flash type
+PFTYPE3	BPUT0 TFDET
+	LDY #1
+	LDA (FLASHTMP),Y	; length
+	PHA
+	CLC
+	LDA FLASHTMP
+	ADC #2
+	PHA
+	LDA FLASHTMP+1
+	ADC #0
+	TAY
+	PLA
+	TAX
+	PLA
+	JSR BPUT0COD
+	LDA #155
+	JSR PUTCHAR
+	RTS
+
+PFTYPEX	PRINT 0, TUNKFL
+	RTS
+
+	.MACRO FLTXT
+	.BYTE %1
+	.BYTE TEND-1-*
+	.BYTE $99
+	.BYTE +$80,%$2
+	.BYTE $19
+TEND
+	.ENDM
+
+FLASHTXT
+.if 0
+	FLTXT TAMD10, "AMD 29F010"
+	FLTXT TAMD10B, "AMD 29F010B"
+	FLTXT TAMD40B, "AMD 29F040B"
+	FLTXT TST10B, "ST 29F010B"
+	FLTXT TST40B, "ST 29F040B"
+	FLTXT TBM40, "BM 29F040"
+	FLTXT TS29GL01, "S29GL01"
+	FLTXT TS29GL512, "S29GL512"
+	FLTXT TS29GL256, "S29GL256"
+	FLTXT TS29GL128, "S29GL128"
+.endif
+	FLTXT TS29GL01, "The!Cart 128MB"
+	FLTXT TS29GL512, "The!Cart 64MB"
+	FLTXT TS29GL256, "The!Cart 32MB"
+	FLTXT TS29GL128, "The!Cart 16MB"
+	.BYTE $FF
+
+TFDET	.BYTE "Detected "
+TFDETL	= * - TFDET
+
+; print flash address
+PFLADR	
+	LDA FLASHADR+3
+	JSR PUTHEX
+	LDA FLASHADR+2
+	JSR PUTHEX
+	LDA FLASHADR+1
+	JSR PUTHEX
+	LDA FLASHADR+0
+	JSR PUTHEX
+	RTS
+
+; print flash address as bank number
+PFLBNK	LDA #0
+	STA ADRTMP
+	LDA FLASHADR+1
+	STA ADRTMP+1
+	LDA FLASHADR+2
+	STA ADRTMP+2
+	LDA FLASHADR+3
+	STA ADRTMP+3
+	JSR ADR2BNK
+	LDA ADRTMP
+	STA NUMBIN
+	LDA ADRTMP+1
+	STA NUMBIN+1
+	LDA #0		; decimal mode, including leading zeroes
+	STA NUMMOD
+	JSR ITOA
+
+; convert leading zeroes to spaces
+	LDX #0
+PFLBNK1	LDA NUMASC,X
+	CMP #'0
+	BNE PFLBANK2
+	LDA #32
+	STA NUMASC,X
+	INX
+	CPX #4
+	BNE PFLBNK1
+PFLBANK2
+	BPUT0L NUMASC,5
+	RTS
+
+; print error plus internal flash address
+PERRADR	BPUT0 TERRADR
+	LDA FLASHADI+3
+	JSR PUTHEX
+	LDA FLASHADI+2
+	JSR PUTHEX
+	LDA FLASHADI+1
+	JSR PUTHEX
+	LDA FLASHADI
+	JSR PUTHEX
+	LDA #155
+	JMP PUTCHAR
+
+; print error type
+PERRTYP	LDA FERROR
+	CMP #EFLFTO
+	BNE PERRT1
+	BPUT 0, TERRTOL, TERRTO
+	RTS
+
+PERRT1	CMP #EFLDVE
+	BNE PERRT2
+	BPUT0 TERRVE
+	LDA FERRUD
+	JSR PUTHEX
+	BPUT0 TERRV2
+	LDA FERRFD
+	JSR PUTHEX
+	LDA #155
+	JSR PUTCHAR
+PERRT2	RTS
+
+TUNKFL	.BYTE "No or unknown flash",155
+
+
+TERRADR	.BYTE 155, "Error at address $"
+TERRADRL = * - TERRADR
+
+TERRTO	.BYTE "flash programming failed",155
+TERRTOL	= * - TERRTO
+
+TERRVE	.BYTE "verify error: data = "
+TERRVEL	= * - TERRVE
+
+TERRV2	.BYTE " flash = "
+TERRV2L	= * - TERRV2
+
+; input drive number, store in DRIVENO
+; return C=1 on abort
+INPUTDRV
+	BPUT0 TDISKNO
+	JSR GETDEC
+	BCC ?INPUTDRV2
+	RTS
+?INPUTDRV1
+	PRINT0 TINVDRV
+	SEC
+	RTS
+?INPUTDRV2
+; check for valid drive number
+	CPY #0
+	BNE ?INPUTDRV1
+	CPX #0
+	BEQ ?INPUTDRV1
+	CPX #MAXDRIVENO+1
+	BCS ?INPUTDRV1
+	STX DRIVENO
+	STX CURDRIVENO
+	RTS
+
+; input start and number of banks
+RRANGE	
+	BPUT0 TSBANK
+	LDX SIZEB
+	LDY SIZEB+1
+	DEX
+	CPX #$FF
+	BNE RRANGE1
+	DEY
+RRANGE1
+	JSR PRDEC
+	BPUT0 TSBANK2
+
+	JSR GETDEC
+	BCC RRANGE11
+	JMP RRANGEX
+RRANGE11
+	STX RSBANK
+	STY RSBANK+1
+
+	CPY SIZEB+1
+	BCC RRANGE3
+	BEQ RRANGE2
+	JMP RRANGEX
+RRANGE2	CPX SIZEB
+	BCC RRANGE3
+	JMP RRANGEX
+RRANGE3
+	STX ADRTMP
+	STY ADRTMP+1
+	JSR BNK2ADR
+
+	LDA ADRTMP
+	STA FLASHADR
+	LDA ADRTMP+1
+	STA FLASHADR+1
+	LDA ADRTMP+2
+	STA FLASHADR+2
+	LDA ADRTMP+3
+	STA FLASHADR+3
+
+	LDA MODE        ; are we programming?
+	CMP #MODEP
+	BNE RRERAS3     ; no, skip check 
+; check if starting bank is not at block boundary
+	LDA NEEDERAS
+	BEQ RRERAS3
+
+	LDA FLASHADR+1
+	AND FBLKMSK+1
+	BNE RRERAS1
+
+	LDA FLASHADR+2
+	AND FBLKMSK+2
+	BNE RRERAS1
+
+	LDA FLASHADR+3
+	AND FBLKMSK+3
+	BEQ RRERAS3
+
+; starting bank not at block boundary, ask user if the first
+; block should be erased
+RRERAS1	
+	BPUT0 TERBNK
+	JSR YESNO
+	BMI RRANGEX
+	BNE RRERAS2
+
+; set bit 7 of NEEDERAS to indicate the first block must be erased
+	LDA NEEDERAS
+	ORA #$80
+	STA NEEDERAS
+
+RRERAS2
+	LDA #155
+	JSR PUTCHAR
+RRERAS3
+	LDA SIZE
+	STA ENDADR
+	LDA SIZE+1
+	STA ENDADR+1
+	LDA SIZE+2
+	STA ENDADR+2
+	LDA SIZE+3
+	STA ENDADR+3
+	
+	BPUT0 TNBANK
+	JSR GETDEC
+	BCS RRANGEX
+	CPY #$80	; support max 32768 banks
+	BCS RRANGEX
+	STX RNBANK
+	STY RNBANK+1
+	TYA
+	ORA RNBANK
+
+	BEQ RRANGEE	; 0 - up to end of flash/file
+	CLC
+	LDA RSBANK
+	ADC RNBANK
+	STA ADRTMP
+	LDA RSBANK+1
+	ADC RNBANK+1
+	STA ADRTMP+1
+
+	CMP SIZEB+1
+	BCC ?RRANG1
+	BNE RRANGEX
+	LDA ADRTMP
+	CMP SIZEB
+	BCC ?RRANG1
+	BEQ ?RRANG1
+
+RRANGEX	LDY #$FF
+	RTS
+
+?RRANG1	JSR BNK2ADR
+	LDA ADRTMP
+	STA ENDADR
+	LDA ADRTMP+1
+	STA ENDADR+1
+	LDA ADRTMP+2
+	STA ENDADR+2
+	LDA ADRTMP+3
+	STA ENDADR+3
+
+RRANGEE
+;	JSR PFLADR
+;	LDA #32
+;	JSR PUTCHAR
+;	LDA ENDADR+2
+;	JSR PUTHEX
+;	LDA ENDADR+1
+;	JSR PUTHEX
+;	LDA ENDADR
+;	JSR PUTHEX
+;	LDA #155
+;	JSR PUTCHAR
+
+.if 0
+	LDX RSBANK
+	STX BSBANK
+	LDX RSBANK+1
+	STX BSBANK+1
+.endif
+	LDY #0
+	RTS
+

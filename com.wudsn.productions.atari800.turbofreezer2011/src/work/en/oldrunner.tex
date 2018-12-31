@@ -1,0 +1,40 @@
+\chapter{Oldrunner -- Atari OS Rev. B}
+The Atari 400/800 is the only 8-bit home computer class that contains a
+well-designed and structured operating system (OS). This allows for changes,
+extensions and improvements without the need to adapt current programs.
+That's why Atari could use a more sophisticated OS in the later Atari XL/XE
+series. Annoyingly, there are programs (from 1980-1983) that don't run on the XL
+series. This is the fault of the programmers who did not stick to the official
+programming guidelines.
+
+To be able to use these incompatible programs on the Atari XL/XE, so called
+\fq{Translator} disks were published. They disable the OS ROM and copy the old
+OS version \fq{Rev. B} into the RAM which is located under the OS ROM.
+Although this works well in most cases, it's time consuming and unpleasant to
+always have to load this alternative OS. Only a hardware solution where the old
+OS is stored in a kind of ROM that is always available and unmodifiable will
+work with all  incompatible programs. Unfortunately these so called
+\fq{Oldrunners} normally require modifications within the Atari.
+
+With the \frz it is now possible to implement an Oldrunner without modifications
+within the Atari. The memory management logic makes this possible. The Oldrunner
+can be activated and deactivated using the switch labeled \fsw{OldOS}. Move the
+switch to the right position \fval{ON} to activate the Oldrunner. Move the
+switch only while the Atari is off. Otherwise the content of the RAM will not
+match the required content of the newly selected OS version and the system will
+crash.
+
+For various reasons, it's best to only activate the Oldrunner if it is the only
+way to get a program to work. While the Oldrunner is active, there is no
+built-in BASIC, no RAM extension and no warm start. Pressing the \fkey{RESET} key
+while the Oldrunner is active always (!) triggers a cold start and the content
+of the RAM will be lost. The key which corresponds to the \fkey{RESET} key of
+the Atari XL/XE was called \fkey{SYSTEM RESET} in the Atari 400/800 and
+triggered a non-maskable interrupt (NMI).  It's not very difficult to retrofit
+this key (see section \ref{sec:systemreset}) but it involves opening the Atari
+and is therefore rather an expert task. Besides that, this key is not really
+needed anyway because most of the incompatible programs are games which have
+mapped the \fkey{SYSTEM RESET} to a cold start or a system crash.
+This is the ridiculous attempt to annoy the \fq{crackers}, but misses the point
+and only annoys the user instead.
+

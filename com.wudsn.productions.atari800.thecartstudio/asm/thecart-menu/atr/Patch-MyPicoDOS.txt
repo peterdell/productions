@@ -1,0 +1,24 @@
+MyPicDos:
+0800: JMP SIOV/HISIO
+
+$4131=>siov, $4135=>siov, $413a=<siov
+
+ATR
+3940 : 0030 : 4C F2 16 AD 02 08 C9 E4 F0 06 20 0A 21 4C 6E 19 
+
+1949: AD 02 08  L1949   LDA $0802
+194C: C9 E4             CMP #$E4	>siov
+194E: F0 06             BEQ $1956
+1950: 20 0A 21          JSR $210A
+1953: 4C 6E 19          JMP $196E
+1956: A9 09     L1956   LDA #$09
+1958: 8D 01 08  L1958   STA $0801
+195B: A9 10             LDA #$10
+
+4130 : 0020 : C9 E4 D0 0C A9 E4 8D 02 08 A9 59 8D 01 08 18 60 
+210A: A9 E4     L210A   LDA #$E4	>siov
+210C: 8D 02 08          STA $0802	
+210F: A9 59             LDA #$59	<siov
+2111: 8D 01 08          STA $0801
+2114: 18                CLC
+2115: 60                RTS

@@ -1,0 +1,140 @@
+;  flashtext - TheCart ram test texts
+;
+;  Copyright (C) 2013-2014 Matthias Reichl <hias@horus.com>
+;
+;  This program is free software; you can redistribute it and/or modify
+;  it under the terms of the GNU General Public License as published by
+;  the Free Software Foundation; either version 2 of the License, or
+;  (at your option) any later version.
+;
+;  This program is distributed in the hope that it will be useful,
+;  but WITHOUT ANY WARRANTY; without even the implied warranty of
+;  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;  GNU General Public License for more details.
+;
+;  You should have received a copy of the GNU General Public License
+;  along with this program; if not, write to the Free Software
+;  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+TTITLE
+	.BYTE 125
+	.BYTE "The!Cart 512k RAM tester V0.1",155
+	.BYTE "(c) 2013 by Matthias Reichl",155,155
+TTITLEL	= * - TTITLE
+
+TPRESS	.BYTE "Press button on The!Cart then RETURN",155
+	.BYTE "or BREAK to exit",155
+TPRESSL = * - TPRESS
+
+TMENU	.BYTE 155
+	.BYTE "1) Program file to RAM",155
+	.BYTE "2) Verify file with RAM",155
+	.BYTE "3) Write RAM to file",155
+	.BYTE "4) Program random data",155
+	.BYTE "5) Verify random data",155
+	.BYTE "Q) Quit program",155
+	.BYTE "> "
+TMENUL	= * - TMENU
+
+TNAME	.BYTE "name: "
+TNAMEL	= * - TNAME
+
+TASKER	.BYTE "Completely erase cartridge (y/n)? "
+TASKERL	= * - TASKER
+
+TREALLY		.BYTE 155, "Are you really sure (y/n)? "
+TREALLYL	= * - TREALLY
+
+TASKCM  .BYTE "Start Cartridge (y/n)? "
+TASKCML = * - TASKCM
+
+TASKQUIT	.BYTE "Quit program (y/n)? "
+TASKQUITL	= * - TASKQUIT
+
+TFILNA	.BYTE "Filename > "
+TFILNAL	= * - TFILNA
+
+TOPENER	.BYTE "Error opening file!",155
+
+TERAF	.BYTE " erase"
+TERAFL	= * - TERAF
+
+TERAS	.BYTE 155, 155, "erasing cartridge"
+TERASL	= * - TERAS
+
+TRDDAT	.BYTE " read"
+TRDDATL	= * - TRDDAT
+
+TWRDAT	.BYTE " write"
+TWRDATL	= * - TWRDAT
+
+TPROGF	.BYTE " program"
+TPROGFL	= * - TPROGF
+
+TVERIF	.BYTE " verify"
+TVERIFL	= * - TVERIF
+
+TSEMPTY	.BYTE " empty"
+TSEMPTYL	= * - TSEMPTY
+
+TSBANK	.BYTE "starting bank (0-"
+TSBANKL	= * - TSBANK
+
+TSBANK2	.BYTE ") > 0",30
+TSBANK2L = * - TSBANK2
+
+TERBNK	.BYTE "bank not on block boundary,",155
+	.BYTE "erase block (y/n)? "
+TERBNKL	= * - TERBNK
+
+TNBANK	.BYTE "number of banks (0=to end) > 0",30
+TNBANKL	= * - TNBANK
+
+TDSKSIZ	.BYTE "disk size (8k sectors): "
+TDSKSIZL = * - TDSKSIZ
+
+TSTSEC	.BYTE "starting sector > 1",30
+TSTSECL	= * - TSTSEC
+
+THISIO	.BYTE 155, "Highspeed SIO: "
+THISIOL	= * - THISIO
+
+TON	.BYTE "on"
+TONL	= * - TON
+
+TOFF	.BYTE "off"
+TOFFL	= * - TOFF
+
+; last drive number is set in MAXDRIVENO
+TDISKNO		.BYTE "drive number (1-15) > "
+TDISKNOL 	= * - TDISKNO
+
+TINVDRV		.BYTE "invalid drive number",155
+
+TFINI		.BYTE 155, "operation successfully completed",155
+TFINIL		= * - TFINI
+
+TABRT		.BYTE 155, "operation aborted",155
+TABRTL	= * - TABRT
+
+TNODSK1 .BYTE "drive "
+TNODSK1L = * - TNODSK1
+TNODSK2 .BYTE " not responding!",155
+TNODSK2L = * - TNODSK2
+
+TREADERR	.BYTE "error reading drive "
+TREADERRL	= * - TREADERR
+
+TUNSUPDNS	.BYTE "unsupported disk density!",155
+
+TINSIMG1	.BYTE 155,"insert part "
+TINSIMG1L	= * - TINSIMG1
+
+TINSIMG2	.BYTE " in drive "
+TINSIMG2L	= * - TINSIMG2
+
+TCONT	.BYTE 155
+	.BYTE "Press any key to continue > "
+TCONTL	= * - TCONT
+
+

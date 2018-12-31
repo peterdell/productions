@@ -1,0 +1,142 @@
+\section{Disk Operating System (DOS)}
+Who didn't encounter the following situation: you have spent the past 3 your
+editing your program and now it's time to save it again. But instead of the
+expected success message you get a \fmsg{File locked} or \fmsg{Disk full} error
+message. Now it's hard to know what to do. Starting the DUP via \fcmd{DOS} will
+make you lose your program because you didn't activate \fq{MEM.SAV}, as it takes
+forever to execute.
+
+As the freezer is capable of stopping any program at any point, it suggests
+itself to also include a DOS with the most commonly used commands.
+Then it's no problem to handle the situation and continue the frozen
+program afterwards.
+The built-in DOS of the \frz contains all required functions to deal with the
+situation mentioned above. It supports single-, enhanced-, and double-density
+and is fully compatible to DOS 2.0 and DOS 2.5. The functions of the Turbo 1050
+floppy speeder are fully supported, as well as the high SIO speed of
+Happy/Speedy compatible disk drives and XF-551 drives. Also any other tuned or
+standard disk drive can be used as well.
+
+A disk command consists of  a three character long command or a command followed
+by one or more spaces and a filename. Some commands also allow for specifying an
+option that may be added to the command, separated by a slash. The command must
+start immediately after the prompt. And besides the before mentioned space, no
+additional spaces must be entered. File names may contain the wildcard \fq{\fmsg{*}}
+replacing any character sequence, as well as \fq{\fmsg{?}} replacing any single
+character.
+Illegal commands will simply be ignored and will not cause an error message.
+Error messages are only be displayed if they were caused by the execution of
+a command.
+
+\subsection{Executing commands}
+If the prefix \fmsg{D:} is not included in a file name, the default 
+\fmsg{D1:} will be used. RAM disks are not supported, as they always
+depend on the DOS and RAM disk driver that is used. Because of technical
+reasons PBI devices can unfortunately also not be used.
+Wildcards may also be used in the destination file names. In this case, the
+first matching file name is used. The only exception is the rename command
+\fkey{REN} which will be described in the next section.
+
+The commands \fcmd{DEL}, \fcmd{LOC}, \fcmd{UNL}, and \fcmd{REN} for manipulating
+directory entries may operate on multiple files in a row. To prevent unwanted
+actions, an option has to be added to have the command be effective on multiple
+files with similar names. If no option is added, only the first matching file
+will be processed. The option \fcmd{/Q} will ask for confirmation with \fkey{Y}
+for every matching file name. Pressing any other key than \fkey{Y} will skip
+the file. Stopping the command is possible using the \fkey{BREAK} key.
+And if you're sure, use the option \fcmd{/A} to process all files with matching
+file names without confirmation.
+Errors that occur during execution will be displayed in readable text and will
+result in the return to the freezer main menu.
+
+\subsection{Command summary}
+The commands are listed here in table form only, as they are not new or
+unknown. Beginners may look up the commands in any DOS manual, like the one that
+comes with the Atari 1050 disk drive.
+
+\begin{fcmdlist}
+\item[DIR]
+List directory with all files
+\item[DIR filename]
+List directory with certain files
+\item[DEL filename]
+Delete file 
+\item[FMS]
+Format in single density
+\item[FME]
+Format in enhanced density
+\item[FMD]
+Format in double density, requires special or enhanced disk drive
+\item[LOC filename]
+Lock file
+\item[UNL filename]
+Unlock file
+\item[REN filename,newname]
+Rename file
+\item[LOA filename]
+Load object file
+\item[LOA filename/N]
+Display object file load address(es) but do not load
+\item[LOA filename,start]
+Load raw data file to address \fpara{start}, ignore COM header
+\item[SAV filename,start,end]
+Save object file with the memory content from address \fpara{start} to
+(and including) \fpara{end}
+\item[SAV filename/N,start,end]
+Save file without COM header (raw file) with the memory content from address \fpara{start} to
+(and including) \fpara{end}
+\end{fcmdlist}
+
+\subsection{Characteristics of specific commands}
+Some commands have specific characteristics compared to standard DOS commands.
+These characteristics are either improvements or are the logical result of
+working in a freezer environment.
+
+While renaming files with  \fcmd{REN} command, the specification of the new file
+name may contain arbitrary wildcards. The wildcard characters are replaced by
+the characters from the original file name. This allows for working on groups of
+files efficiently, not being restricted to the primary or secondary name (i.e.
+the extension) of the file.
+
+Object files can be loaded using \fcmd{LOA}. The memory area to which the file
+is loaded is also displayed. In case of compound files, all memory areas are
+displayed. The complete 64k memory area can be used as target.  This includes
+loading directly into the hardware registers, which are currently frozen. The
+loaded program will \textbf{not} be started, to prevent conflicts with the
+memory management logic of the freezer in case multiple segments are loaded.
+
+Adding the option \fcmd{/N} to the load command will display the memory area
+into which the program would be loaded but will not actually load the data into
+memory. This is useful in case you are only interested in the memory location to
+which an object file would be loaded, \ie
+
+\fcmd{LOA FONT.COM/N}
+
+The command \fcmd{LOA} can also be used to load raw data (without COM header).
+In this case the address to which the data shall be loaded must be specified, \ie
+
+\fcmd{LOA FONT.DAT,8000}
+
+\subsection{Error messages}
+When using the DOS and the load and save functions of the freezer for frozen
+programs, errors can occur. The corresponding error messages are displayed 
+as plain English text.
+
+\begin{fmsglist}
+\item[FILE NOT FOUND]
+The file could not be found
+\item[FILE\# MISMATCH]
+The (internal) file number does not match, the file structure is likely
+to be damaged. Rescue the other files if possible and format the disk
+\item[BAD DISK I/0]
+The command cannot be executed due to a bus or disk error or because
+the write protection is active
+\item[NO DRIVE]
+The disk drive does not respond
+\item[DISK FULL]
+The disk is full
+\item[FILE LOCKED]
+The file is locked
+\item[DIRECTORY FULL]
+The directory is full (at most 64 files per disk)
+\end{fmsglist}

@@ -1,0 +1,239 @@
+;  numhelp - helper code for handling numbers
+;
+;  Copyright (C) 2011 Matthias Reichl <hias@horus.com>
+;
+;  This program is free software; you can redistribute it and/or modify
+;  it under the terms of the GNU General Public License as published by
+;  the Free Software Foundation; either version 2 of the License, or
+;  (at your option) any later version.
+;
+;  This program is distributed in the hope that it will be useful,
+;  but WITHOUT ANY WARRANTY; without even the implied warranty of
+;  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;  GNU General Public License for more details.
+;
+;  You should have received a copy of the GNU General Public License
+;  along with this program; if not, write to the Free Software
+;  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+; The code uses the following (external) RAM locations
+;
+; NUMASC: buffer holding the ATASCII representation of the number, at least 6 bytes
+; NUMBIN: binary representation (lo,hi), 2 bytes
+; NUMMOD: bin-to-asc conversion mode (0=decimal, 1=hex), 1 byte
+
+; the following routines are provided:
+
+; ATOI: convert ATASCII string to binary
+; input: EOL (155) terminated string in NUMASC
+;        (hex mode is used if it starts with "$")
+; output: C=1: error
+;         C=0: OK, binary value in NUMBIN
+
+; ITOA: convert binary number to ATASCII string
+; input: 2-byte binary number in NUMBIN
+;        NUMMOD sets conversion mode:
+;        $00: decimal, with leading zeroes
+;        $01: hex, with leading zeroes
+;        $02: decimal without leading zeroes
+;        $03: hex, without leading zeroes
+; output: EOL terminated string in NUMASC
+
+ATOI	LDX #0
+	STX NUMBIN
+	STX NUMBIN+1
+	LDA NUMASC
+	CMP #'$
+	BNE ATOID1
+
+	INX		; skip "$"
+ATOIH1	LDA NUMASC,X
+	CMP #155
+	BEQ ATOIHX
+	CMP #'0
+	BCC ATOIE
+	CMP #['9]+1
+	BCS ATOIH3
+	SEC
+	SBC #'0
+ATOIH2	TAY
+	ASL NUMBIN
+	ROL NUMBIN+1
+	ASL NUMBIN
+	ROL NUMBIN+1
+	ASL NUMBIN
+	ROL NUMBIN+1
+	ASL NUMBIN
+	ROL NUMBIN+1
+	TYA
+	ORA NUMBIN
+	STA NUMBIN
+	INX
+	CPX #6		; maximum length ($1234<EOL>)
+	BNE ATOIH1
+ATOIE	SEC
+	RTS
+
+ATOIH3	CMP #'A
+	BCC ATOIE
+	CMP #['F]+1
+	BCS ATOIE
+	SEC
+	SBC #['A]-10
+	BNE ATOIH2	; always
+
+ATOIHX	CPX #1	; input was only "$" -> return with error
+	SEC
+	BEQ ATOIHX1
+	CLC
+ATOIHX1	RTS
+
+ATOID1	LDA NUMASC,X
+	CMP #155
+	BEQ ATOIDX
+	CMP #'0
+	BCC ATOIE
+	CMP #['9]+1
+	BCS ATOIE
+	SEC
+	SBC #'0
+	PHA
+; multiply NUMBIN by 10
+	ASL NUMBIN
+	ROL NUMBIN+1
+	LDA NUMBIN+1
+	PHA
+	LDA NUMBIN
+	PHA
+	ASL NUMBIN
+	ROL NUMBIN+1
+	ASL NUMBIN
+	ROL NUMBIN+1
+	PLA
+	CLC
+	ADC NUMBIN
+	STA NUMBIN
+	PLA
+	ADC NUMBIN+1
+	STA NUMBIN+1
+; and add current digit
+	CLC
+	PLA
+	ADC NUMBIN
+	STA NUMBIN
+	BCC ATOID2
+	INC NUMBIN+1
+ATOID2	INX
+	CPX #6
+	BNE ATOID1
+	SEC
+	RTS
+
+ATOIDX	CPX #0	; input was only "" -> return with error
+	SEC
+	BEQ ATOIDX1
+	CLC
+ATOIDX1	RTS
+
+
+ITOA	LDX #0
+	LDA NUMMOD
+	LSR
+	BCC ITOAD	; decimal mode
+ITOAH1	LDA #'$
+	STA NUMASC
+ITOAH2	
+	LDA NUMBIN+1
+	LSR
+	LSR
+	LSR
+	LSR
+	TAY
+	LDA NUMHEXT,Y
+	STA NUMASC+1
+	LDA NUMBIN+1
+	AND #$0F
+	TAY
+	LDA NUMHEXT,Y
+	STA NUMASC+2
+	LDA NUMBIN
+	LSR
+	LSR
+	LSR
+	LSR
+	TAY
+	LDA NUMHEXT,Y
+	STA NUMASC+3
+	LDA NUMBIN
+	AND #$0F
+	TAY
+	LDA NUMHEXT,Y
+	STA NUMASC+4
+	LDA #155
+	STA NUMASC+5
+	INX		; set X=1, point to first digit
+	BNE ITOA1	; always
+
+; decimal mode
+ITOAD	LDY #'0
+ITOAD1	SEC
+	LDA NUMBIN
+	SBC NUMDLO,X
+	PHA
+	LDA NUMBIN+1
+	SBC NUMDHI,X
+	BCC ITOAD2     ; finished, result is <0
+	STA NUMBIN+1
+	PLA
+	STA NUMBIN
+	INY
+	BNE ITOAD1     ; always
+ITOAD2	PLA
+	TYA
+	STA NUMASC,X
+	INX
+	CPX #4
+	BNE ITOAD
+	CLC
+	LDA NUMBIN
+	ADC #'0
+	STA NUMASC,X
+	LDA #155
+	STA NUMASC+1,X
+	LDX #0		; point to first digit
+
+ITOA1	LDA NUMMOD
+	AND #2
+	BNE ITOA2	; remove trailing zeroes
+	RTS
+ITOA2	STX NUMBIN	; remember starting position
+
+ITOA3	LDA NUMASC,X
+	CMP #'0
+	BNE ITOA4
+	INX
+	CPX #4		; 5th digit will always be shown
+	BNE ITOA3
+ITOA4	CPX NUMBIN
+	BNE ITOA5	; removed digits, so shift buffer
+	RTS		; no leading zeroes to remove, return
+ITOA5	LDY NUMBIN	; point Y to first digit position
+ITOA6	LDA NUMASC,X
+	STA NUMASC,Y
+	INY
+	INX
+	CPX #6		; copy characters, including EOL at index 5
+	BNE ITOA6
+	RTS
+
+NUMDLO	.BYTE <10000
+	.BYTE <1000
+	.BYTE <100
+	.BYTE <10
+
+NUMDHI	.BYTE >10000
+	.BYTE >1000
+	.BYTE >100
+	.BYTE >10
+
+NUMHEXT	.BYTE "0123456789ABCDEF"

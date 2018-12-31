@@ -1,0 +1,112 @@
+;  flashtest - test code
+;
+;  Copyright (C) 2013-2014 Matthias Reichl <hias@horus.com>
+;
+;  This program is free software; you can redistribute it and/or modify
+;  it under the terms of the GNU General Public License as published by
+;  the Free Software Foundation; either version 2 of the License, or
+;  (at your option) any later version.
+;
+;  This program is distributed in the hope that it will be useful,
+;  but WITHOUT ANY WARRANTY; without even the implied warranty of
+;  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;  GNU General Public License for more details.
+;
+;  You should have received a copy of the GNU General Public License
+;  along with this program; if not, write to the Free Software
+;  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+; test for 8k sectors
+TEST1
+	LDA #DRIVEDNS_8K
+	STA DRIVEDNS
+	JMP TESTSECS
+
+; test for DD sectors
+TEST2
+	LDA #DRIVEDNS_DD
+	STA DRIVEDNS
+	JMP TESTSECS
+
+	.macro xtest ; block, bank
+	LDA #<%1
+	STA BLOCKNO
+	LDA #>%1
+	STA BLOCKNO+1
+	LDA #%2
+	STA BANKNO
+	JSR DOTEST
+	.endm
+
+TESTSECS
+	xtest 0,0
+	xtest 0,1
+	xtest 126,15
+	xtest 127,0
+	xtest 254,0
+	xtest 381,0
+	xtest 508,0
+	xtest 635,0
+	xtest 762,0
+	xtest 889,0
+	xtest 1016,0
+	xtest 1023,15
+	RTS
+
+DOTEST
+	JSR SETUPBLOCK
+	JSR SETUPBLOCKBANK
+	JSR SETUPBANK
+
+	LDA #0
+	STA NUMMOD
+
+; print block number (0-1023)
+	LDA BLOCKNO
+	STA NUMBIN
+	LDA BLOCKNO+1
+	STA NUMBIN+1
+	JSR ITOA
+	BPUT0L NUMASC+1,4
+
+	LDA #'.
+	JSR PUTCHAR
+
+; bank inside block
+	LDA BANKNO
+	STA NUMBIN
+	LDA #0
+	STA NUMBIN+1
+	JSR ITOA
+	BPUT0L NUMASC+3,2
+
+	LDA #32
+	JSR PUTCHAR
+
+; disk image number
+	LDA BLOCKDISK
+	STA NUMBIN
+	JSR ITOA
+	LDA NUMASC+4
+	JSR PUTCHAR
+
+	LDA #32
+	JSR PUTCHAR
+
+; sector number
+	LDA DAUX1
+	STA NUMBIN
+	LDA DAUX2
+	STA NUMBIN+1
+	JSR ITOA
+	BPUT0L NUMASC,5
+
+	LDA #32
+	JSR PUTCHAR
+
+; flash address
+	JSR PFLADR
+
+	LDA #155
+	JSR PUTCHAR
+	RTS

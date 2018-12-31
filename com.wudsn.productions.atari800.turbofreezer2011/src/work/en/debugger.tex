@@ -1,0 +1,418 @@
+\section{Debugger}
+
+A debugger is used by machine language programmers to display, alter and improve
+object code and other memory contents directly in the computer memory. Doing
+this in the environment of a freezer brings certain advantages. Because of the way
+the freezer works, there are also some limitations that may be circumvented by
+using the right procedures.
+
+\subsection{Access to memory and hardware registers}
+
+Without a doubt, the biggest advantage is the possibility to work with
+the frozen system state. Doing this creates the impression of
+having a second computer, that's linked into the first, stopped
+Atari. It enables you to \fq{look into} and change the stopped Atari
+and to resume any time. A debugger without freezer always has severe
+problems because of its own memory usage and because the I/O operations of
+the debugger itself change the system state. A programmers' term for this is
+\fq{trashing}, meaning turning the content of the system into \fq{trash}.
+
+A standard debugger requires RAM for its own operation and will
+trash the data that was put there by the program that's being looked at.
+And even if the debugger is more sophisticated (and comes with its own RAM),
+it will still trash the hardware registers of ANTIC, POKEY and GTIA. There are
+no OS shadow registers for player missile graphics and sound registers and the
+existing OS shadow register will be deactivated by many programs anyway.
+As a result of the trashed hardware registers, it will be a lot of work, if even
+possible, to resume a program. And apart from this, debuggers without a
+freezer don't have the ability to display the content of the non-readable
+(write-only) hardware registers. So even if the register contents are
+not trashed by the debugger, the values in the registers remain unknown.
+
+Using the built-in debugger of the \frz, all information about the system state is
+available. The contents of the hardware registers (i.e. what has been written
+there, not the status returned by a read operation) can be viewed in the I/O
+area and may be changed, without having to fear a system crash. The changes are
+applied only to the frozen program. You can work with the complete RAM area
+(even the RAM under the OS ROM), without trashing or fearing a crash.
+
+In addition, there are various advantages resulting from running in the
+environment of the \frz. The load and save functions and the DOS functions allow
+for instantaneous testing and retrying, without lengthily reloading a program.
+And if the change works not as expected, it may be undone instantly without
+problems. Using this, even horrendous code monsters that overwrite parts of the
+DOS and that cannot be processed in a simple way, are not frightening anymore.
+
+The software of the original \frz from 1987 had some disadvantages, among
+other reasons due to size constraints. Changes were always only applied
+to the frozen system state and changes to the hardware registers were only
+visible after resuming. This made it hard for example to work with the RAM
+extension.
+
+The extensions of the software that even been implemented over time have
+meanwhile removed the majority of the original constraints. Using the direct I/O
+mode, the debugger can access extensions in the custom chip area and bank
+switching modules directly. And the \fcmd{PB} command allows direct control of
+the access to the RAM extension, the OS ROM and the RAM under the OS ROM.
+
+\subsection{Command summary}
+The set of commands is kept minimal and is aligned with the Atari \fq{Editor
+Assembler Cartridge} which makes it similar to many other debuggers. Hence a
+tabular summary of the command should suffice.
+The commands must not contain any spaces and must start immediately behind the
+prompt. Only the command line can be used for input. All changes are logged in
+the output area. All entries are in hexadecimal notation.
+By omitting a value, memory locations or registers may be left unchanged.
+
+Example: \fcmd{C100{\textless}0A,{},4D} will change the content of the memory
+location \fhex{100} to \fhex{0A} and of the memory location \fhex{102} to
+\fhex{4D}. After this, the internal address counter will point to \fhex{103}.
+The content of the memory location \fhex{101} remains unchanged.
+
+For all commands, the address may be omitted and the debugger will use the
+internal address counter or an end address that will yield a reasonable output.
+The output can be stopped at any time by pressing \fkey{S} and resumed by
+pressing \fkey{Q}.
+
+\begin{fcmdlist}
+\item[Q] 
+Go to freezer main menu
+\item[D start]
+Display 8 bytes plus ATASCII characters starting at address \fpara{start} 
+\item[D start,]
+Display 128 bytes starting at address \fpara{start}
+\item[D start,end]
+Display memory content from address \fpara{start} to \fpara{end}
+\item[I start]
+Display 8 bytes plus characters in internal Atari screen code starting at address \fpara{start} 
+\item[I start,]
+Display 128 bytes starting at address \fpara{start}
+\item[I start,end]
+Display memory content from address \fpara{start} to \fpara{end}
+\item[L start]
+Disassemble starting at address \fpara{start}, display one screen page
+\item[L start,end]
+Disassemble from address \fpara{start} to \fpara{end}
+\item[DL start]
+Display display list starting at address \fpara{start}
+\item[DL start,end]
+Display display list from address \fpara{start} to \fpara{end}
+\item[C start{\textless}byte1,byte2{\dots}]
+Change memory content starting at address \fpara{start}
+\item[VEC]
+Display OS vectors
+\item[HAT]
+Display handler table
+\item[M]
+Display memory usage map
+\item[PB]
+Display content of the memory management register \freg{PORTB} (controls
+access to RAM extension, OS, BASIC)
+\item[PB{\textless}value]
+Set content of the  memory management register \freg{PORTB} to \fpara{value} 
+\item[DIO]
+Display direct I/O mode
+\item[DIO{\textless}value]
+Activate/deactivate direct I/O mode, use with caution
+\item[R]
+Display registers 
+\item[R{\textless}value1,value2\dots]
+Change registers
+\item[G start]
+Set return address for resuming to \fpara{start}
+\item[/start,end/value\dots]
+Search for \fpara{value\dots} in the memory area from address
+\fpara{start}{\dots}\fpara{end}
+\item[BM start,end,target]
+Move the memory area from \fpara{start{\dots}end} to\newline
+\fpara{target{\dots}target$+$(end$-$start)}
+\item[BS start,end,value]
+Set memory area from \fpara{start{\dots}end} to \fpara{value}
+\item[BC start,end,start2]
+Compare memory area from \fpara{start{\dots}end} to the memory area starting at\linebreak
+\fpara{start2}
+\item[PR{\textless}value]
+Activate/deactivate printer output
+\item[; TEXT]
+Print a text or comment
+\item[SR number]
+Read sector \fpara{number}
+\item[SW number]
+Write sector \fpara{number}
+\item[SIO \dots]
+Execute SIO command
+\item[SIOR]
+Reset high speed SIO routine
+\item[V]
+Display interrupt and content of the register \freg{VCOUNT} at the time of the
+freeze
+\item[V{\textless}value]
+Set the content of the register \freg{VCOUNT} for the time when program will be
+resumed
+\item[a COMMAND\dots]
+AtariSIO remote control
+\item[VER]
+Display freezer software version
+\end{fcmdlist}
+
+Remark: With the exception of the spaces immediately following the
+command, all spaces in the above list are only there for readability and must
+not be entered with the command. The program counter (PC) cannot be changed
+using \fcmd{R{\textless}} due to its special handling. Use the \fcmd{G} command to
+change its value.
+
+\subsection{Input of values (hexadecimal, decimal, internal code)}
+Addresses and byte values are input in hexadecimal notation by default.
+Use the percent sign \fq{\fcmd{\%}} as a prefix to enter an address or byte value as
+decimal number. The following command corresponds to the statement
+\fq{POKE~710,10} in BASIC.
+\begin{fcode}
+C%710<%10
+\end{fcode} 
+Byte values can also be given in ATASCII or internal Atari screen code. For
+ATASCII, the single quote \fq{\fcmd{'}} must be used as prefix, for screen code
+the at sign \fq{\fcmd{@}} must be used.
+\begin{fcode}
+C0600<'H,'a,'l,'l,'o
+C9C40<@S,@c,@r,@e,@e,@n
+\end{fcode}
+
+\subsection{Input of vectors}
+For working with vectors (\ie display list or interrupt vectors) an additional
+variant for specifying addresses is available. If the prefix \fq{\fcmd{*}} is used
+for an address, the 2 byte vector at that address is evaluated and the content
+of the vector is used as effective address. This can be used for example to
+display the current display list very effectively.
+\begin{fcode}
+DL*230
+DL*%560
+\end{fcode}
+
+\subsection{Access to extended memory, RAM, ROM}
+The debugger offers full control over the memory management functions of the
+Atari XL/XE when accessing the memory content. The memory management unit is
+controlled by the register \freg{PORTB} (\fhex{D301}) of the PIA.
+This way it is possible to read and change the content of the RAM extension
+(\fhexr{4000}{7FFF}) or the RAM under the OS ROM
+(\fhexr{C000}{CFFF},\fhexr{D800}{FFFF}) without problems.
+
+The \freg{PORTB} control only refers to the access from within the debugger.
+Changes do not affect the frozen program. To change the state after resuming, the
+frozen content of \freg{PORTB} must be changed using \fcmd{C~D301{\textless}byte}.
+
+When the freezer is activated, the current value of \freg{PORTB} is used as
+default for the debugger. That means you see the same state in the debugger as
+the frozen program would see. The \freg{PORTB} control can be displayed and
+changed with the \fcmd{PB} command:
+\begin{fcmdlist}
+\item[PB] Display current \freg{PORTB} value
+\item[PB{\textless}value] Set new \freg{PORTB} value
+\end{fcmdlist}
+
+If you would like to access the RAM under the OS ROM, enter
+\fcmd{PB{\textless}FE} to set bit 0 of \freg{PORTB} to 0. With
+\fcmd{PB{\textless}E3} access to the first bank of the RAM extension in Atari
+130~XE is activated. The content of \freg{PORTB} at the time of the freeze can
+be displayed using \fcmd{D~D301} -- provided it was not changed already using
+\fcmd{C~D301{\textless}value}.
+
+The access to the frozen PIA registers (\fhex{D3xx}) is subject to a special
+handling in the freezer. Normally, the values of the PIA registers are repeated
+every 4 bytes in the Atari. In the debugger, 8 bytes are displayed instead.
+\begin{flist}
+\item[\fhex{D300}, \fhex{D301}]
+are the normal registers \freg{PORTA} and \freg{PORTB}
+\item[\fhex{D302}, \fhex{D303}]
+contain the data direction registers for \freg{PORTA} and \freg{PORTB}.
+They are normally accessible via \freg{PORTA} resp. \freg{PORTB} if bit 2
+of \freg{PACTL} / \freg{PBCTL} is set to 0.
+\item[\fhex{D304}, \fhex{D305}]
+contain the values of \freg{PACTL} resp. \freg{PBCTL} which are normally
+accessible via the address\fhex{D302} resp. \fhex{D303}.
+\item[\fhex{D306}, \fhex{D307}]
+are unused
+\end{flist}
+
+\subsection{Display display list}
+The \fcmd{DL} command prints the ANTIC menmonics as described in the ANTIC data
+sheet, starting at the specified memory address.
+\begin{fcmdlist}
+\item[BLK x] x blank lines
+\item[CHR x] Text mode x
+\item[MAP x] Bitmap mode x
+\item[JMP adr] Jump to given address
+\item[JVB adr] Wait for vertical blank, then jump to given address
+\end{fcmdlist}
+Right to the mnemonic the following options are printed, if present:
+\begin{fcmdlist}
+\item[LMS adr] Load memory scan counter (pointer to the current screen memory
+address)
+\item[H] Horizontal scrolling enabled
+\item[V] Vertical scrolling enabled
+\item[I] Trigger display list interrupt (DLI)
+\end{fcmdlist}
+
+\subsection{Search in memory}
+The search command can be used in various manners. Use
+\fcmd{/start/value1,value2\dots} to search the specified byte sequence starting
+at the specified start address. At the first occurrence of the byte sequence,
+the search stops and prints the address. The internal address counter is set to
+the found address, so you can disassemble from that address immediately using
+the \fcmd{L} command. The search can be resumed with the \fcmd{/} command.
+
+The byte sequence can consist of up to 8 bytes, which is more than sufficient
+in most cases. It's also possible to omit bytes from the sequence. These bytes
+are ignored by the search.
+\fcmd{/1000/8D,{},D4} will find the first address starting from \fhex{1000} that
+contains the command \fq{STA~\fhex{D4xx}} to write a byte into the ANTIC.
+
+The byte sequence can also contain a bit mask. To do this, the separator
+\fcmd{\&} followed by a bit mask must be appended to the byte, like for example
+\fcmd{03\&0F}. The content of the memory will combined with the bit mask using
+AND and will then be compared with the byte value from the byte sequence.
+
+If an end address is specified in addition to the start address, all addresses
+where the byte sequence is found are printed. That means the search does not
+stop at the first occurrence when entering for example
+\fcmd{/start,end/value1,value2\dots}.
+Many times, the complete memory is to be examined. Therefore there is the very short
+variant \fcmd{//value1,value2\dots} which is identical to
+\fcmd{/0000,FFFF/value1,value2\dots}.
+
+If the byte sequence is long or the memory area is large, the search may take
+several seconds. Using the \fkey{BREAK} key, the search can be interrupted at
+any time. It can then be resumed with the \fcmd{/} command.
+
+\subsection{Execute SIO commands}
+
+The commands \fcmd{SW}, \fcmd{SR}, \fcmd{SIO} as well as the built-in DOS use an
+internal sector buffer. The memory manager mirrors it to the address \fhex{D700}
+in the frozen address space, where it can be edited by the debugger.
+Physically it is not present at that address. To read a sector from a different
+drive than \fcmd{D1:} or to write it there, just prepend the sector number with
+\fcmd{Dx:}.
+\begin{fcode}
+SR 100
+SR D2:200
+SW D3:300
+\end{fcode}
+
+With the \fcmd{SIO} command, arbitrary commands can be sent to the SIO, just
+like using the SIO vector \fhex{E459}. The values have the same meaning as the
+memory locations \fhexr{0300}{030B} in the Atari. The maximum allowed
+value for \fpara{length} is \fhex{0100}.
+
+\begin{fcode}
+SIO device, unit, command, direction, timeout, length, daux
+\end{fcode} 
+
+The \fcmd{SIO} command retains the parameters of the previous
+execution, so they can be omitted in the next \fcmd{SIO} command. If all
+parameters are omitted, the last \fcmd{SIO} is repeated. At the beginning, the
+parameters are set to \fq{Get Status} for \fval{D1:}, so nothing wrong can
+happen in case \fcmd{SIO} is entered without parameters.
+
+In any case the
+\fcmd{SIO} should always be used with caution and the parameters should be
+verfied thoroughly, because otherwise formatting the wrong disk may happen
+quickly.
+
+\subsection{Display interrupt and VCOUNT}
+The freezer can freeze the running program when an interrupt occurs.
+To this end the freezer reroutes the interrupt vector and thereby forces the CPU
+to enter the freezer. The \fcmd{V} command displays the type of interrupt (IRQ
+or NMI) that caused activation of the freezer, together with the original value
+of the corresponding interrupt vector. Additionally the value of \freg{VCOUNT}
+at the moment of the freezer activation as well as the calculated value of
+\freg{VCOUNT} at the moment the interrupt occurred are displayed. This command
+was mainly introduced to test the freezer software and may be of little interest
+for most users. But here's a short description of the significance and origin of
+the values.
+
+When the freezer is activated, it maps the ROM with the freezer software into
+the address space of the CPU and \fq{reroutes} the high byte of the interrupt
+vector to the ROM's address, so the freezer software is started.
+Because the low byte is not changed, there's a full page of \fq{NOP}
+instructions at the start of the freezer software. Therefore it may be the case
+that the Atari has to execute through several \fq{NOP} instructions to get to
+the part that will read the value of \freg{VCOUNT}.
+
+Using the low-byte of the interrupt vector, the software tries to calculate the
+amount of time it took to get through the \fq{NOP} instructions and adjusts the
+\freg{VCOUNT} value accordingly. This way the program can be resumed at exactly
+the same position where it was interrupted. This calculation is not 100\%
+correct and may vary according to the graphics mode. In the very rare case that
+the value is not correct and causes problems, the command 
+\fcmd{V{\textless}value} can be used to set the \freg{VCOUNT} value manually.
+
+\subsection{Activate direct I/O mode}
+Changes to hardware registers only become effective after resuming, because in
+the \linebreak \frz only the frozen system state is manipulated, as opposed to
+normal debuggers which manipulate the real system sate.
+For experts the \frz offers the possibility to activate the \fq{direct I/O mode}
+and manipulate the real system state also in the debugger.
+
+\begin{fcmdlist}
+\item[DIO] Display current mode: \fval{0} = deactivated
+(default), \fval{1} = activated
+\item[DIO{\textless}0] Deactivate direct I/O mode
+\item[DIO{\textless}1] Activate direct I/O mode
+\end{fcmdlist}
+
+\textbf{Caution:} When direct I/O mode is active, the freezer is
+\fq{bypassed} and it becomes likely to make mistakes.  The freezer will not notice any changes
+to the hardware registers in direct I/O mode. Therefore the same changes should
+also be performed again with direct I/O mode switched off. Otherwise the freezer
+will overwrite the changes when resuming.
+
+\subsection{Display version number}
+The command \fcmd{VER} prints the version number and the date of the freezer
+software in the format \fmsg{3.10 2012-11-09}.
+
+\subsection{Display OS vectors}
+The \fcmd{VEC} command displays the most important OS vectors of page 0 and 2  as
+an overview. The output contains the symbolic name of each vector and its value.
+\begin{fcode}
+DOSINI 000C: 0000   CASINI 0002: FFFF
+DOSVEC 000A: F223
+VPRCED 0202: C0CD   VINTER 0204: C0CD
+...
+\end{fcode}
+\subsection{Display handler address table}
+The \fcmd{HAT} command lists the entries of the handler table
+(\fhexr{031A}{033A}). It displays the address of the entry, then the 3 bytes of
+the entry followed by the device letter and the address of the handler table
+(resp. \fq{\fmsg{-{}-{}~0000}} if the entry is empty).
+\begin{fcode}
+031A  50 30 E4  P: E430
+031D  43 40 E4  C: E440
+0320  45 00 E4  E: E400
+\end{fcode}
+
+\subsection{Display memory usage map}
+The command \fcmd{M} displays a map of the memory which indicates used and unused
+memory pages. If a page contains only zeros, a period \fq{\fmsg{.}} is
+displayed. If it contains at least one non-zero byte, a star \fq{\fmsg{*}} is
+displayed. This is useful for example when searching for an empty memory area
+for the boot loader (see section \ref{sec:bootloader}).
+
+\subsection{Activate printer output}
+Printer output is controlled with the command \fcmd{PR{\textless}value}.
+Values from \fval{1} to \fval{8} activate the output to printer \fcmd{P1:}
+(default printer) to \fcmd{P8:}. The value \fval{0} deactivates printer output.
+Via \fcmd{PR}, the current state of the printer output is displayed on the
+screen. If printer output if active, everything that is displayed on the
+debugger screen is also printed on the specified printer in parallel. This is a
+handy way of logging debugger sessions.
+
+Especially for longer debugger sessions it can be very useful to insert comments
+into the logs. This can be achieved easily with the \fq{\fcmd{;}} command of the
+debugger. Everything that follows the semicolon is printed in the debugger
+window (and hence, if printer output is activated, also on the printer). This
+way you no longer need to grab pen and paper frequently and the logs of the
+debugging session will be understandable even months later.
+
+\subsection{Control AtariSIO remotely}
+Using the \fcmd{a} command, remote control commands can be sent to AtariSIO.
+This enables a complete remote control of AtariSIO without loading and
+additional program. More information can be found in the AtariSIO manual.

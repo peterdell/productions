@@ -1,0 +1,272 @@
+\chapter{Cartridge emulation}
+\label{chap:cartemu}
+The cartridge emulation is another very powerful feature of the \frz.
+It is capable of emulating standard 8K and 16K modules as well as bank switching
+modules according to the AtariMax/MegaMax and OSS standards. Additionally the
+new\linebreak
+SpartaDOS~X (Ultimate1MB bank switching, up to 512k) can be emulated.
+Also combined usage of SpartaDOS~X together with an OSS module is allowed.
+
+The cartridge emulation can use all unused memory of the flash ROM (960k) and
+the freezer RAM (384K). This means the \frz gives you instant access to up to
+168 different modules.
+The cartridge emulation is not only interesting for those who use many different
+cartridges and who became tired of changing the cartridges all the time (which
+heavily strains the cartridge port), but also for those who develop cartridge
+based software.
+Because the module data can not only be stored in the flash ROM but also in the
+freezer RAM, changes to the data can be performed and tested within seconds.
+Since the freezer RAM is battery backed its content is not lost after
+switching the Atari off. This means the freezer RAM can be used for storing
+permanent data, just like the flash ROM.
+
+\section{Basics}
+Leveraging the full potential of the cartridge emulation requires knowledge
+about the following details of the internal operation.
+
+\subsection{Bank numbers}
+
+The flash ROM is internally divided into \fq{banks} of 8K.
+With 1MB flash ROM, there are 128 8k banks with the bank numbers
+\fdecr{0}{127} available. The topmost 64k of the flash ROM are used by the
+freezer software and cannot be used for cartridge emulation. This leaves the banks with the numbers
+\fdecr{0}{119} for cartridge emulation.
+
+In the 512k freezer RAM the topmost 128k are reserved for the freezer software,
+leaving 384k in the banks\fdecr{0}{47} for the user. Snapshots are stored in the
+banks \fdecr{48}{55} of the freezer RAM. If you don't use snapshots, you can
+use these banks also for cartridge emulation.
+
+16k modules use 2 consecutive 8k banks. Their data must be aligned to a 16k
+boundary, i.e. an even bank number. If a 16k module is for example stored in the
+banks 2 and 3, then bank 2 will be visible at \fhexr{8000}{9FFF} and bank
+3 will be visible at \fhexr{A000}{BFFF}.
+
+512k modules, SpartaDOS~X and modules with \frz 2005 bank switching (\fval{8k
+old}) must be aligned to a 512k boundary. That means they can only start at bank
+0 or 64 in the flash ROM or at bank 0 in the freezer RAM.
+
+The SpartaDOS~X emulation uses the same bank switching scheme as the\linebreak
+\fq{Ultimate 1MB} extension. The corresponding image has a maximum size of
+512k. Currently the SpartaDOS~X~4.45 image for the Ultimate 1MB extension has
+256k and can therefore be used without problems at bank 0 or 64 in the flash ROM
+or at bank 0 in the freezer RAM.
+
+\subsection{Module types}
+The module type defines at which address in the Atari the data from the
+cartridge emulation shall be visible. Also additional bank switching registers
+(e.g. for OSS modules) are activated the area \fhexr{D500}{D5FF}, depending on
+the module type.
+
+The following module types are supported:
+
+\begin{fcmdlist}
+\item[8k]
+8k standard module, \fhexr{A000}{BFFF}.\newline
+The software can access the whole memory, i.e. the flash ROM and the freezer
+RAM, via the bank switching register of the cartridge emulation.
+\item[8k+RAM]
+8k module, \fhexr{A000}{BFFF}\newline
+with optional 8k RAM bank at \fhexr{9000}{BFFF}. Both areas can be selected independently 
+via separate bank registers.
+\item[8k old]
+512k bankswitching module, \fhexr{A000}{BFFF}.\newline
+\frz{} 2005 compatible bank switching.\newline
+Bank 0 or 64 must be used as start bank.
+\item[8k AtariMax]
+1MB (8MBit) bank switching module, \fhexr{A000}{BFFF}.\newline
+Bank switching according to the AtariMax/MegaMax standard. \newline
+
+\textbf{Caution!} The cartridge emulation offers 64k less than the
+AtariMax 8Mbit module. Therefore modules which require the complete 1MB of
+memory will not work, like for example Space Harrier. When creating own modules
+with the MaxFlash software, the maximum size of 960k must not be exceeded. In
+addition the bank 0 must be used as start bank.
+
+\item[16k]
+16k standard module, \fhexr{8000}{BFFF}.\newline
+Bank switching is possible like in the 8k mode.
+\item[OSS]
+16k OSS bank switching module, \fhexr{A000}{BFFF}.\newline
+For example MAC/65 or ACTION!.
+
+
+\end{fcmdlist}
+
+\section{Activation of the cartridge emulation}
+To activate the cartridge emulation, move the \fsw{CartEmu} switch to the right
+position (\fval{ON}) while the Atari is switched off. When switching the
+Atari on, a small menu is displayed where the cartridge emulation can be
+configured.
+
+Additionally you can enter the cartridge emulation menu from the\linebreak
+\frz
+menu via the key \fkey{K} or \fkeys{K}. This works only if the cartridge
+emulation is currently active, i.e. at least one of the switches \fsw{CartEmu}
+or \fsw{FlashWrite} is in the right position (\fval{ON}). The cartridge emulation is
+completely disabled if both switches are in the left position (\fval{OFF}).
+
+\section{Cartridge emulation menu}
+The current configuration is displayed in the middle of the screen.
+The online help with the available options is displayed at the bottom of the
+screen.
+
+\begin{fcmdlist}
+\item[MODE]
+Selects the emulated module type. \newline
+\fval{OFF} deactivates the cartridge emulation. \newline
+\fval{PicoDos} starts the integrated MyPicoDos instead of a module.
+
+\item[SRC]
+Selects the flash ROM or freezer RAM as source for the module data.
+
+\item[BANK]
+Selects the flash ROM or freezer RAM start bank.
+
+\item[SDX]
+Selects the SpartaDOS~X emulation. You can choose between
+\fval{OFF},\linebreak
+\fval{ROM~Bank~0}, \fval{ROM~Bank~64} and \fval{RAM~Bank~0}.
+
+\item[BOOT]
+Selects if the module shall be started via a cold start (\fval{COLD}) or
+a warm start (\fval{WARM}). This option should normally be set to 
+\fval{COLD}, because otherwise the operating system variables and the module are
+not correctly initialized. The option \fval{WARM} is intended for developers and only makes
+sense if the cartridge emulation was activated from the \frz menu via
+ \linebreak \fkeys{K}. This way the cartridge emulation can be reconfigured
+while keeping the internal RAM of the ATARI unchanged. This can be useful during
+development.
+\end{fcmdlist}
+
+Some frequently used configurations can be selected with a single key press.
+
+\begin{flist}
+\item[\fkey{D}]
+Selects the default configuration: \fcmd{Mode}~\fval{8k}, \fcmd{Bank}~\fval{0},
+\fcmd{Source}~\fval{ROM}, \fcmd{SDX}~\fval{OFF}
+and \fcmd{Boot}~\fval{Cold}.
+
+\item[\fkey{P}]
+Selects the \fcmd{Mode}~\fval{PicoDos}.
+
+\item[\fkey{O}]
+Deactivates the cartridge emulation: \fcmd{Mode}~\fval{OFF}, \fcmd{SDX}~\fval{OFF}
+\end{flist}
+
+Pressing the \fkey{RETURN} key activates the currently selected
+configuration. Pressing \fkey{ESC} deactivates the cartridge emulation and
+restarts the Atari.
+
+\section{Command summary}
+The debugger supports the following commands, which all begin with \fcmd{K}, to
+control the cartridge emulation. The commands have the same effect as
+manually
+chaning the configuration registers starting at \fhex{D500}, but some
+people are said to prefer mnemonics over manual entry of hexadecimal values.
+
+\clearpage
+
+\begin{fcmdlist}
+\item[K]
+Display cartridge emulation configuration
+\item[K{\textless}0]
+Deactivate cartridge emulation completely: \\
+Sets module type and SpartaDOS~X emulation to \fval{OFF}, all banks to \fval{0}
+and source to \fval{ROM}
+\item[KM{\textless}type]
+Sets module type of the cartridge emulation. Possible values:
+\begin{fvallistn}
+\item[0] off
+\item[8] 8k module
+\item[8R] 8k module with optional 8k RAM bank at \fhex{8000}
+\item[8O] 8k module with \frz 2005 banks witching
+\item[A] 8k AtariMax/MegaMax module
+\item[16] 16k module
+\item[O] 16k OSS module 
+\end{fvallistn}
+\item[KB{\textless}bank]
+Select 8k main bank, (\fhexr{00}{7F}).
+\item[KBE{\textless}mode]
+Switch 8k main bank on/off:
+\begin{fvallistn}
+\item[0] off
+\item[1] on
+\end{fvallistn}
+\item[KR{\textless}bank]
+Select optional 8k RAM bank (\fhexr{00}{3D})
+\item[KRE{\textless}mode]
+Switch optional 8k RAM bank on/off:
+\begin{fvallistn}
+\item[0] off
+\item[1] on
+\end{fvallistn}
+\item[KX{\textless}mode]
+Select SpartaDOS~X emulation mode:
+\begin{fvallistn}
+\item[0] off
+\item[1] on and in flash ROM at bank 0
+\item[2] on and in flash ROM at bank 64
+\item[3] on and in freezer RAM at bank 0
+\end{fvallistn}
+\item[KXB{\textless}bank]
+Select SpartaDOS~X emulation bank (\fhexr{00}{3F}).
+Only possible, if emulation was activated via \fcmd{KX}
+\item[KXM{\textless}mode]
+Select SpartaDOS~X mode. Only possible, if emulation was activated via
+\fcmd{KX}
+\begin{fvallistn}
+\item[0] SpartaDOS~X off, additional module off
+\item[1] SpartaDOS~X on, additional module off
+\item[C] SpartaDOS~X off, additional module on
+\end{fvallistn}
+\item[KO{\textless}bank]
+Select OSS bank. Only possible, if emulation was activated via
+\fcmd{KM{\textless}O}
+\begin{flistn}
+\item[\fval{0}] OSS module off
+\item[\fval{1}\dots\fval{3}] Select OSS bank \fval{1}\dots\fval{3}
+\end{flistn}
+\item[KW{\textless}mode]
+Switch write access to cartridge emulation on/off:
+\begin{fvallistn}
+\item[0] off
+\item[1] on
+\end{fvallistn}
+
+\clearpage
+
+\item[KS{\textless}source]
+Select source for the cartridge emulation:
+\begin{fvallistn}
+\item[0] flash ROM
+\item[1] freezer RAM
+\end{fvallistn}
+\item[KN{\textless}mode]
+Switch menu for cartridge emulation on/off:
+\begin{fvallistn}
+\item[0] cartridge emulation normal, menu deactivated
+\item[1] cartridge emulation off, menu activated
+\end{fvallistn}
+\end{fcmdlist}
+
+\section{Further information}
+
+\subsection{Using \fq{real} cartridges}
+
+When using a \fq{real} module in the cartridge port of the Atari 600~XL / 800~XL
+or in the cartridge port of the Atari XE adapter board of the \frz, the
+cartridge emulation should be deactivated completely. To this end the
+\fsw{CartEmu} as well as the  \fsw{FlashWrite} switch must be moved to the left
+position (\fval{OFF}). Otherwise the system may not work correctly, particularly
+if the cartridge uses bank switching.
+
+
+\subsection{TRIG3 -- \fhex{D013}}
+
+Compared to the cartridge emulation of the \frz 2005, a small but important
+detail in the cartridge emulation of the \frz 2011 has been improved.
+If the cartridge emulation is active, the presence of a module is correctly
+reported when reading the \freg{TRIG3} (\fhex{D013}) register. This means the
+new cartridge emulation behaves 100\% like a \fq{real} module and patching
+of module images, which was necessary for the \frz 2005, is no longer required.

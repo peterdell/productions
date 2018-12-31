@@ -1,0 +1,152 @@
+\section{Disk Operating System (DOS)}
+Wer kennt nicht die folgende Situation: die letzten drei Stunden hat man ein
+Programm editiert und will es gerade abspeichern. Doch, wie entsetzlich, statt
+der erhofften Vollzugsmeldung kommt ein \fmsg{File locked} oder \fmsg{Disk full}
+Fehler. Da ist guter Rat teuer. Ein DUP-Aufruf via \fcmd{DOS} führt in der Regel
+zum Verlust des Programms, denn \fq{MEM.SAV} ist viel zu zeitraubend und wird
+daher oft erst gar nicht aktiviert.
+
+Wenn man schon mittels des Freezers ein Programm beliebig unterbrechen kann,
+bietet sich natürlich an, gleich ein DOS einzubauen, mit dem die wichtigsten
+Kommandos zur Verfügung stehen. Es ist dann kein Problem mehr, solche kritischen
+Situationen zu meistern, um anschließend das eingefrorene Programm einfach
+fortzusetzen.
+Das im \frz eingebaute DOS enthält alle für diesen Zweck notwendigen Funktionen.
+Es ist voll Single-, Enhanced- und Double-Density tauglich sowie DOS 2.0 und DOS
+2.5 kompatibel. Die Funktionen des 1050 TURBO Floppyspeeders werden voll
+unterstützt, außerdem können auch Happy/Speedy kompatible Floppies sowie die
+XF-551 mit der hohen SIO-Übertragungsrate angesprochen werden. Es kann aber auch
+eine beliebig anders getunte oder serienmäßige Floppy verwendet werden.
+
+Ein Diskettenkommando besteht entweder aus einem drei Zeichen langen Kommando
+allein oder aus dem Kommando, einem oder mehreren Leerzeichen und einem
+Dateinamen. Manche Kommandos erlauben die Angabe einer Option, die unmittelbar
+am Ende des Kommandos, mit einem Schrägstrich getrennt, angehängt werden kann.
+Das Kommando muss unmittelbar nach dem Promptzeichen eingegeben werden. Außer dem
+oben erwähnten, zwingend vorgeschriebenen Leerzeichen sind keine Leerzeichen
+erlaubt. Dateinamen dürfen die Wildcards \fq{\fmsg{*}} für eine beliebige
+Zeichenfolge sowie \fq{\fmsg{?}} für ein beliebiges Zeichen enthalten.
+Fehlerhafte Kommandos werden einfach ignoriert und führen nicht zu einer
+Fehlermeldung. Eine solche kann nur auftreten, wenn bei der Ausführung
+selbst ein Fehler auftritt.
+
+\subsection{Ausführen von Kommandos}
+Lässt man den Präfix \fmsg{D:} im Dateinamen weg, so wird automatisch \fmsg{D1:}
+verwendet. Eine RAM-Disk wird nicht unterstützt, da die Implementierung immer
+vom jeweils eingesetzten DOS oder RAM-Disk-Treiber abhängig ist. Es werden nur
+die SIO-Geräte \fmsg{D1}: bis \fmsg{D8:} unterstützt. PBI Geräte können aus
+technischen Gründen leider auch nicht angesprochen werden.
+Wildcards dürfen auch in Zieldateinamen angegeben werden. Es wird dann einfach
+die erste übereinstimmende Datei angesprochen. Die einzige Ausnahme bildet das
+Kommando \fcmd{REN} zum Umbenennen von Dateien, das weiter unten beschrieben
+wird.
+
+Die Kommandos \fcmd{DEL}, \fcmd{LOC}, \fcmd{UNL} und \fcmd{REN} zur Manipulation
+von Verzeichniseinträgen  können auch mehrere Dateien hintereinander bearbeiten.
+Um die Gefahr ungewollter Aktionen zu senken, wird ohne Angabe einer Option am
+Ende des Kommandos nur die erste Datei mit übereinstimmenden Dateinamen
+bearbeitet. Mit der Option \fcmd{/Q} erfolgt für jeden übereinstimmenden
+Dateinamen eine Rückfrage, die mit \fkey{Y} oder einer beliebigen anderen Taste
+beantwortet werden kann. Eine Bearbeitung der Datei erfolgt nur bei \fkey{Y}.
+Ein Abbruch ist mit der \fkey{BREAK}-Taste möglich. Wer sich sicher ist, kann
+auch die Option \fcmd{/A} verwenden, die alle Dateien mit übereinstimmenden
+Dateinamen ohne Rückfrage bearbeitet.
+Fehler, die bei der Bearbeitung auftreten können, werden im Klartext ausgegeben,
+allerdings erfolgt dadurch eine Rückkehr zum Freezer-Hauptmenü.
+
+\subsection{Kommandoübersicht}
+Die Kommandos werden hier nur tabellarisch aufgelistet, da sie an sich nicht neu
+oder unbekannt sind. Anfänger können die Bedeutung der einzelnen Kommandos in
+jedem DOS-Handbuch nachschlagen, \zB in dem, das jedem Atari 1050
+Diskettenlaufwerk beiliegt.
+
+\begin{fcmdlist}
+\item[DIR]
+Verzeichnis aller Dateien anzeigen
+\item[DIR dateiname]
+Verzeichnis bestimmter Dateien anzeigen
+\item[DEL dateiname]
+Datei löschen 
+\item[FMS]
+Formatieren in einfacher Dichte
+\item[FME]
+Formatieren in mittlerer Dichte
+\item[FMD]
+Formatieren in doppelter Dichte, erfordert spezielle oder erweiterte Floppy
+\item[LOC dateiname]
+Datei sperren
+\item[UNL dateiname]
+Datei entsperren
+\item[REN dateiname,neuername]
+Datei umbenennen
+\item[LOA dateiname]
+Objektdatei laden
+\item[LOA dateiname/N]
+Objektdatei Ladeadresse(n) anzeigen aber nicht laden
+\item[LOA dateiname,start]
+RAW-Datei nach Adresse \fpara{start} laden, COM-Header ignorieren
+\item[SAV dateiname,start,ende]
+Objektdatei erzeugen mit Speicherinhalt von Adresse \fpara{start} bis
+einschließlich \fpara{ende}
+\item[SAV dateiname/N,start,ende]
+Datei ohne COM-Header (RAW-Datei) erzeugen mit Speicherinhalt von\linebreak
+Adresse \fpara{start} bis einschließlich \fpara{ende}
+\end{fcmdlist}
+
+\subsection{Besonderheiten mancher Kommandos}
+Einige der Kommandos haben Besonderheiten gegenüber herkömmlichen DOS,
+die eine Verbesserung darstellen oder die sich aus den besonderen
+Gegebenheiten der Funktion in einem Freezer zwangsläufig ergeben.
+
+Bei Umbenennen von Dateien mit dem Kommando \fcmd{REN} ist es möglich, auch der
+Angabe des neuen Namens beliebige Wildcards zu verwenden. Anstelle der Wildcards
+treten dann die entsprechenden Buchstabenfolgen aus dem vorherigen Namen der
+Datei. Dies ermöglicht Gruppen von Dateien effizient zu bearbeiten, ohne
+auf den Primär- bzw. Sekundärnamen (also die Dateierweiterung) als
+Gruppenkriterium beschränkt zu sein.
+
+Objektdateien können mit \fcmd{LOA} geladen werden. Der Speicherbereich, in den
+die Datei geladen wird, wird dabei angezeigt. Bei zusammengesetzten (Compound)
+Dateien werden alle Speicherbereiche angezeigt. Dabei steht der gesamte
+64k-Adressraum des Rechners zur Verfügung. Insbesondere können sogar die
+Hardwareregister geladen werden, die zu diesem Zeitpunkt ja eingefroren sind.
+Gestartet wird das geladene Programm aber \textbf{nicht}, um eine Fehlbedienung
+der Memory-Management Logik des Freezers durch mehrstufig ladende Programme
+auszuschließen.
+
+Hängt man das Ladekommando die Option \fcmd{/N} an, wird die Datei nicht
+geladen, aber die Speicherbereiche werden angezeigt, in die die Datei geladen
+werden würde. Das ist nützlich, wenn man nur wissen möchte, wohin eine
+Objektdatei geladen würde, \zB
+
+\fcmd{LOA FONT.COM/N}
+
+Mit dem Kommando \fcmd{LOA} kann man auch Rohdaten (ohne COM-Header) einlesen.
+Dabei muss man angeben, wohin die Daten geladen werden sollen, \zB
+
+\fcmd{LOA FONT.DAT,8000}
+
+\subsection{Fehlermeldungen}
+Bei Verwendung des DOS und der Lade- und Speicherfunktionen des
+Freezers für eingefrorene Programme können Fehler auftreten.
+Die zugehörigen Fehlermeldungen erfolgen im Klartext in englischer Sprache.
+
+\begin{fmsglist}
+\item[FILE NOT FOUND]
+Die Datei wurde nicht gefunden
+\item[FILE\# MISMATCH]
+Die (interne) Dateinummer ist fehlerhaft, die Dateistruktur ist
+wahrscheinlich beschädigt. Wenn möglich, die anderen Dateien retten
+und Diskette formatieren
+\item[BAD DISK I/0]
+Das Kommando kann durch einen Busfehler oder Diskettenfehler oder
+durch eingeschalteten Schreibschutz nicht ausgeführt werden
+\item[NO DRIVE]
+Die Diskettenstation ist nicht ansprechbar
+\item[DISK FULL]
+Die Diskette ist voll
+\item[FILE LOCKED]
+Die Datei ist gesperrt
+\item[DIRECTORY FULL]
+Das Verzeichnis ist voll (maximal 64 Dateien pro Diskette)
+\end{fmsglist}

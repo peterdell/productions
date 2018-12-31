@@ -1,0 +1,182 @@
+\chapter*{Preface}
+\markboth{}{Preface}
+
+\section*{Preface by the designer of the new freezer (2012)} \frz 2005
+was a big success. It was very well received in the Atari community and we got
+lots of positive feedback and ideas for new features. The decision to use a
+flash ROM instead of an EPROM proved being particularly helpful. It enabled
+users to enjoy software updates and new features as the flash ROM could be
+updated from the Atari.
+
+In particular the debugger has been extended considerably since the first
+release 2005. An online help, commands for moving and comparing memory blocks, a
+memory usage map and an OS vector overview, the possibility to log the screen
+output of debugging sessions to printer in parallel and many additional things have
+been added. Special thanks go to Erhard Pütz and Carsten Strotmann for many
+good ideas.
+
+The initial run sold out fairly quickly and requests for more kept coming. In
+2010 things became more concrete. Together with Wolfram Fischer, who also
+participated in the first run, I started planning a new production run.
+Meanwhile the Lattice M4A5 CPLD had become relatively hard to get and was
+clearly more expensive than comparable chips. We also wanted to use a slightly
+\fq{larger} chip in order to implement some new ideas and features. So we
+decided to use a Xilinx XC95144XL as the basis for the new freezer. Having about
+the same price it offered more than twice the power (I/O pins and space for
+logic) than the Lattice CPLD. This way we had the possibility of implementing
+long-awaited features -- for example the RAM extension which had been there in
+the very first freezer from 1987.
+
+By the end of 2010 Wolfram had created the first prototype of the new hardware.
+This was the basis for starting the development of the new logic and software at
+the begin of 2011. I realized quickly that the best way would be to develop the
+logic from scratch and to separate the functional blocks (freezer, cartridge
+emulation, etc.). This simplified extensions in each functional block.
+
+The logic of the cartridge emulation was completely  redone; the freezer logic
+has intentionally been kept compatible with old \frz 2005 logic. I
+wanted to keep the changes to the freezer software at a minimum, so it can also
+be used with the \fq{old} freezer. This way the users of the old freezer may
+also benefit from further updates.
+
+In summer 2011, after several new hardware revisions and many changes to the
+software and the logic, the new freezer was completed! Unfortunately the start
+of the mass production, which had been planned for end of 2011, had to be
+postponed by almost one year. Wolfram had to move to a new residence and was
+busy at his job -- hence we both had almost no time left for our hobby. Thanks
+to the support from the ABBUC the production finally started in autumn 2012!
+Many thanks to Wolfgang Burger for the support. Also thanks to all who ordered
+the new freezer in advance and waited so patiently.
+
+\medskip Salzburg, November 2012
+
+\medskip Matthias Reichl
+
+\medskip P.S. (March 2013): I'd like to add a big \fq{thank you} to Peter Dell
+who took over the job of translating the German manual into English.
+At the end this was a whole lot more of work than expected, but Peter
+was really brave and did an awesome job -- thanks Peter!
+
+\section*{Preface by the designer of the new freezer (2005)} The project to
+design a new \frz started in early 2004, when Bernhard Engl gave
+permission to the ABBUC to remake his products (The TURBO 1050 and the \frz).
+To me, the \frz has always been the most interesting piece of
+hardware extension that has ever been available for the Atari and before
+starting the project, I had already studied and analyzed how it worked.
+That's why it was pretty obvious that I would engage in rebuilding the \frz{}.
+There were more participants in the team: Bernhard Pahl, Florian
+Dingler, Torsten Schall, Guus Assmann, Frank Schröder and towards the end also
+Wolfram Fischer.
+
+So I would like to express big thanks to all of you. The project wouldn't have
+come this far without you!! And some special thanks to Guus, for the many ideas
+for extensions, designing the PCBs and producing the prototypes. Thanks as well
+to Bernhard Engl for his tips and the detailed information for the original
+\frz. All other team members, thanks for the support and the testing!
+
+My original plan was to remake the freezer, using modern parts. At this point, I
+never imagined that the result would be such extensive and powerful
+improvements! During the project, both hardware and software have been gradually
+extended and improved up to a point where only the basic (and genius) principle
+idea of the freezer was left. Everything else had been changed.
+
+Some of the extensions came by as pure coincidence. For example the cartridge
+emulation: As 16K EPROMs were much more expensive, Guus suggested using a flash
+ROM. To enable programming this flash ROM from the Atari, it was needed to map
+the chip into the memory-map of the Atari.
+This formed the basis for the cartridge emulation :-)
+
+Likewise with the RAM: The original 2K RAM was hard to get and also quite
+expensive. So the first step was to upgrade to a 32K chip and also use 128K
+flash ROM. The next step was to go to 128K RAM and this made it possible to put
+a memory-snapshot into this RAM. And the flash ROM size was increased to 512K.
+To enable this, the logic had to be improved. And a bigger logic chip gave space
+for the emulation of the 16K OSS modules and the SpartaDOS~X module.
+
+With the current state of the logic chip's internals, there's no space left and
+we're all content to have gotten the maximum out of the parts that were used.
+For the software, there are some more ideas for extensions, but that's all I'll
+say for now.
+
+During the development process, I've constantly kept in mind that I wanted to
+create an open basis for further developments. For this reason, all design
+information is freely available and there's even a JTAG interface on board
+so the logic can be reprogrammed. This will help anyone who wants to expand the
+freezer or even make something completely new with it.
+
+All relevant information and updates for the \frz XL/XE 2005 are
+available on the internet at \url{http://turbofreezer.horus.com/}. There's also
+a manual on how to alter the logic of the \frz. For technical
+questions, write an e-mail to
+\href{mailto:hias@horus.com}{\nolinkurl{hias@horus.com}}.
+
+The many features of the \frz have not only convinced the team
+members, but also many members of the ABBUC. In their Hardware Contest 2005, it
+was awarded a very convincing first prize.
+
+I wish you a lot of fun using the \frz and stay loyal to the Atari
+8-bit computers for many years to come.
+
+\medskip Salzburg, December 2005
+
+\medskip Matthias Reichl.
+
+\section*{Preface by the developer of the original freezer (2005)} As a
+designer, the best recognition of achievement one can get, is that a once
+successful product is continued and enhanced by a competent successor. However,
+if this happens after 16 years and for a home-computer product, it's downright
+sensational and means that the product has attained cult status. While using
+original concept of the 1980's, Matthias Reichl has made a real masterpiece of
+the \frz XL/XE 2005. The application of modern micro-chips has led to
+a great extension of the functionality. He even managed to remove some minor
+bugs that were known, but couldn't be prevented using the electronics of that
+time, without making the product economically impossible because of the higher
+chip-count.
+
+The improvements and enhancement, especially the ingenious cartridge emulation
+that was not present in the original, make the \frz XL/XE not only
+the best and most perfect freezer for the 8-bit Atari that ever existed, but
+also is an all-rounder talent, having the potential to become a legendary cult
+product. At this point in time, it's a high-light of a technical development
+that started more than 20 years ago. In my notebook, which has turned yellow
+now, the first sketches of the concept date back to the autumn of 1984. Finding
+this out even surprised myself.
+
+Experiencing a vastly improved, enhanced and rejuvenated new series of a
+computer extension product, is not only a miracle, but also a special joy and
+honor to me, so I wish all proud owners of the new \frz XL/XE a lot of
+pleasure using it.
+
+\medskip Zurich, November 2005
+
+\medskip Bernhard Engl
+
+\section*{Preface by the developer of the original freezer (1987)}
+After one year development, hundreds of used-up integrated circuits, 5300 lines
+of assembler code and five-digit costs, it's there at last:
+The \frz XL. It's not only the first real freezer for the Atari, it is
+also the only extension a freak needs to get the optimum and maximum usage out
+of his Atari. This is because apart from freezer, the board also offers a socket
+for an Oldrunner and for 256k of RAM so an 800 XL can be extended to up to 320k.
+
+By using three ASICs containing the equivalent of over 40 TTL circuits and by
+avoiding a costly multi-layer PCB, all this could be implemented at an unbeatable
+price. In addition, thanks to the very powerful memory management that is anyway
+needed for the freezer, the computer doesn't need to be opened.
+
+The careful same tuning of all components can be found in the built-in software
+which consists of the freezer, a mini-DOS and a debugger. Combined with the
+hardware, this power-tool gives an unprecedented possibility of control over
+programs to the user. That's why anyone who's seen the \frz XL in
+action, wanted to have one as well. The thrill of having total control over the
+computer, even though the programmer did not want this, is well worth the price.
+And then there's also the money save from buying separate extensions that would be
+needed to get the same functions that are present in the \frz XL.
+
+More about this in the description of the individual functions! I wish every
+proud owner lots of fun with the most fascinating product that was ever
+available for the Atari.
+
+\medskip Munich, May 1987
+
+\medskip Bernhard Engl

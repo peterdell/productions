@@ -1,0 +1,439 @@
+\section{Debugger}
+
+Ein Debugger wird von Maschinenspache-Kennern benutzt, um Objektcode und andere
+Speicherinhalte direkt im Speicher zwecks Fehlersuche, Veränderungen und
+Verbesserungen zu bearbeiten. In der Umgebung eines Freezers hat das besondere
+Vorzüge. Allerdings ergeben sich auch ein paar prinzipbedingte Nachteile, die
+sich durch die richtige Arbeitsweise umgehen lassen.
+
+\subsection{Zugriff auf Speicher und Hardwareregister}
+
+Der größte Vorzug ist zweifellos der, dass mit dem eingefrorenen Systemzustand
+gearbeitet werden kann. Es entsteht dabei der Eindruck, quasi mit einem zweiten
+Atari in den ersten, gestoppten Atari \fq{hineinsehen} und ändern zu können,
+wobei der Stopp jederzeit wieder aufgehoben werden kann. Debugger ohne Freezer
+haben hier mit schwierigen Problemen zu kämpfen, da sie allein durch ihren
+Eigenbedarf an RAM und Ein-/Ausgabeaktionen den Systemzustand laufend verändern.
+Der Fachausdruck dafür ist \fq{trashen}, was für \fq{zu Müll verwandeln} steht.
+
+Ein normaler Debugger braucht für seine eigene Funktion RAM und trasht die
+Informationen, die das zu bearbeitende Programm dort abgelegt hat. Selbst wenn
+der Debugger aufwendiger ausgestattet ist (durch eigenes RAM), trasht er immer
+noch die Hardwareregister von ANTIC, POKEY und GTIA. Es gibt keine
+OS-Schattenregister für die Player-Missile Grafik und die Sounderzeugung und die
+existierenden OS-Schattenregister und werden von vielen Programmen sowieso
+deaktiviert. Durch die getrashten Hardwareregister ist ein Wiederstart eines
+Programms, wenn überhaupt, in der Regel nur nach sehr mühseliger Kleinarbeit
+möglich. Abgesehen davon bieten Debugger ohne Freezer keine Möglichkeit, die
+nicht lesbaren (write-only) Hardwareregister auszulesen. Man kommt also an die
+hineingeschriebenen Werte auch dann nicht heran, wenn das Register vom Debugger
+nicht getrasht worden ist.
+
+Mit dem im \frz eingebauten Debugger kommt man an alle Informationen über den
+Systemzustand heran. Die Hardwareregisterinhalte (d.h. der echte Inhalt, nicht
+die zurückgegebenen Statuswerte) können im I/O Bereich gelesen und auf Wunsch
+geändert werden. Dies kann erfolgen ohne Abstürze befürchten zu müssen, da sich
+die Änderungen ja nur auf das eingefrorene Programm beziehen. Ebenso kann
+beliebig im gesamten RAM-Bereich gearbeitet werden (auch dem RAM unter dem
+OS-ROM), ohne dass irgendetwas getrasht wird oder abstürzt.
+
+Hinzu kommen verschiedene Vorzüge, die sich aus der Arbeitsumgebung des\linebreak
+\frz ergeben. Mit den Lade- und Speichermöglichkeiten für eingefrorene Programme und
+den DOS-Funktionen können Änderungen ohne langes Speichern und Laden sofort
+ausprobiert und bei Bedarf auch mühelos wieder rückgängig gemacht werden.
+Widerspenstige Codemonster, die beim Laden Teile des DOS überschreiben und sich
+auf herkömmliche Weise kaum bearbeiten lassen, verlieren ihre Schrecken.
+
+Die Software des originalen \frz von 1987 brachte -- unter anderem auch
+platzbedingt -- einige Nachteile mit sich. Man konnte nur mit dem eingefrorenen
+Systemzustand arbeiten, Änderungen an den Hardwareregistern zeigten erst nach
+dem Auftauen Wirkung. Dadurch war es \zB schwierig mit der RAM-Erweiterung zu
+arbeiten.
+
+Durch die fortlaufenden Erweiterungen an der Software wurde der
+Großteil der ursprünglichen  Einschränkungen mittlerweile beseitigt. Im Direct-I/O-Modus
+können Erweiterungen im Custom-Chip Bereich und Bankswitching Module direkt vom
+Debugger aus angesprochen werden und das \fcmd{PB} Kommando ermöglicht die
+Steuerung des Zugriffs auf die RAM-Erweiterung sowie das OS-ROM bzw. das RAM
+unter dem OS-ROM.
+
+\subsection{Kommandoübersicht}
+Der auf das Nötigste beschränkte Befehlssatz orientiert sich stark an der
+\fq{Editor Assembler Cartridge} von Atari und entspricht daher vielen anderen
+Debuggern, so dass eine tabellarische Auflistung der Kommandos genügt. Bei der
+Eingabe von Kommandos dürfen keine Leerzeichen eingefügt werden, die Kommandos
+müssen unmittelbar nach dem Prompt beginnen. Zur Eingabe steht nur die
+Eingabezeile zur Verfügung, dafür werden im Ausgabebereich alle Änderungen
+mitprotokolliert. Alle Eingaben erfolgen in hexadezimaler Schreibweise. Durch
+Auslassen eines Wertes können Speicherstellen oder Register ohne Änderung des
+Inhalts übersprungen werden.
+
+Beispiel: \fcmd{C100{\textless}0A,{},4D} ändert den Inhalt in
+Speicherstelle \fhex{100} auf \fhex{0A} und in Speicherstelle \fhex{102} auf
+\fhex{4D}. Danach steht der interne Adresszeiger auf \fhex{103}.
+Der Inhalt der Speicherstelle \fhex{101} bleibt unverändert.
+
+Bei allen Kommandos können Adressenangaben weggelassen werden, der Debugger
+verwendet dann den internen Adresszeiger bzw. einen der übersichtlichem
+Darstellung förderlichen Endwert. Die Ausgabe kann jederzeit mit den Tasten
+\fkey{S} angehalten und \fkey{Q} fortgesetzt werden.
+
+\clearpage
+
+\begin{fcmdlist}
+\item[Q] 
+Zum Freezer-Hauptmenü springen
+\item[D start]
+8 Bytes plus ATASCII Zeichen ab Adresse \fpara{start} anzeigen 
+\item[D start,]
+128 Bytes ab Adresse  \fpara{start} anzeigen
+\item[D start,ende]
+Speicherinhalt anzeigen von Adresse \fpara{start} bis \fpara{ende}
+\item[I start]
+8 Bytes plus Zeichen im internen Atari Bildschirmcode ab Adresse
+\fpara{start} anzeigen
+\item[I start,]
+128 Bytes ab Adresse \fpara{start} anzeigen
+\item[I start,ende]
+Speicherinhalt anzeigen von Adresse \fpara{start} bis \fpara{ende}
+\item[L start]
+Disassemblieren ab Adresse \fpara{start}, eine Bildschirmseite anzeigen
+\item[L start,ende]
+Disassemblieren von Adresse \fpara{start} bis \fpara{ende}
+\item[DL start]
+Display List anzeigen ab Adresse \fpara{start}
+\item[DL start,ende]
+Display List anzeigen von Adresse \fpara{start} bis \fpara{ende}
+\item[C start{\textless}byte1,byte2{\dots}]
+Speicherinhalt ändern ab Adresse \fpara{start}
+\item[VEC]
+OS-Vektoren anzeigen
+\item[HAT]
+Handler Tabelle anzeigen
+\item[M]
+Speicherbelegungsübersicht anzeigen
+\item[PB]
+Wert des Registers \freg{PORTB} für den Speicherzugriff (steuert Zugriff 
+auf RAM-\linebreak
+Erweiterung, OS, BASIC) anzeigen
+\item[PB{\textless}wert]
+Wert des Registers \freg{PORTB} für den Speicherzugriff auf \fpara{wert} ändern
+\item[DIO]
+Direct-I/O-Modus anzeigen
+\item[DIO{\textless}wert]
+Direct-I/O-Modus aktivieren/deaktivieren, mit Vorsicht anwenden
+\item[R]
+Register anzeigen 
+\item[R{\textless}wert1,wert2\dots]
+Register ändern
+\item[G start]
+Rücksprungadresse für das Auftauen auf \fpara{start} ändern
+\item[/start,ende/wert\dots]
+Suche \fpara{wert\dots} im Speicherbereich von Adresse \fpara{start}{\dots}\fpara{ende}
+\item[BM start,ende,ziel]
+Verschiebe Speicherbereich von \fpara{start{\dots}ende} nach\newline
+ \fpara{ziel{\dots}ziel$+$(ende$-$start)}
+\item[BS start,ende,wert]
+Setze Speicherbereich von \fpara{start{\dots}ende} auf \fpara{wert}
+\item[BC start,ende,start2]
+Vergleiche Speicherbereich von \fpara{start{\dots}ende} mit Speicherbereich ab
+ \fpara{start2}
+\item[PR{\textless}wert]
+Druckerausgabe aktivieren/deaktivieren
+\item[; TEXT]
+Text oder Kommentar ausgeben
+\item[SR nummer]
+Sektor \fpara{nummer} lesen
+\item[SW nummer]
+Sektor  \fpara{nummer} schreiben
+\item[SIO \dots]
+SIO-Kommando ausführen
+\item[SIOR]
+Highspeed SIO-Routine zurücksetzen
+\item[V]
+Interrupt und Wert des Registers \freg{VCOUNT} zum Zeitpunkt des Einfrierens
+anzeigen
+\item[V{\textless}wert]
+Wert des Registers \freg{VCOUNT} zum Zeitpunkt des Auftauens ändern
+\item[a COMMAND\dots]
+AtariSIO Remote Control
+\item[VER]
+Freezer-Softwareversion anzeigen
+\end{fcmdlist}
+
+Anmerkung: Mit Ausnahme der Leerzeichen direkt nach dem Kommando
+müssen die hier aus Gründen der Lesbarkeit eingefügten Leerzeichen bei der Eingabe weggelassen
+werden. Der Program Counter (PC) kann aufgrund der besonderen internen
+Behandlung nicht mit dem Kommando \fcmd{R{\textless}} geändert werden, sondern
+nur mit \fcmd{G}.
+
+\subsection{Werte eingeben (hexadezimal, dezimal, interner Code)}
+Adressen und Bytewerte werden üblicherweise in hexadezimaler Schreibweise
+eingegeben. Um Dezimalzahlen zu verwenden, muss die Adresse bzw. der Bytewerte
+mit einem Prozent-Zeichen \fq{\fcmd{\%}} begonnen werden. Folgendes Kommando
+entspricht der Eingabe\linebreak
+\fq{POKE~710,10} in BASIC.
+\begin{fcode}
+C%710<%10
+\end{fcode} 
+Bytewerte können auch in ATASCII oder als internen Atari Bildschirmcode
+eingegeben werden. Für ATASCII muss ein einfaches Anführungszeichen
+\fq{\fcmd{'}}, für Screen Code ein Klammeraffe \fq{\fcmd{@}} vorangestellt
+werden.
+\begin{fcode}
+C0600<'H,'a,'l,'l,'o
+C9C40<@S,@c,@r,@e,@e,@n
+\end{fcode}
+
+\subsection{Vektoren eingeben}
+Speziell für die Arbeit mit Vektoren (\zB Display-List oder Interrupt-Vektoren)
+existiert eine weitere Variante um Adressen anzugeben. Beginnt man eine Adresse
+mit einem Stern \fq{\fcmd{*}}, so wird der 2 Byte Vektor an der angegebenen Adresse
+ausgelesen und der Inhalt des Vektors als effektive Adresse verwendet. Damit
+kann man \zB sehr schnell die aktuell verwendete Display-List ausgeben lassen.
+\begin{fcode}
+DL*230
+DL*%560
+\end{fcode}
+
+\subsection{Auf erweiterten Speicher, RAM, ROM zugreifen}
+Der Debugger bietet beim Speicherzugriff volle Kontrolle über die
+Speicherverwaltungsfunktionen der Atari XL/XE Computer. Die
+Speicherverwaltungseinheit kann über das Register \freg{PORTB} (\fhex{D301}) der
+PIA gesteuert werden. Somit kann man problemlos in die Speichererweiterung
+(\fhexr{4000}{7FFF}) oder das RAM unter dem OS-ROM\linebreak
+(\fhexr{C000}{CFFF},\fhexr{D800}{FFFF}) auslesen und dort auch Daten ändern.
+
+Die \freg{PORTB} Steuerung bezieht sich dabei ausschließlich auf den Debugger.
+Änderungen an der Steuerung wirken sich nicht auf das angehaltene Programm aus.
+Möchte man den Zustand nach dem Auftauen ändern, so muss der (eingefrorene) Wert
+von \freg{PORTB} mit \fcmd{C~D301{\textless}byte} gesetzt werden.
+
+Beim Aktivieren des Freezers wird die \freg{PORTB} Steuerung auf den aktuellen
+\freg{PORTB} Wert gesetzt. Das heißt, man sieht im Debugger den exakt gleichen
+Zustand wie das angehaltene Programm. Die Steuerung kann mit dem Kommando
+\fcmd{PB} abgefragt bzw. geändert werden:
+\begin{fcmdlist}
+\item[PB] Aktuellen \freg{PORTB} Wert für Speicherzugriff anzeigen
+\item[PB{\textless}wert] Neuen \freg{PORTB} Wert für Speicherzugriff setzen
+\end{fcmdlist}
+
+Möchte man \zB auf das RAM unter dem OS-ROM zugreifen, gibt man
+\fcmd{PB{\textless}FE} ein um Bit 0 von \freg{PORTB} auf 0 zu setzen. Mit
+\fcmd{PB{\textless}E3} erhält man Zugriff auf die erste Bank der
+Speichererweiterung im Atari 130 XE. Der Wert von \freg{PORTB} zum Zeitpunkt des
+Einfrierens kann jederzeit mit \fcmd{D~D301} abgefragt werden -- vorausgesetzt
+man hat ihn nicht schon per \fcmd{C~D301{\textless}wert} geändert.
+
+Beim Zugriff auf die eingefrorenen PIA-Register (\fhex{D3xx}) ist eine
+Besonderheit des Freezers zu beachten. Normalerweise wiederholen sich im Atari
+die Werte der PIA-Register alle 4 Bytes. Im Debugger werden jedoch 8 Bytes
+angezeigt.
+\begin{flist}
+\item[\fhex{D300}, \fhex{D301}]
+sind die gewohnten Register \freg{PORTA} und \freg{PORTB}
+\item[\fhex{D302}, \fhex{D303}]
+enthalten die Datenrichtungsregister für \freg{PORTA} und \freg{PORTB}. Diese
+sind normalerweise zugreifbar über \freg{PORTA} bzw. \freg{PORTB} wenn Bit 2 von
+\freg{PACTL} / \freg{PBCTL} auf 0 steht.
+\item[\fhex{D304}, \fhex{D305}]
+enhalten die Werte von \freg{PACTL} bzw. \freg{PBCTL} die
+normalerweise über die Adresse \fhex{D302} bzw. \fhex{D303} zugreifbar sind.
+\item[\fhex{D306}, \fhex{D307}]
+sind unbenutzt
+\end{flist}
+
+\subsection{Display List anzeigen}
+Das Kommando \fcmd{DL} die ANTIC-Befehle ab der angegebenen Speicheradresse als
+die im Datenblatt zum ANTIC beschriebenen Mnemonics aus.
+\begin{fcmdlist}
+\item[BLK x] x Leerzeilen
+\item[CHR x] Text Modus x
+\item[MAP x] Grafik Modus x
+\item[JMP adr] Sprung zur angegebenen Adresse
+\item[JVB adr] Sprung bei dem zuvor auf den Vertical Blank gewartet wird
+\end{fcmdlist}
+Neben dem Mnemonic werden, falls vorhanden, noch folgende Optionen
+ausgegeben:
+\begin{fcmdlist}
+\item[LMS adr] Memory Scan Counter (Zeiger für die aktuelle Bildschirmspeicheradresse) laden
+\item[H] Horizontales Scrolling aktiviert
+\item[V] Vertikales Scrolling aktiviert
+\item[I] Display List Interrupt (DLI) auslösen
+\end{fcmdlist}
+
+\subsection{Speicher durchsuchen}
+Die Suchfunktion kann auf verschiedene Arten verwendet werden. Mit der Variante\linebreak
+\fcmd{/start/wert1,wert2\dots} wird ab der angegebenen Adresse nach der
+angegeben Bytefolge  gesucht. Sobald die Bytefolge gefunden wurde bricht die
+Suche ab und die Adresse wird ausgegeben. Dabei wird auch der interne
+Adresszähler auf die gefundene Adresse gesetzt, man kann also \zB direkt nach
+der Suche mit dem \fcmd{L} Kommando ab der gefundenen Speicheradresse
+disassemblieren. Mit dem \fcmd{/} Kommando kann die Suche fortgesetzt werden.
+
+Die Bytefolge kann aus bis zu 8 Bytes bestehen, was wohl in den meisten
+Fällen mehr aus ausreichend ist. In der Bytefolge können auch einzelne
+Bytes ausgelassen werden. Diese Bytes werden dann bei der Suche einfach
+ignoriert.
+\fcmd{/1000/8D,{},D4} liefert \zB  die erste Adresse ab \fhex{1000}
+die mit dem Befehl \fq{STA~\fhex{D4xx}} ein Byte in den ANTIC schreibt.
+
+Die Bytefolge können auch zusätzlich mit einer Bit-Maske versehen werden. Dazu
+muss direkt hinter dem Suchbyte ein \fcmd{\&} gefolgt von der Bit-Maske
+angehängt werden, \zB \fcmd{03\&0F}. Diese Bit-Maske bewirkt, dass der Inhalt
+des Speichers zunächst mit Bit-Maske AND verknüpft und danach mit dem Werte aus
+der Bytefolge verglichen.
+
+Gibt man zusätzlich zur Startadresse eine Endadresse mit an, so werden alle
+Adressen im angegebenen Bereich ausgegeben, welche die Bytefolge enthalten. Die
+Suche stoppt also nicht bei der ersten gefundenen Adresse, \zB
+\fcmd{/start,ende/wert1,wert2\dots}.
+Oft möchte man den gesamten Speicher durchsuchen. Deshalb gibt es dafür es eine
+besonders kurze Variante \fcmd{//wert1,wert2\dots}, die identisch zu
+\fcmd{/0000,FFFF/wert1,wert2\dots} ist.
+
+Bei längeren Bytefolgen und einem großen Speicherbereich kann die Suche mehrere
+Sekunden dauern. Mit der \fkey{BREAK} Taste kann die Suche jederzeit
+unterbrochen werden. Mit dem \fcmd{/} Kommando kann sie dann wieder fortgesetzt
+werden.
+
+\subsection{SIO-Kommandos ausführen}
+
+Die Kommandos \fcmd{SW}, \fcmd{SR}, \fcmd{SIO} sowie das eingebaute DOS
+verwenden einen internen Sektorpuffer. Dieser wird vom Memory-Manager an die
+Adresse \fhex{D700} im eingefrorenen Adressraum gespiegelt, wo eine Bearbeitung
+mit dem Debugger erfolgen kann. Physikalisch ist er an der Adresse nicht
+vorhanden. Um einen Sektor von einem anderen Laufwerk als \fcmd{D1:} zu lesen
+bzw. ihn dorthin zu schreiben muss man einfach \fcmd{Dx:} direkt vor die Sektornummer
+stellen.
+\begin{fcode}
+SR 100
+SR D2:200
+SW D3:300
+\end{fcode} 
+
+Mit dem Kommando \fcmd{SIO} können beliebige SIO-Kommandos genauso wie über den
+SIO-Vektor \fhex{E459} ausgeführt werden. Die Werte haben die gleiche Bedeutung wie die Speicherstellen
+\fhexr{0300}{030B} im Atari. Der Wert für die Länge \fpara{length} darf maximal
+\fhex{0100} sein.
+\begin{fcode}
+SIO device, unit, command, direction, timeout, length, daux
+\end{fcode} 
+
+Das Kommando \fcmd{SIO} merkt sich die zuletzt eingegebenen Parameter, so dass
+bei darauffolgenden \fcmd{SIO} Kommandos Teile der Parameter weggelassen werden
+können. Lässt man alle Parameter weg, so wird der letzte \fcmd{SIO} Kommandol
+wiederholt. Zu Beginn sind die Parameter auf \fq{Get Status} von \fval{D1:}
+gesetzt, sodass nichts Schlimmes passieren kann wenn man einfach nur \fcmd{SIO}
+ohne Parameter eingibt.
+
+Man sollte mit dem Kommando \fcmd{SIO} allerdings stets
+sehr vorsichtig umgehen und sicherheitshalber die Parameter mehrfach überprüfen, ansonsten hat man sehr
+schnell die falsche Diskette formatiert.
+
+\subsection{Interrupt und VCOUNT anzeigen}
+Der Freezer kann beim Auftreten eines Interrupts das laufende Programm
+einfrieren. Hierzu  blendet der Freezer kurzzeitig einen eigenen Wert an der
+Stelle des Interrupt-Vektors eine und zwingt die CPU so den Freezer aufzurufen.
+Das Kommando \fcmd{V} gibt den Typ des Interrupts (NMI oder IRQ) an, mit dem der
+Freezer aktiviert wurde sowie die originale Adresse des zugehörigen
+Interrupt-Vektors. Zusätzlich noch den Wert von \freg{VCOUNT} beim Start der
+Freezer-Software sowie der errechnete Wert von \freg{VCOUNT} zum Zeitpunkt des
+Interrupts angezeigt. Dieser Befehl wurde hauptsächlich zum Testen der
+Freezer-Software implementiert und dürfte für die meisten Benutzer wenig nützlich sein. Hier aber trotzdem eine
+kurze Erklärung, was die Werte bedeuten und wo sie herkommen.
+
+Wenn der Freezer aktiviert wird, so blendet er das ROM mit der Freezer-Software
+in den Adressbereich der CPU ein und \fq{verbiegt} das High-Byte des
+Interrupt-Vektors zu Adresse des ROMs, so dass die Freezer-Software gestartet
+wird. Da das Low-Byte des Vektors nicht verändert wird, enthält die
+Freezer-Software zu Beginn eine Page voller \fq{NOP} Befehle. Es kann nun also
+passieren, dass der Atari etliche dieser \fq{NOP} Befehle abarbeiten muss, bevor
+die eigentliche Freezer-Software gestartet wird und \freg{VCOUNT} ausgelesen
+werden kann.
+
+Anhand des originalen Interrupt-Vektors versucht die Freezer-Software nun zu
+berechnen, wie viel Zeit mit \fq{NOP} Befehlen verbracht wurde und passt den
+\freg{VCOUNT} Wert dementsprechend an. Hierdurch kann das Programm an exakt der
+Stelle fortgesetzt werden kann, wo es unterbrochen wurde. Die Berechnung ist
+nicht 100\% exakt und kann je nach Grafik-Modus etwas abweichen. Für den sehr
+seltenen Fall, dass der errechnete Wert nicht stimmen sollte und Probleme nach
+dem Auftauen auftreten, kann man nun mit \fcmd{V{\textless}wert} den
+\freg{VCOUNT} Wert von Hand setzen.
+
+\subsection{Direct-I/O-Modus aktivieren}
+Änderungen in den Hardwareregistern äußern sich normalerweise erst nach dem
+Auftauen, denn beim \frz wird der eingefrorene Adressraum manipuliert, und
+nicht, wie bei konventionellen Debuggern, der reale Adressraum.
+Für Profis gibt es beim \frz aber die Möglichkeit, dieses Verhalten
+abzuschalten und den \fq{Direct-I/O-Modus} zu aktivieren.
+
+\begin{fcmdlist}
+\item[DIO] Aktuellen Zustand anzeigen: \fval{0} = deaktiviert
+(Standard), \fval{1} = aktiviert
+\item[DIO{\textless}0] Direct-I/O-Modus deaktivieren
+\item[DIO{\textless}1] Direct-I/O-Modus aktivieren
+\end{fcmdlist}
+
+\textbf{Achtung:} Bei aktiviertem Direct-I/O-Modus wird komplett am
+Freezer vorbei gearbeitet und man hat gute Chancen ungewollt Fehler zu machen. Da der Freezer
+im Direct-I/O-Modus die Änderungen an den Hardwareregistern nicht mitbekommt,
+sollte man dieselben Änderungen auch noch mit deaktiviertem Direct-I/O-Modus
+vornehmen. Ansonsten werden die Register beim Auftauen wieder überschrieben.
+
+\subsection{Versionsnummer anzeigen}
+Mit dem Kommando \fcmd{VER} werden die Versionsnummer und das Datum der
+Freezer-\linebreak
+Software im Format \fmsg{3.10 2012-11-09} ausgegeben.
+
+\subsection{OS-Vektoren anzeigen}
+Mit dem \fcmd{VEC} Kommando kann man die wichtigsten OS-Vektoren aus den Pages 0
+und 2 übersichtlich anzeigen lassen. Es wird jeweils der symbolische Name des
+Vektors, seine Adresse und seinen Wert ausgeben.
+\begin{fcode}
+DOSINI 000C: 0000   CASINI 0002: FFFF
+DOSVEC 000A: F223
+VPRCED 0202: C0CD   VINTER 0204: C0CD
+...
+\end{fcode}
+
+\subsection{Handler-Adressen-Tabelle anzeigen}
+Der \fcmd{HAT} Kommando listet die Einträge der Handler-Adressen-Tabelle
+(\fhexr{031A}{033A}) auf. Zuerst wird die Adresse gezeigt, dann die 3 Bytes des
+Eintrags, gefolgt vom Gerätebuchstaben und der Adresse der Handler-Tabelle (bzw.
+\fq{\fmsg{-{}-{}~0000}} falls der Eintrag leer ist).
+\begin{fcode}
+031A  50 30 E4  P: E430
+031D  43 40 E4  C: E440
+0320  45 00 E4  E: E400
+\end{fcode}
+
+\subsection{Speicherbelegungsübersicht anzeigen}
+Das Kommando \fcmd{M} zeigt eine Kartierung des Speichers nach benutzten und
+unbenutzten Speicherseiten (Pages) an. Enthält eine Page nur 0 Werte, wird ein
+Punkt \fq{\fmsg{.}} angezeigt. Enthält sie mindestens ein Byte mit einem Wert
+ungleich 0, wird ein Stern \fq{\fmsg{*}} angezeigt. Dies ist zum Beispiel nützlich,
+wenn man einen leeren Speicherbereich für den Boot-Loader sucht (siehe Abschnitt
+\ref{sec:bootloader}).
+
+\subsection{Druckerausgabe aktivieren}
+Mit dem Kommando \fcmd{PR{\textless}wert} wird die Druckerausgabe gesteuert.
+Werte von \fcmd{1} bis \fcmd{8} aktivieren die Ausgabe auf \fcmd{P1:} (Standard
+Drucker) bis \fcmd{P8:}. Der Wert \fcmd{0} deaktiviert die Druckerausgabe. Mit
+\fcmd{PR} wird der aktuelle Zustand der Druckerausgabe am Bildschirm ausgegeben.
+Bei aktivierter Druckerausgabe wird alles, was im Debugger Bildschirm erscheint,
+parallel auf dem angegebenen Drucker ausgegeben. Dies ist eine praktische
+Funktion, um Debugger Sitzungen zu protokollieren.
+
+Gerade bei längeren Debugger Sitzungen kann es sehr hilfreich sein, in diese
+Protokolle auch Kommentare einzufügen. Auch das kann man recht einfach mit dem
+Kommando \fq{\fcmd{;}} des Debuggers erledigen. Alles, was nach dem Strichpunkt
+folgt, wird im Debugger Fenster (und damit bei aktivierter Druckerausgabe auch
+am Drucker) ausgegeben. So spart man sich den regelmäßigen Griff zum Bleistift
+und die Protokolle sind auch Monate nach der Debugger Sitzung noch verständlich.
+
+\subsection{AtariSIO fernsteuern}
+Mit dem Kommando \fcmd{a} können Steuerbefehle an AtariSIO gesendet werden.
+Damit lässt sich AtariSIO komplett fernsteuern ohne dass ein eigenes Programm
+geladen werden muss. Nähere Informationen dazu finden sich in der AtariSIO
+Anleitung.

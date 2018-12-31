@@ -1,0 +1,217 @@
+\usepackage[latin1]{inputenc}
+\usepackage[T1]{fontenc}
+%\usepackage{lmodern}
+\usepackage{ae,aecompl}
+\usepackage{microtype}
+
+\usepackage{scrpage2}
+\usepackage{graphicx}
+\usepackage{wrapfig}
+\usepackage{mdwlist}
+\usepackage{array} 
+\usepackage{calc}
+\usepackage{fancyvrb}
+\usepackage{xifthen}
+\usepackage{etoolbox}
+\usepackage[linktoc=page,colorlinks=true,linkcolor=black]{hyperref}
+\usepackage{epstopdf}
+\usepackage{xspace}
+\usepackage{csquotes}
+
+\hypersetup{
+	linktoc=page,
+	colorlinks=true,
+	linkcolor=black,
+	urlcolor=black,
+	pdfauthor={Matthias Reichl} {Peter Dell},
+	pdfkeywords={Atari} {8bit} {Freezer} {TURBO FREEZER} {Hardware}
+}
+
+\setcounter{secnumdepth}{3}
+\setcounter{tocdepth}{2}
+
+%\renewcommand{\ttdefault}{pcr}
+
+%\setlength{\headheight}{1.1\baselineskip}
+
+
+% Common
+\newcommand{\frz}{\mbox{TURBO FREEZER}\xspace}
+\newcommand{\frzs}{\mbox{TURBO FREEZERs}\xspace}
+\newcommand{\zB}{\mbox{z.\,B.}\xspace}
+\newcommand{\ie}{\mbox{i.\,e.}\xspace}
+\newcommand{\eg}{\mbox{e.\,g.}\xspace}
+
+
+% format commands and keys
+\newcommand{\fcmd}[1]{\mbox{\ttfamily#1}}
+
+\newcommand{\fpara}[1]{\mbox{\ttfamily#1}}
+
+% switch / button
+\newcommand{\fsw}[1]{\fq{\mbox{\textbf{#1}}}}
+
+% value / setting
+\newcommand{\fval}[1]{{\ttfamily #1}}
+
+% screen message
+\newcommand{\fmsg}[1]{{\ttfamily #1}}
+
+% quote a text
+\newcommand{\fq}[1]{\enquote{#1}}
+
+% register
+\newcommand{\freg}[1]{{\ttfamily #1}}
+
+% hex number
+\newcommand{\fhex}[1]{\$#1}
+% hex number range
+\newcommand{\fhexr}[2]{\fhex{#1}\dots\fhex{#2}}
+% decimal number range
+\newcommand{\fdecr}[2]{{#1}\dots{#2}}
+
+% keys: with brackets
+\newcommand{\fkey}[1]{\mbox{\ttfamily[#1]}}
+% SHIFT+key
+\newcommand{\fkeys}[1]{%
+  {\ttfamily [Shift]%
+  \ifthenelse{\isempty{#1}}{}{$+$[#1]}%
+  }%
+}
+% CONTROL+key
+\newcommand{\fkeyc}[1]{%
+  {\ttfamily [Control]%
+  \ifthenelse{\isempty{#1}}{}{$+$[#1]}%
+  }%
+}
+
+% source code
+\DefineVerbatimEnvironment{fcode}{Verbatim}{xleftmargin=10mm,formatcom=\setlength{\topsep}{0cm}}
+
+% environment for manpage-style lists
+\newlength{\fitemlen}
+\newcommand{\fentrylabel}[1]{%
+ \settowidth{\fitemlen}{#1}%
+ \ifthenelse{\lengthtest{\fitemlen > \labelwidth}}%
+  {\parbox[b]{\labelwidth}%
+   {\makebox[0pt][l]{#1}\\}}%
+  {#1}%
+ \hfil\relax%
+}
+
+\newcommand{\flistlength}[1][\empty]{%
+ \ifthenelse{\equal{#1}{\empty}}%
+   {\setlength{\labelwidth}{4.5em}}%
+   {\setlength{\labelwidth}{#1}}%
+ \setlength{\parsep}{0cm}%
+ \setlength{\leftmargin}{\labelwidth+\labelsep}%
+}
+
+% standard list
+\newenvironment{flist}
+ {%
+  \begin{list}{}{%
+   \flistlength%
+   \renewcommand{\makelabel}[1]{\fentrylabel{##1}}%
+  }%
+ }%
+ {\end{list}}
+
+% nested list, smaller labelwidth and no topsep
+\newenvironment{flistn}
+ {%
+  \begin{list}{}{%
+   \setlength{\topsep}{0cm}%
+   \flistlength[1.5em]%
+   \renewcommand{\makelabel}[1]{\fentrylabel{##1}}%
+  }%
+ }%
+ {\end{list}}
+
+% command lists
+\newenvironment{fcmdlist}
+ {%
+  \begin{list}{}{%
+   \flistlength%
+   \renewcommand{\makelabel}[1]{\fentrylabel{\fcmd{##1}}}%
+  }%
+ }%
+ {\end{list}}
+
+\newenvironment{fcmdlistn}
+ {%
+  \begin{list}{}{%
+   \setlength{\topsep}{0cm}%
+   \flistlength[1.5em]%
+   \renewcommand{\makelabel}[1]{\fentrylabel{\fcmd{##1}}}%
+  }%
+ }%
+ {\end{list}}
+
+\newenvironment{fvallist}
+ {%
+  \begin{list}{}{%
+   \flistlength%
+   \renewcommand{\makelabel}[1]{\fentrylabel{\fval{##1}}}%
+  }%
+ }%
+ {\end{list}}
+
+\newenvironment{fvallistn}
+ {%
+  \begin{list}{}{%
+   \setlength{\topsep}{0cm}%
+   \flistlength[1.5em]%
+   \renewcommand{\makelabel}[1]{\fentrylabel{\fval{##1}}}%
+  }%
+ }%
+ {\end{list}}
+
+\newenvironment{fmsglist}
+ {%
+  \begin{list}{}{%
+   \flistlength%
+   \renewcommand{\makelabel}[1]{\fentrylabel{\fmsg{##1}}}%
+  }%
+ }%
+ {\end{list}}
+
+\newenvironment{fmsglistn}
+ {%
+  \begin{list}{}{%
+   \setlength{\topsep}{0cm}%
+   \flistlength[1.5em]%
+   \renewcommand{\makelabel}[1]{\fentrylabel{\fmsg{##1}}}%
+  }%
+ }%
+ {\end{list}}
+
+% memory range list
+\newenvironment{fmemlist}
+ {%
+  \begin{list}{}{%
+   \flistlength[7em]%
+   \renewcommand{\makelabel}[1]{\fentrylabel{##1}}%
+  }%
+ }%
+ {\end{list}}
+
+
+\newlength{\fbitwidth}
+
+\newcommand{\fadef}[3]{{#1}: {#2} ({#3})}
+
+% address / byte definition: address, name, r/w
+\newenvironment{fadrdef}[3]
+  {\setlength{\fbitwidth}{\linewidth/8-\tabcolsep*2-\arrayrulewidth*9/8}%
+    \vspace{2ex}
+    \textbf{{#1}: {#2} ({#3})}%
+    \par\noindent%
+    \begin{tabular*}{\linewidth}%
+      {*{8}{|>{\centering\hspace{0pt}}p{\the\fbitwidth}}|}
+      \hline
+      7 & 6 & 5 & 4 & 3 & 2 & 1 & 0 \tabularnewline
+      \hline
+  }
+  {\tabularnewline \hline \end{tabular*}\par \vspace{0.5ex}}
+

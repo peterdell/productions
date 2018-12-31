@@ -1,0 +1,112 @@
+;  diagtext - TheCart diagnostics texts
+;
+;  Copyright (C) 2013-2014 Matthias Reichl <hias@horus.com>
+;
+;  This program is free software; you can redistribute it and/or modify
+;  it under the terms of the GNU General Public License as published by
+;  the Free Software Foundation; either version 2 of the License, or
+;  (at your option) any later version.
+;
+;  This program is distributed in the hope that it will be useful,
+;  but WITHOUT ANY WARRANTY; without even the implied warranty of
+;  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;  GNU General Public License for more details.
+;
+;  You should have received a copy of the GNU General Public License
+;  along with this program; if not, write to the Free Software
+;  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+TTITLE
+	.BYTE 125
+	.BYTE "The!Cart Diagnostics V0.05",155
+	.BYTE "(c) 2013 by Matthias Reichl",155,155
+TTITLEL	= * - TTITLE
+
+TMENU	.BYTE 155
+	.BYTE "1) Show device id", 155
+	.BYTE "2) Show lock status", 155
+	.BYTE "3) Show protected blocks",155
+	.BYTE "4) Protect block",155
+	.BYTE "5) Clear block protection",155
+	.BYTE "6) Erase block",155
+	.BYTE "7) Erase block timing test",155
+	.BYTE "8) Erase flash",155
+	.BYTE 155
+	.BYTE "Q) Quit program",155
+	.BYTE "> "
+TMENUL	= * - TMENU
+
+TASKER	.BYTE "Warning: this erases all data!",155
+	.BYTE "Erasing can take up to 30 minutes",155,155
+	.BYTE "Completely erase cartridge (y/n)? "
+TASKERL	= * - TASKER
+
+TREALLY		.BYTE 155, "Are you really sure (y/n)? "
+TREALLYL	= * - TREALLY
+
+TASKQUIT	.BYTE "Quit program (y/n)? "
+TASKQUITL	= * - TASKQUIT
+
+TSBANK	.BYTE "starting bank (0-"
+TSBANKL	= * - TSBANK
+
+TSBANK2	.BYTE ") > 0",30
+TSBANK2L = * - TSBANK2
+
+TERBNK	.BYTE "bank not on block boundary,",155
+	.BYTE "erase block (y/n)? "
+TERBNKL	= * - TERBNK
+
+TNBANK	.BYTE "number of banks (0=to end) > 0",30
+TNBANKL	= * - TNBANK
+
+; last drive number is set in MAXDRIVENO
+TDISKNO		.BYTE "drive number (1-15) > "
+TDISKNOL 	= * - TDISKNO
+
+TINVDRV		.BYTE "invalid drive number",155
+
+TFINI		.BYTE 155, "operation successfully completed",155
+TFINIL		= * - TFINI
+
+TABRT		.BYTE 155, "operation aborted",155
+TABRTL	= * - TABRT
+
+TNODSK1 .BYTE "drive "
+TNODSK1L = * - TNODSK1
+TNODSK2 .BYTE " not responding!",155
+TNODSK2L = * - TNODSK2
+
+TREADERR	.BYTE "error reading drive "
+TREADERRL	= * - TREADERR
+
+TCONT	.BYTE 155
+	.BYTE "Press any key to continue > "
+TCONTL	= * - TCONT
+
+TLOCKST	.BYTE "lock status: "
+TLOCKSTL	= * - TLOCKST
+
+TCHPID	.BYTE "id: "
+TCHPIDL	= * - TCHPID
+
+TNOCFI	.BYTE "ERROR: no CFI data present!",155
+TNOCFIL	= * - TNOCFI
+
+TCFIBE	.BYTE "block erase time: "
+TCFIBEL	= * - TCFIBE
+
+TCFICE	.BYTE " chip erase time: "
+TCFICEL	= * - TCFICE
+
+TBANKNO	.BYTE "bank number (0-"
+TBANKNOL	= * - TBANKNO
+
+TBANKNO2	.BYTE ") > 0",30
+TBANKNO2L	= * - TBANKNO2
+
+TJIFFI	.BYTE "jiffies: "
+TJIFFIL	= * - TJIFFI
+
+TJIFFT	.BYTE "erase time limit (0-255): "
+TJIFFTL	= * - TJIFFT

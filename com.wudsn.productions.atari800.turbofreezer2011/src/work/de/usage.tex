@@ -1,0 +1,284 @@
+\chapter{Einsatz}
+Wer hat sich nicht schon über Spielprogramme geärgert, die zwar an sich ganz und
+gar hervorragend sind, aber über keine jederzeit aktivierbare Pausefunktion
+verfügen? Oder die von jener frustrierenden Sorte, bei der man nach Verlust
+aller Leben wieder von vorne anfangen und ewig spielen muss, bis man wieder dort
+ist, wo man mal war? Oder solche, bei denen erst in höheren Stufen so richtig
+Action aufkommt, es aber trotzdem notwendig ist, vorher viel Zeit mit dem
+Erreichen dieser Stufen zu vertun? Hier ist ein Freezer genau das richtige: ein
+Programm kann jederzeit, an jedem Punkt, eingefroren werden und in dieser Form
+auf einem beliebigen Massenspeicher gespeichert werden. Von dort kann es
+beliebig später wieder geladen und an genau derselben Stelle fortgesetzt werden,
+an der es eingefroren wurde. Und das beliebig oft, so dass es kein Problem ist,
+hundert Leben zu verbraten, um eine neue Prüfung zu meistern, obwohl man nur
+noch ein oder zwei Leben hat.
+
+Damit der Freezer richtig Spaß machen kann, muss er jederzeit verfügbar sein,
+residente Software haben (also ohne umständliches Laden von Diskette oder
+Kassette auskommen) und vollautomatisch sowie in Sekundenschnelle arbeiten.
+Daher wurde beim\linebreak
+\frz darauf verzichtet, Sparmaßnahmen zu ergreifen, die
+durchaus möglich gewesen wären, wie etwa die teilweise Rekonstruktion der
+Hardwareregister durch Eingaben des Users oder das nachladen der
+Freezer-Software. Statt solche dubiosen Sparmaßnahmen zu ergreifen, wie sie
+teils bei den Freezern für andere Computersysteme zu beobachten sind, wurde beim \frz ohne
+Rücksicht auf den Aufwand das Beste geschaffen, was mit dem Stand der Technik
+möglich ist. Und der Aufwand ist, wie das Resultat beweist, nicht ohne
+Wirkung geblieben. Wer die umständlichen Primitiv-Freezer anderer Computer kennt, kann
+über den mühelosen und sekundenschnellen Einsatz des \frzs nur begeistert sein.
+Um zum Beispiel ein Spiel einzufrieren, in der RAM-Erweiterung zu speichern
+und trotzdem drei Sekunden später weiterzuspielen, sind nur drei Tastendrücke nötig. Dasselbe
+gilt für das spätere Laden und Auftauen aus der RAM-Erweiterung.
+
+Doch der Freezer kann noch viel mehr. Es sind beliebige Konvertierungen zwischen
+Kassette und Diskette möglich. Benutzer von Kassettenlaufwerken mit
+neuerworbener Floppy können ihre geliebte Softwaresammlung auf Diskette \fq{mitnehmen}.
+Benutzer von Diskettenlaufwerken kommen auch ohne wiederholte Ladequalen an die
+Programme, die es nur auf Kassette gibt oder können durch Kauf der billigeren
+Kassettenversionen Geld sparen.
+
+Und es gibt noch einen wichtigen Punkt. Der \frz ist ein Freezer, bei dem ein
+DOS und ein Debugger eingebaut sind, Diese stehen jederzeit zur Verfügung können
+und verwendet werden, ohne dass das eingefrorene Programm dabei beschädigt wird.
+Volle Disketten oder sonstige fatale Vorkommnisse verlieren damit auch bei der
+Verwendung von Anwendungsprogrammen ohne DOS-Funktionen ihre Schrecken. Dies
+gilt ebenso für die üblen Bugs, die man ohne Einblick in die Hardwareregister
+und den unversehrten Systemzustand nie findet.
+
+\section{Freezer-Hauptmenü aufrufen}
+
+Nach dem Drücken des Knopfes \fsw{Freeze} wird das Programm beim nächsten
+Interrupt eingefroren, und der Freezer übernimmt die Kontrolle über den Atari.
+Über das Freezer-Hauptmenü können dann alle weiteren Funktionen aufgerufen
+werden. Ein Auftauen des eingefrorenen Programms ist durch Betätigung der
+\fkey{Leertaste} möglich. Das Programm läuft dann an genau derselben Stelle
+weiter, an der es eingefroren wurde. Im Freezer-Hauptmenü stehen folgende
+Funktionen zur Verfügung.
+
+\begin{flist}
+\item[\fkey{Leertaste}]
+  Eingefrorenes Programm auftauen
+\item[\fkey{RESET}]
+  Kaltstart durchführen und Freezer deaktivieren
+\item[\fkey{S}]
+  Eingefrorenes Programm auf Diskette oder Kassette speichern
+\item[\fkey{F}]
+  Eingefrorenes Programm in das Freezer-RAM speichern
+\item[\fkey{R}]
+  Eingefrorenes Programm in die RAM-Erweiterung speichern
+\item[\fkey{E}]
+  Eingefrorenes Programm von Diskette oder Kassette laden und starten
+\item[\fkey{C}]
+  Eingefrorenes Programm aus dem Freezer-RAM laden und starten
+\item[\fkey{X}]
+  Eingefrorenes Programm aus der RAM-Erweiterung laden und starten
+\item[\fkey{W}]
+  Eingefrorenes Programm mit Programm im Freezer-RAM tauschen und starten
+\item[\fkey{A}]
+  Eingefrorenes Programm mit Programm in der RAM-Erweiterung tauschen und starten
+\item[\fkey{Z}]
+  RAM unter dem OS-ROM löschen
+\item[\fkey{D}]
+  Debugger starten
+\item[\fkey{K}]
+  Menü der Cartridge-Emulation starten
+\item[\fkeys{K}]
+  Menü der Cartridge-Emulation starten, dabei RAM nicht löschen (Warmstart)
+\item[\fkeys{Leertaste}, \fkey{E}, \fkey{C}, \fkey{X}, \fkey{W}, \fkey{A}]
+  Wie oben, dabei vor dem Auftauen die Player/Missile-Kollisionsregister löschen
+\item[\fkeyc{E}, \fkey{C}, \fkey{X}, \fkey{W}, \fkey{A}]
+  Wie oben, aber eingefrorenes Programm nur Laden und nicht starten
+\end{flist}
+
+\section{Programm einfrieren und auftauen}
+
+Im Prinzip kann jedes Programm an jeder beliebigen Stelle eingefroren
+werden, also auch während einer Disketten- oder Kassettenoperation. Zu empfehlen
+ist das jedoch nicht, da diese Operation dann unvollständig bleibt.
+Nach dem Auftauen des Programms besteht zwar für das Betriebssystem die
+Möglichkeit, die Diskettenoperation zu wiederholen, dies ist aber nicht sicher.
+Die Wiederholung einer Kassettenoperation ist dem Betriebssystem überhaupt nicht
+möglich, da das Kassettenlaufwerk dazu zu \fq{dumm} ist. Demnach ist es besser,
+Programme nur einzufrieren, wenn gerade keine Operationen mit der Peripherie
+erfolgen.
+
+Es kann in äußerst seltenen Fällen vorkommen, dass nach dem Drücken des Knopfes
+\fsw{Freeze} nichts passiert, das Programm also ungerührt weiterläuft.
+Dies ist dann, der Fall, wenn das gar keine Interrupts verwendet. Möglich ist
+das natürlich nur bei ganz einfachen Programmen wie \zB konvertierten
+Apple-Programmen, die die Fähigkeiten des Ataris praktisch nicht nutzen. Um
+solche Programme dennoch einzufrieren kann man den Atari, wie im Abschnitt
+\ref{sec:systemreset} beschrieben, mit einer \fkey{SYSTEM RESET}-Taste
+erweitern. Der hiermit verbundene Interrupt kann nämlich auf keinen Fall
+unterdrückt werden, so dass es gegen den \frz keine Gegenmaßnahme mehr gibt.
+
+Taut man ein eingefrorenes Programm mit \fkeys{Leertaste} auf, so werden die
+Player/Missile-Kollisionsregister gelöscht, bevor die Kontrolle an das
+eingefrorene Programm übergeben wird. Für gewöhnlich benötigt man diese Funktion
+nicht, bei einigen wenigen Spielen verhindert dies allerdings, dass man direkt
+nach dem Auftauen ein Leben verliert. Beim Laden von eingefrorenen Programmen
+steht diese Funktion übrigens auch zur Verfügung. Hier einfach \fkeys{E} /
+\fkey{C} / \fkey{X} / \fkey{W} / \fkey{A} drücken.
+
+Nach dem normalen Laden eines eingefrorenen Programms von Diskette, Kassette,
+Freezer-RAM oder RAM-Erweiterung wird dieses automatisch aufgetaut. Lädt man ein
+eingefrorenes Programm mit \fkeyc{E} / \fkey{C} / \fkey{X} / \fkey{W} /
+\fkey{A}, so wird es nicht automatisch nach dem Laden gestartet. Man bleibt
+damit im Freezer und kann \zB vor dem Auftauen noch Speicherzellen ändern. Diese
+Funktion ist besonders dann praktisch, wenn man bei einem Spiel nach der
+Speicherzelle für Leben, Energie usw. sucht. Hierzu kann man das Programm
+abspeichern direkt nach dem Einfrieren, dann eine Speicherzelle ändern und das
+Programm wieder auftauen. Hat man die falsche Speicherzelle erwischt, einfach
+wieder den Freezer aktivieren, das eingefrorene Programm mit
+\fkeyc{E}/\fkey{C}/\fkey{X} laden und die nächste Speicherzelle ausprobieren.
+Somit hat man bei jedem Versuch die gleichen Ausgangsbedingungen und muss sich
+keine Gedanken darüber machen, wie man die vorherigen Änderungen wieder
+rückgängig machen kann.
+
+\section{Eingefrorenes Programm abspeichern}
+
+Mit den Funktionen \fkey{S}, \fkey{F}, \fkey{R} können eingefrorene Programme
+auf externe Massenspeicher wie Kassette oder Diskette (Taste \fkey{S}), in die
+RAM-Erweiterung (Taste \fkey{R}) oder in das Freezer-RAM (Taste \fkey{F})
+weggespeichert werden. Bei \fkey{S} wird mittels eines Untermenüs gefragt, ob
+die Speicherung auf Kassette, als Bootdiskette oder als einzelne Datei
+erfolgen soll. Vor dieser Eingabe sollten die Kassette bzw. Diskette eingelegt
+werden. Beim Speichern als einzelne Datei auf einer Diskette wird mit einem
+weiteren Menü der Dateiname erfragt.\newline
+
+\textbf{Achtung:} Beim Abspeichern als Bootdiskette wird direkt auf die Diskette
+in \fq{D1:} geschrieben. All eventuell auf der Diskette vorhandenen Daten gehen
+dabei verloren.\newline
+
+Wenn statt eines Dateinamens nur \fkey{RETURN} gedrückt wird, verwendet der
+Freezer den Dateinamen \fval{CORE} für \fq{Speicherabzug}. Als Besonderheit
+können Wildcards verwendet werde, wenn eine bereits existierende Datei
+überschrieben werden soll. Stellt man kein \fval{D:}, \fval{D1:}, \fval{D2:}
+etc. vor den Dateinamen, so wird automatisch \fval{D1:} verwendet. Der Freezer
+unterstützt maximal 8 Diskettenlaufwerke \fval{D1:} bis \fval{D8}.
+
+Um bei den Operationen die größtmögliche Geschwindigkeit zu erreichen wird das
+Freezer-Hauptmenü wird während der Ausgabeoperationen hin und wieder
+ausgeschaltet. Dadurch, dass in Kauf genommen wurde, dass das Bild beim
+Wiedereinschalten \fq{hüpfen} kann, dauert \zB das Speichern in die RAM-Erweiterung nur
+halb so lang, was die unsaubere Methode rechtfertigt.
+
+\subsection{Ladeprogramm für Bootdisketten anpassen}
+\label{sec:bootloader}
+Wird ein eingefrorenes Programm als Bootdiskette gespeichert, so schreibt der
+Freezer ein Ladeprogramm mit auf die Diskette. Dies funktioniert naturgemäß
+nicht mit allen Programmen, denn das Ladeprogramm braucht selbst etwa 2k
+Speicherplatz. Benötigt das eingefrorene Programm den vollständigen Speicher des
+Ataris, funktioniert es nicht zusammen mit dem Ladeprogramm.
+
+Standardmäßig benutzt das Ladeprogramm den Bereich zwischen \fhex{C000} und
+\fhex{C6FF}. Das garantiert normalerweise die korrekte Funktion mit alten
+Programmen, die nur\linebreak
+48kByte Speicher benötigen. Falls es dennoch zu Problemen
+kommt, kann man die Startadresse des Ladeprogramms leicht ändern.
+
+Das erste Byte des Bootsektors enthält die Start-Page des Ladeprogramms
+(standardmäßig \fhex{C0}). Dieses Byte zu ändern ist mit dem \frz
+ganz leicht.  Man startet den Debugger, lädt den ersten Sektor, ändert
+das erste Byte auf den gewünschten Wert und schreibt den Sektor auf die
+Diskette zurück. Hierbei ist zu beachten, dass nur Werte von \fhex{05} bis
+\fhex{C9} und von \fhex{D8} bis \fhex{F9} erlaubt sind. Wenn andere Werte
+benutzt werden, erhält man beim Booten der Diskette einen \fmsg{BOOT
+ERROR}. Um zum Beispiel die Start-Page des Ladeprogramms auf \fhex{F0}
+gesetzt werden soll, sind folgende Kommandos Debugger einzugeben: 
+
+\begin{fcode}
+SR 1
+C D700<F0
+SW 1
+\end{fcode}
+
+\subsection{Nachladendes Programm einfrieren}
+
+Das Einfrieren nachladender Programme selbst ist natürlich immer
+möglich. Nur muss dann nach dem Auftauen, vor jeder weiteren Aktion des
+laufenden Programms, die Originaldiskette wieder ins Laufwerk eingelegt
+werden. Dabei wird diese Disk aber freilich nicht geschont.
+Wünschenswert ist es, eine Backupdiskette zur Hand zu haben, um das
+Original an einem sicheren Ort wegschließen zu können. Selbst mit einem
+kopierfähigen Floppy-Speeder tritt dabei aber heutzutage das Problem
+auf, dass bei weitem nicht alle neuen Programme kopiert werden können. 
+
+Der \frz entfernt einen auf der Originaldiskette befindlichen Kopierschutz
+nicht, sondern speichert lediglich den aktuellen Programmzustand ab. Um diesen
+später wieder beliebig oft auftauen zu können, muss eine kopiergeschützte
+Originaldiskette wieder in das Diskettenlaufwerk eingelegt werden, bevor das
+Programm aufgetaut wird. Bei Verwendung einer weiteren Diskette zur Speicherung
+des eingefrorenen Spielstandes sollte man die Originaldiskette mit einem
+Schreibschutz versehen, und aufpassen, dass diese nicht versehentlich durch den
+Spielstand überschrieben wird.
+
+Handelt es sich um ein Spiel, das von mehreren nicht kopiergeschützten
+Datendisketten nachlädt (\zB ein Adventure), empfiehlt es sich, diese zu
+kopieren und die Kopien zu verwenden, um die Originaldisketten zu schonen.
+
+\section{Zwischen eingefrorenem und gespeichertem Programm wechseln}
+
+Mit der Wechselfunktion im Freezer-Hauptmenü kann zwischen dem gerade
+eingefrorenen Programm und einem im Freezer-RAM (Taste \fkey{W}) oder in der
+RAM-Erweiterung (Taste \fkey{A}) bereits abgelegten Programm gewechselt werden.
+Damit kann man sehr schnell zwischen zwei verschiedenen Programmen wechseln.
+Hierbei sollte man darauf achten, dass sich in dem Freezer-RAM bzw. der
+RAM-Erweiterung auch wirklich ein eingefrorenes Programm befindet, da der Atari
+ansonsten beim Auftauen abstürzt.
+
+Die Zusatztasten \fkeys{} für das Löschen der Player/Missile-Kollisionsregister
+sowie \fkeyc{} um das automatische Starten zu verhindern stehen hier ebenso wie
+bei den normalen Funktionen zum Auftauen zur Verfügung.
+
+
+\section{RAM unter dem OS-ROM löschen}
+
+Da es Programme gibt, die 64k RAM benötigen und auch belegen, muss der Freezer
+auch den RAM-Bereich unter dem OS-ROM berücksichtigen. Nach dem Einschalten des
+Computer befinden sich in diesem Bereich nutzlose Zufallsdaten. Das sich diese
+nicht besonders zur Komprimierung eignen, handelt man sich dann bei 48k
+Programmen eine gewisse Ineffizienz und Speicherplatzverschwendung auf externen
+Datenträgern ein. Um das zu vermeiden, kann das RAM von \fhexr{C000}{FFFF} mit
+der Funktion \fkey{Z} gelöscht werden, wenn das Programm nur 48k RAM belegt. Es
+ergibt sich eine Verkleinerung der Dateien von 25\% bis 50\% und dementsprechend
+geringere Ladezeiten.
+
+Die Funktion kann vor dem Booten des Programms oder vor dem Abspeichern
+eingesetzt werden. Die erste Alternative empfiehlt sich, wenn nicht ganz sicher
+feststeht, dass das Programm wirklich nichts in diesem RAM-Bereich ablegt.
+
+\section{Debugger und DOS starten}
+
+Mit der Funktion \fkey{D} wird das eingebaute Debugger mit DOS-Funktionen
+aktiviert. Dieser verwendet eine Kommandozeile und den vollständigen Bildschirm,
+sodass er nicht mit Menüs auskommen würde. Trotzdem wird auch für diese Funktion
+kein RAM im Atari belegt oder verändert. Die Zustände der eingefrorenen
+Hardwareregister bleiben selbstverständlich ebenfalls erhalten. Die vollständige
+Beschreibung des Debuggers und der DOS-Funktionen findet sich im Kapitel
+\ref{chap:debugger}.
+
+\section{Menü der Cartridge-Emulation aufrufen}
+
+Mit der Funktion \fkey{K} wird das Menü der Cartridge-Emulation aufgerufen.
+Diese Funktion ist nur dann verfügbar, wenn der Schalter \fsw{CartEmu} oder der
+Schalter \fsw{FlashWrite} (oder beide) eingeschaltet sind, d.h.
+rechts stehen. Ansonsten ist die Cartridge-Emulation komplett deaktiviert und
+das Menü der Cartridge-Emulation kann natürlich nicht eingeblendet werden. Die
+vollständige Beschreibung der Cartridge-Emulation findet sich im Kapitel
+\ref{chap:cartemu}. Beim Aufrufen der Cartridge-Emulation führt der Freezer
+folgende Schritte durch:
+
+\begin{itemize*}
+\item Das Freezer-Hauptmenü wird verlassen
+\item Das Menü der Cartridge-Emulation wird aktiviert
+\item Die IRQs und NMIs werden abgeschaltet
+\item Das OS-ROM wird eingeschaltet
+\item Die Rücksprungadresse wird auf \fhex{E477} gesetzt (Kaltstart)
+\item Das normale Auftauen wird durchgeführt (entspricht der \fkey{Leertaste})
+\end{itemize*}
+
+Mit der Funktion \fkeys{K} wird ein anstatt des Klarstart ein
+Warmstart (Rücksprung nach Adresse \fhex{E474}) ausgelöst. Dies kann zum
+Beispiel dann nützlich sein, wenn man den Inhalt des internen RAM im Atari
+erhalten möchte wenn man ein Modul startet.

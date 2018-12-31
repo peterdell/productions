@@ -1,0 +1,195 @@
+\chapter*{Vorwort}
+\markboth{}{Vorwort}
+
+\section*{Vorwort des Neukonstrukteurs (2012)} Der \frz 2005 war ein
+großer Erfolg. Er kam in der Atari Community sehr gut an und wir bekamen viel
+positives Feedback und Ideen für neue Funktionen. Dabei erwies sich der Einsatz
+von Flash-ROM anstelle eines EPROMS als sehr hilfreich. Es ermöglichte den
+Benutzern sehr einfach die Software vom Atari aus zu aktualisieren und so in den
+Genuss der neuen Funktionen zu kommen.
+
+Insbesondere der Debugger wurde seit der Erstauflage 2005 erheblich erweitert.
+Es kam eine Online-Hilfe dazu, Kommandos um Speicherblöcke zu verschieben oder
+zu vergleichen, Übersichten für die Speicherbelegung und die OS-Vektoren,
+die Möglichkeit Debugging-Sitzungen am Drucker mit zu protokollieren und noch vieles mehr. An
+dieser Stelle ein großes Dankeschön vor allem an Erhard Pütz und Carsten
+Strotmann für die vielen guten Ideen!
+
+Nachdem die Erstauflage ausverkauft war erreichten uns mehr und mehr Anfragen
+doch eine weitere Serie aufzulegen. 2010 wurde es dann konkreter. Zusammen mit
+Wolfram Fischer, der auch schon an der  \frz 2005 Version mitgearbeitet
+hatte, begann ich mit der Planung einer Neuauflage. Mittlerweile war der Lattice
+M4A5 CPLD nur mehr relativ schwierig zu bekommen und er war auch deutlich teurer
+als vergleichbare Chips. Auch hätten wir gerne einen etwas \fq{größeren} Chip
+verwendet um einige neue Ideen und Funktionen umsetzen zu können. So entschieden
+wir uns einen Xilinx XC95144XL als Basis für den neuen Freezer zu verwenden. Bei
+etwa gleichem Preis bot er im Vergleich zum Lattice CPLD mehr als doppelt so
+viel Leistung (I/O Pins und Platz für Logik). So hatten wir die Möglichkeit lang
+ersehnte Features -- \zB eine RAM-Erweiterung, wie sie auch schon der
+allererste Freezer von 1987 hatte -- umzusetzen.
+
+Wolfram baute Ende 2010 einen ersten Prototypen der neuen Hardware, dadurch
+hatte ich die Basis um Anfang 2011 mit der Entwicklung der neuen Logik und
+Software zu beginnen. Dabei wurde mir schnell klar, dass es am besten ist die
+Logik von Grund auf neu zu entwickeln und die einzelnen Funktionsblöcke
+(Freezer, Cartridge-Emulation etc.) voneinander zu trennen. Dadurch war es recht
+einfach möglich Erweiterungen in den einzelnen Blöcken vorzunehmen.
+
+Die Logik der Cartridge-Emulation wurde komplett umgekrempelt, die Freezer Logik
+hielt ich aber bewusst kompatibel zur alten \frz 2005 Logik:
+Ich wollte, dass die Freezer-Software mit nur minimalen Änderungen sowohl am
+\fq{alten} als auch am neuen Freezer läuft und damit auch Besitzer des alten
+Freezers in den Genuss weiterer Updates kommen können.
+
+Im Sommer 2011 war es dann soweit, nach einigen neuen Hardware Revisionen und
+etlichen Änderungen an Software und Logik war der neue Freezer fertig! Leider
+verzögerte sich der eigentlich für Ende 2011 geplante Beginn der
+Serienproduktion um fast ein ganzes Jahr. Wolfram musste in eine neue Wohnung
+übersiedeln und ich hatte viel in der Arbeit zu tun -- damit hatten wir beide so
+gut wie keine Zeit für unser Hobby. Dank der Unterstützung durch den ABBUC
+konnte die Produktion aber schließlich im Herbst 2012 endlich beginnen! Vielen
+Dank an Wolfgang Burger für die Unterstützung und an alle Vorbesteller die
+geduldig auf den neuen Freezer gewartet haben.
+
+\medskip Salzburg, im November 2012
+
+\medskip Matthias Reichl
+
+\section*{Vorwort des Neukonstrukteurs (2005)} Der Startschuss für die
+Entwicklung des neuen \frz fiel Anfang 2004 als Bernhard Engl dem
+ABBUC die Erlaubnis gab, seine Produkte (die 1050 Turbo und den \frz)
+neu aufzulegen. Für mich persönlich war der \frz schon immer die
+interessanteste Erweiterung, die je für die Ataris existierte und ich hatte mich
+auch schon zuvor sehr intensiv mit dem \frz beschäftigt und seine
+Funktionsweise vollständig analysiert. Demnach war es ziemlich klar, dass ich
+mich um den Nachbau des \frzs kümmern würde. Mit im Team waren noch
+Bernhard Pahl, Florian Dingler, Torsten Schall, Guus Assmann, Frank Schröder und
+gegen Ende auch noch Wolfram Fischer.
+
+An dieser Stelle möchte ich ein großes Dankeschön an alle Team-Mitglieder
+aussprechen, ohne euch wäre ich wohl nie so weit gekommen! Besonders bedanken
+möchte ich mich bei Guus, für die vielen Erweiterungs-Ideen, das Erstellen der
+Platinen-Layouts und den Aufbau der Prototypen, Bernhard Engl für alle Tipps und
+die detaillierten Infos zum original \frz, sowie bei allen anderen für
+die Anregungen und fürs Testen!
+
+Mein ursprünglicher Plan war, den original \frz einfach mit aktuell
+erhältlichen Bauteilen neu aufzulegen. Zu dieser Zeit hätte ich mir nie gedacht,
+dass dabei zum Schluss eine so umfangreiche und mächtige Erweiterung
+herauskommen würde.
+
+ Im Laufe des Projektes habe ich sowohl die Hardware als auch
+die Software des\linebreak
+\frzs nach und nach erweitert, so lange bis von der
+original\linebreak
+\frz-Logik nur mehr das grundlegende (und meiner Meinung nach
+geniale) Funktionsprinzip übrig geblieben ist.
+
+Einige der Erweiterungen am \frz sind übrigens recht zufällig
+entstanden, \zB die Cartridge-Emulation: Da 16k EPROMs deutlich teurer
+sind als aktuelle Flash-ROMs, hat Guus vorgeschlagen, ein Flash- ROM zu verwenden. Um
+das Flash-ROM direkt vom Atari aus programmieren zu können, war es notwendig,
+dass man das Flash-ROM in den Speicher des Ataris einblenden kann.
+Das war die Basis der Cartridge-Emulation :-).
+
+Ähnlich verhielt es sich beim verwendeten RAM: Das originale 2k RAM war schwer
+zu bekommen und auch recht teuer. Also haben wir uns in einem ersten Schritt
+dazu entschlossen, 32k RAM und 128k Flash-ROM zu verwenden. In einem nächsten
+Schritt haben wir das RAM von 32k auf 128k aufgestockt, damit war es nun auch
+möglich, einen kompletten Snapshot im Freezer-RAM abzulegen und das
+Flash-ROM wurde durch einen 512k Typ ersetzt. Dies erforderte aber wiederum
+einen leistungsfähigeren Logik-IC. Durch den neuen Logik-IC war es dann wiederum
+möglich, auch 16k OSS-Module und das SpartaDOS~X-Modul zu emulieren. Mit dem
+aktuell erreichten Stand ist nun auch das Logik-IC komplett voll und wir alle
+sind zufrieden das maximal mögliche aus der Hardware herausgeholt zu haben.
+Für die Software existieren schon einige Erweiterungsideen, doch mehr wird dazu
+noch nicht verraten.
+
+Ein wichtiger Punkt während der Entwicklung war für mich immer, auch eine offene
+Basis für zukünftige Erweiterungen zu erstellen. So sind alle Informationen frei
+erhältlich und auf der \frz Platine ist sogar ein JTAG Interface
+integriert, mit dem der Logik-IC neu programmiert werden kann. Somit kann jeder
+selber Erweiterungen am \frz erstellen oder sogar komplett neue
+Funktionen realisieren! Aktuelle Informationen und Updates zum \frz
+XL/XE 2005 sind im Internet unter \url{http://turbofreezer.horus.com/}
+verfügbar. Dort gibt es auch eine Anleitung wie man die Logik des \frzs
+selbst verändern kann. Bei technischen Fragen schickt mir am besten eine E-Mail
+an \href{mailto:hias@horus.com}{\nolinkurl{hias@horus.com}}.
+
+Die Funktionsvielfalt des \frzs hat bisher nicht nur alle Team-\linebreak
+Mitglieder überzeugt, sondern auch die Mitglieder des ABBUC: beim Hardware
+Wettbewerb 2005 hat der \frz mit deutlichem Abstand den ersten Platz
+belegt! Ich wünsche euch viel Spaß mit dem \frz und bleibt den Atari
+8-Bit Computern noch lange treu!
+
+\medskip Salzburg, im Dezember 2005
+
+\medskip Matthias Reichl
+
+\section*{Vorwort des Entwicklers (2005)} Die größte Anerkennung, die man als
+Entwickler eines einst erfolgreichen Produkts bekommen kann, besteht darin, dass
+ein dazu würdiger Nachfolger die Ideen aufgreift und weiterentwickelt. Wenn dies
+jedoch nach sechzehn Jahren und noch dazu im Bereich der Homecomputer geschieht,
+ist das sogar sensationell und zeigt, dass das damalige Produkt heute Kultstatus
+genießt. Mit dem \frz XL/XE 2005 hat Matthias Reichl aufbauend auf
+meinem alten Grundkonzept aus den 1980er Jahren ein echtes Meisterstück
+abgeliefert, das unter Verwendung zeitgemäßer Mikrochips einen enorm erweiterten
+Funktionsumfang aufweist und nebenbei auch noch einige kleinere Schwächen
+beseitigt, die mir damals zwar bekannt waren, aber wegen der beschränkten
+Möglichkeiten der damaligen Halbleitertechnik leider nicht vermieden werden
+konnten, ohne dass die Chipanzahl und damit der Preis des Produktes
+unwirtschaftlich hoch geworden wäre.
+
+Durch diese Verbesserungen und Erweiterungen, insbesondere auch der neuen
+genialen Cartridge-Emulation, die das Vorbild nicht hatte, ist der neue TURBO
+FREEZER XL/XE nicht nur der beste und perfekteste Freezer für den 8-Bit Atari,
+der jemals existiert hat, sondern ein wahres Multitalent, das ebenfalls das Zeug
+dazu hat, einmal legendär und zum Kult zu werden. Er stellt den vorläufigen
+Höhepunkt einer technischen Entwicklung dar, die vor mehr als 20 Jahren begann:
+in meinen inzwischen vergilbten Notizbüchern tauchen erste Skizzen des Konzepts
+etwa im Herbst 1984 auf (das herauszufinden hat mich selber überrascht).
+
+Nach einer so langen Zeit eine stark erweiterte, verbesserte und zeitgemäße
+Neuauflage eines Computer-Hardwarezusatzes erleben zu dürfen, ist nicht nur ein
+Wunder, sondern für mich eine besondere Freude und Ehrung, und ich wünsche allen
+stolzen Besitzern des neuen \frz XL/XE ebenfalls viel Freude damit!
+
+\medskip Zürich, im November 2005
+
+\medskip Bernhard Engl
+
+\section*{Vorwort des Entwicklers (1987)} Nach über einem Jahr
+Entwicklungszeit, hunderten von verbrauchten ICs, 5300 Assemblerzeilen und
+fünfstelligen Kosten ist es soweit: Mit dem \frz XL ist nicht nur der
+erste echte Freezer für den Atari fertig, sondern zugleich auch die einzige
+Erweiterung, die der Freak braucht, um seinen Atari optimal und maximal zu
+nutzen. Denn zusätzlich zum Freezer befindet sich auf derselben Platine noch
+Platz für einen Oldrunner sowie für 256k RAM, so dass der 800 XL damit auf bis zu
+320k erweitert werden kann.
+
+Dank der Verwendung dreier ASICs, die zusammen über 40 normale TTL-ICs ersetzen
+und dank der gerade noch geglückten Vermeidung einer teuren Multilayerplatine
+ist es gelungen, dies alles zu einem konkurrenzlos günstigen Preis zu
+realisieren. Zudem kommt der \frz XL ohne Eingriffe in den Rechner aus,
+was durch die für den Freezer ohnehin nötige hochentwickelte Memory-Management
+Logik ermöglicht wird.
+
+Dieselbe sorgfältige Abstimmung aller Komponenten findet sich auch bei der
+eingebauten Software, die aus dem Freezer, einem Mini-DOS und einem Debugger
+besteht. Zusammen mit den Möglichkeiten der Hardware ergibt sich ein Power-Tool,
+das dem Atari-User ungeahnte Möglichkeiten durch die totale Beherrschung des
+Programmablaufs eröffnet. Kein Wunder, dass bisher jeder, der den \frz
+XL in Aktion gesehen hat, selber ein Exemplar haben möchte. Der gesteigerte Spaß
+am Computern und das Gefühl, mit jedem Programm das tun zu können, was man
+selber will (im Gegensatz zu dem, was der Programmierer festgelegt hat) ist
+schon allein den Kaufpreis wert. Ganz abgesehen von dem Spareffekt bei
+Ausnutzung der vorgesehenen Erweiterungen, die zusammen ohne Freezer mehr kosten
+würden als ein voll ausgebauter \frz XL.
+
+Doch mehr dazu unter den Beschreibungen der einzelnen Funktionen! Ich wünsche
+jedem stolzen Besitzer noch viel Spaß mit dem faszinierendsten Produkt, das für
+den Atari je auf den Markt gekommen ist.
+
+\medskip München, im Mai 1987
+
+\medskip Bernhard Engl

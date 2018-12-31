@@ -1,0 +1,259 @@
+\chapter{Usage}
+
+Did you ever feel annoyed by a game that is really great but has no pause
+function that can be activated at any time? Or by games of the frustrating kind
+where you have to start all over again at the beginning after you lost all lives and
+then have to play forever to get to the point that you had already reached
+before? Or those games where the action only starts in the higher levels but
+where you have to waste huge amounts of time reaching these levels? In this case
+the freezer is exactly the right thing for you: a program can be frozen at any
+time in any situation and can be saved to any mass storage. From there it can be
+loaded at a later point in time and can be resumed at exactly the point where it
+was frozen. And this can be repeated as often as required, so it is no problem to
+spend a hundred lives to master a challenge though you only have one or two
+lives left.
+
+In order to really be fun, a freezer must be available at any time, must have
+resident software (so it can work without cumbersome loading from disk or
+cassette) and must work fully automatic and within seconds. Therefore no cost
+cutting measures, like for example partly reconstruction of the hardware
+registers by user input or loading the freezer software from disk, were applied.
+Instead of applying such dubious cost cutting measures, as they can sometimes be
+seen in the freezers for other computer systems, the \frz represents the best
+possible solution that can be achieved with today's technology. And the
+invested effort was not in vain, as the result proves.
+
+If you know the cumbersome primitive freezers of other computers you will simply
+be excited by the easy and instant usage of the \frz. For example freezing a
+game, saving it to the RAM extension and resuming  the game three seconds later
+takes no more than three keystrokes. The same is true for loading and resuming
+the game from the RAM extension later on.
+
+But the freezer can do much more. It is possible to perform any conversion
+between cassette and disk. Users of cassette tape drives who recently bought a
+disk drive can take their beloved software collection with them on disk. Users
+of disk drives can now use programs that are only available on cassette without
+tedious loading or can save money by buying the cheaper cassette
+versions.
+
+And there is one more important point. The \frz is a freezer which has a DOS and
+debugger built in. They are always available and can be used without damaging
+the frozen program. Full disks or other fatal events are now no longer a problem
+anymore -- even not when using application programs without DOS functions. The
+same is true for the evil bugs which can never be located without insight into
+the hardware registers and the unmodified system state.
+
+\section{Starting the freezer main menu}
+
+After pressing the \fsw{Freeze} button the program is frozen when the next
+interrupt occurs and the freezer takes over control of the Atari.From the
+freezer main menu all other functions can be reached. Resuming the frozen
+program is possible by pressing \fkey{SPACE}. The program will continue to run
+from exactly the same position where it was frozen. The freezer main menu offers
+the following options:
+
+\begin{flist}
+\item[\fkey{SPACE}]
+  Resume frozen programm
+\item[\fkey{RESET}]
+  Perform cold start and deactivate freezer
+\item[\fkey{S}]
+  Save frozen program to disk or cassette
+\item[\fkey{F}]
+  Save frozen program to freezer RAM
+\item[\fkey{R}]
+  Save frozen program to RAM extension 
+\item[\fkey{E}]
+  Load and start frozen program from disk or cassette
+\item[\fkey{C}]
+  Load and start frozen program from freezer RAM
+\item[\fkey{X}]
+  Load and start frozen program from RAM extension
+\item[\fkey{W}]
+  Swap frozen program with program in freezer RAM and start
+\item[\fkey{A}]
+ Swap frozen program with program in RAM extension and start
+\item[\fkey{Z}]
+  Clear RAM under the OS ROM
+\item[\fkey{D}]
+  Start debugger
+\item[\fkey{K}]
+  Start menu of the cartridge emulation
+\item[\fkeys{K}]
+  Start menu of the cartridge emulation without clearing the RAM (warm start)
+\item[\fkeys{SPACE}, \fkey{E}, \fkey{C}, \fkey{X}, \fkey{W}, \fkey{A}]
+  Like above, but clear player/missile collision registers before resuming
+\item[\fkeyc{E}, \fkey{C}, \fkey{X}, \fkey{W}, \fkey{A}]
+  Like above, but frozen program is only loaded and not started
+\end{flist}
+
+\section{Freezing and resuming a program}
+
+In principle, any program can be frozen at any point even during a disk or
+cassette operation. Yet this is not recommended as this operation will remain
+incomplete. After resuming the program the operation system has the opportunity
+to retry the disk operation but this is not safe. Retrying an operation on the
+cassette is even impossible for the operation system since the cassette tape
+drive is simply too \fq{stupid}. Therefore it is better to freeze programs only
+when there is no operation with peripherals in progress.
+
+In very rare cases nothing happens when the \fsw{Freeze} button is pressed and the
+program continues unaffectedly. This is the case when the program does not use
+interrupts at all. It's only possible if the program is very simple like for
+example converted Apple programs which do not really use the capabilities of the
+Atari. To also freeze such programs you can install a \fkey{SYSTEM RESET} key in
+the Atari as described in section \ref{sec:systemreset}. The interrupt triggered
+by this key can by no means be suppressed, so there is no counter measure
+against the \frz anymore.
+
+When a frozen program is resumed with \fkeys{SPACE}, the player/missile collision
+registers are cleared before control is handed over to the frozen program.
+Usually this function is not required, but in some games this prevents losing a
+life immediately after resuming. When loading frozen programs the same function
+is also available. Simply press \fkeys{E} / \fkey{C} / \fkey{X} / \fkey{W} /
+\fkey{A} to apply it.
+
+When a frozen program is loaded from disk, cassette, freezer RAM or RAM
+extension it is resumed by default. When loading a frozen program with \fkeyc{E}
+/ \fkey{C} / \fkey{X} / \fkey{W} / \fkey{A} it will not be resumed
+automatically. Instead you stay in the freezer and can for example change memory
+locations before resuming. This comes very handy if you search for the memory location
+that contains the number of lives, the amount of energy and so on. To this end
+you can freeze the program and save it immediately. Then you change the memory
+location and resume the program. If you used the wrong memory location, simply
+activate the freezer and load the frozen program with \fkeyc{E}/\fkey{C}/\fkey{X}
+and try the next memory location. This way you have the same starting point and
+you don't have to worry about undoing the previous changes.
+
+\section{Saving a frozen program}
+
+The functions \fkey{S}, \fkey{F}, \fkey{R} can be used to save frozen programs
+to external mass storage like cassette or disk (\fkey{S} key), to the RAM
+extension (\fkey{R} key) or to the freezer RAM (\fkey{F} key). When using
+\fkey{S} a submenu will prompt if the frozen program shall be saved to
+cassette, as a boot disk or as a single file. Insert a cassette resp. disk
+before confirming your choice. When saving as a single file to a disk an
+additional menu will prompt for the file name.\newline
+
+\textbf{Caution:} When you save the frozen program as a boot disk, the disk that
+is present in \fq{D1:} will be overwritten directly. All data possibly present
+on the disk will be lost in this case.\newline
+
+If you simply press \fkey{RETURN} without entering a file name, the file name
+\fval{CORE} for \fq{core dump} will be used. As a special feature wild cards can
+be used to overwrite an existing file. If you omit the \fval{D:}, \fval{D1:},
+\fval{D2:} etc. at the begin of the file name, \fval{D1:} will be used
+automatically. The freezer supports up to 8 disk drives \fval{D1:} to \fval{D8:}.
+
+In order to achieve the maximum possible speed the freezer menu is
+sometimes disabled during I/O operations. By accepting that the screen may
+\fq{jump} when it's switched back on again, saving to the RAM extension only
+takes half of the time, what legitimates this dirty method.
+
+\subsection{Adapting the boot disk loader}
+\label{sec:bootloader}
+When a frozen program is saved as boot disk, the freezer also writes a loader to
+the disk. This inherently will not work with every program because the loader
+itself requires about 2k of memory. If the frozen program requires already the
+complete memory of the Atari, it will not work together with the loader.
+
+By default the loader uses the area between \fhex{C000} and \fhex{C6FF}. This
+normally guarantees correct operation with all programs that only require 48k
+of memory. The start address of the loader can be adapted easily in case a
+program still runs into problems.
+
+The first byte of the boot sector contains the start page of the loader (by
+default \fhex{C0}). Adapting this byte is very easy with the \frz.
+Start the debugger, load the first sector, change the byte to the desired value
+and write the sector back to the disk. Please note that only values from
+\fhex{05} to \fhex{C9} and from \fhex{D8} to \fhex{F9} are allowed. If you use
+other values, you will obtain a \fmsg{BOOT ERROR} when booting the disk.
+The following sequence of commands can be entered in the debugger to adapt the
+start page of the loader for example to \fhex{F0}:
+
+\begin{fcode}
+SR 1
+C D700<F0
+SW 1
+\end{fcode}
+
+\subsection{Freezing a program that loads parts later }
+Freezing programs that load parts later is of course always possible. The only
+thing to remember is that the original disk must be inserted into the disk drive
+after resuming the program and before any further operation is performed in the
+running program. This of course wears out the disk over time. Therefore it is
+desirable to have a backup disk at hand so the original disk can be locked away
+in a safe location. But even with floppy speeders that include a copy function
+not all new programs can be copied by far.
+
+The \frz does not remove the copy protection from the original disk, it only
+saves the current program state. In order to resume from this state later as
+often as you like, the original copy protected disk must be inserted into the
+disk drive again, before the program is resumed. If you use an additional disk to
+save the frozen game state, the original disk should be equipped with a write
+protection. This prevents accidentally overwriting the original disk.
+
+If the game loads additional parts from multiple disks without copy protection
+(\eg an adventure), it is advisable to copy these disks and use the copies
+instead to not wear the original disks out.
+\clearpage
+
+\section{Swapping the frozen and a saved program}
+The swap function in the freezer main menu can be used to swap the current
+frozen program with the program that was saved to the freezer RAM (\fkey{W}
+key) or the RAM extension (\fkey{A} key) before. This way you can jump quickly
+between two different programs. You should be sure to really have a frozen
+program in the freezer RAM resp. in the RAM extension, otherwise the Atari will
+crash when resuming.
+
+The modifier keys \fkeys{} for clearing the player/missile collision registers
+and \fkeyc{} for loading without starting automatically can be used with the
+swap function just like with the normal functions for resuming.
+
+\section{Clearing the RAM under the OS ROM}
+Because there are programs which require and also use 64k RAM, the freezer must
+also take the RAM under the OS ROM into consideration. After switching the
+computer on, this area is filled with useless random data. Because this data is
+ineligible to compression, a certain inefficiency and waste of space are the
+consequence when saving 48k programs to an external medium. In order to avoid this,
+the RAM from \fhexr{C000}{FFFF} can be cleared with the function\fkey{Z}, in
+case the program only uses 48k RAM. The result is a reduction of the file size
+of about 25\% to 50\% and consequently shorter loading times.
+
+The function can be used before booting the program or before saving the
+program. The first alternative is recommended  if you are not completely sure that
+the program really does not store anything in this RAM area.
+
+
+\section{Starting debugger and DOS}
+
+The function \fkey{D} starts the built-in debugger with DOS functions. The
+debugger uses a command line and the complete screen, so controlling it via a
+menu would not be sufficient. Yet no RAM in the Atari is used or modified by
+this function. The states of the frozen hardware registers of course also remain
+intact.  The complete description of the debugger and the DOS function can be
+found in chapter \ref{chap:debugger}.
+
+\section{Starting the menu of the cartridge emulation}
+
+The function \fkey{K} starts the menu of the cartridge emulation. This function
+is only available if the \fsw{CartEmu} switch or the \fsw{FlashWrite} switch (or
+both) are on, \ie are turned right. Otherwise the cartridge emulation is
+completely deactivated and consequently the menu of the cartridge cannot be
+started. The complete description of the cartridge emulation can be found in
+chapter \ref{chap:cartemu}. The freezer performs the following steps when the
+menu of the cartridge emulation is started:
+\clearpage
+
+\begin{itemize*}
+\item Leave the freezer main menu
+\item Activate the menu of the cartridge emulation
+\item Disable IRQs and NMIs
+\item Enable the OS ROM
+\item Set the return address to \fhex{E477} (cold start)
+\item Resume as usual (corresponds to pressing \fkey{SPACE})
+\end{itemize*}
+
+With the function \fkeys{K} a warm start is performed instead of a cold start
+(\ie the return address set to \fhex{E474}). This can be useful to keep the
+content of the internal RAM of the Atari when starting a module.
