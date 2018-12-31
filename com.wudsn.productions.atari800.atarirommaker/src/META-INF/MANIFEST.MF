@@ -1,0 +1,4 @@
+Manifest-Version: 1.0
+Main-Class: com.wudsn.productions.atari800.atarirommaker.AtariROMMaker
+Class-Path: .
+Permissions: sandbox

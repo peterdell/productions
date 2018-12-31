@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project default="create_run_jar" name="Create Runnable .jar for Project atariromchecker">
+	<!--ANT 1.7 is required                                        -->
+	<target name="create_run_jar">
+
+		<!-- Project specific settings -->
+		<property name="project.platform" value="atari800" />
+		<property name="project.name" value="Atari ROM Checker" />
+		<property name="project.filename" value="AtariROMChecker" />
+		<property name="project.filename.lowercase" value="atariromchecker" />
+		<property name="project.copyright" value="(c) 2015-2018 Peter Dell" />
+		<property name="productions.folder" value="C:\jac\system\WWW\Sites\www.wudsn.com\productions" />
+
+		<!-- Start build -->
+		<property name="productions.project.folder" value="${productions.folder}\${project.platform}\${project.filename.lowercase}" />
+		<property name="productions.project.file" value="${productions.project.folder}\${project.filename.lowercase}" />
+		<echo message="Building '${project.name}' (${project.filename}/${project.filename.lowercase}) to ${productions.project.folder}." />
+
+		<!-- Remove unwanted files -->
+		<delete dir="tst/out" />
+		<mkdir dir="tst/out" />
+
+		<!-- Create .version file in bin folder -->
+		<property name="project.version.file" value="bin\com\wudsn\productions\${project.platform}\${project.filename.lowercase}\${project.filename}.version" />
+		<exec executable="C:\jac\bin\wbin\date.exe">
+			<arg value="+%Y-%m-%d %H:%M:%S" />
+			<redirector output="${project.version.file}" />
+		</exec>
+
+		<!-- Create JAR file -->
+		<property name="project.jarfile" value="tst/out/${project.filename}.jar" />
+		<jar destfile="${project.jarfile}" filesetmanifest="mergewithoutmain">
+			<fileset dir="../com.wudsn.tools.base/bin" />
+			<fileset dir="../com.wudsn.tools.base.atari/bin" />
+			<fileset dir="../com.wudsn.tools.base.atari.cartridge/bin" />
+		    <fileset dir="bin" />
+		</jar>
+
+		<!-- Copy the ZIP code and source from Eclipse workspace to productions folder -->
+		<copy todir="tst/out" overwrite="true">
+			<fileset file="build/AtariROMDumper.atr" />
+		</copy>
+
+		<!-- ZIP code and source from Eclipse workspace to productions folder -->
+		<zip destfile="${productions.project.file}.zip">
+			<fileset dir="tst/out" />
+		</zip>
+		<zip destfile="${productions.project.file}-source.zip">
+			<fileset dir="../com.wudsn.tools.base" excludes="bin/**" />
+			<fileset dir="../com.wudsn.tools.base.atari" excludes="bin/**" />
+			<fileset dir="../com.wudsn.tools.base.atari.cartridge" excludes="bin/**" />
+		    <fileset dir="../com.wudsn.productions.${project.platform}.${project.filename.lowercase}" excludes="bin/**, tst/**" />
+		</zip>
+
+		<!-- Copy help from Eclipse workspace to productions folder -->
+		<property name="productions.help.folder" value="${productions.project.folder}/help" />
+		<property name="productions.help.file" value="${productions.help.folder}\${project.filename}.html" />
+		<copy todir="${productions.help.folder}" overwrite="true">
+			<fileset dir="src/help" />
+		</copy>
+
+		<!-- Merge version from .version file into help file -->
+		<loadfile property="version" srcFile="${project.version.file}" />
+		<replace file="${productions.help.file}">
+			<replacefilter token="$${version}" value="${version}" />
+		</replace>
+
+
+		<!-- Merge version from .romVersions file into help file -->
+		<java classname="com.wudsn.productions.atari800.atariromchecker.model.ROMVersionWriter">
+			<arg value="tst/out/AtariROMWriter.romVersions" />
+			<classpath>
+				<pathelement path="tst/out/AtariROMChecker.jar" />
+			</classpath>
+		</java>
+		<loadfile property="romVersions" srcFile="tst/out/AtariROMWriter.romVersions" />
+		<replace file="${productions.help.file}">
+			<replacefilter token="$${romVersions}" value="${romVersions}" />
+		</replace>
+		<delete file="tst/out/AtariROMWriter.romVersions" />
+
+		<!-- Font size definition must be corrected for display in browsers -->
+		<replace file="${productions.help.file}" token="font-size: 10px;" value="font-size: 12px">
+		</replace>
+
+	</target>
+</project>

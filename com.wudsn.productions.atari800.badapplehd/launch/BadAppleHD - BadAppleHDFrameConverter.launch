@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<launchConfiguration type="org.eclipse.jdt.launching.localJavaApplication">
+<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
+<listEntry value="/com.wudsn.productions.atari800.badapplehd/BadAppleHD/java/com/wudsn/gfx/avi/AVIConverter.java"/>
+</listAttribute>
+<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
+<listEntry value="1"/>
+</listAttribute>
+<stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="com.wudsn.gfx.avi.AVIConverter"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="C:\jac\system\Atari800\Programming\Demos\BadAppleHD\video\step1\BadAppleHD-raw.avi&#13;&#10;C:\jac\system\Atari800\Programming\Demos\BadAppleHD\video\step2\BadAppleHD&#13;&#10;com.wudsn.productions.atari800.badapplehd.BadAppleHDFrameConverter"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="com.wudsn.productions.atari800.badapplehd"/>
+</launchConfiguration>

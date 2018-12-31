@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project default="create_run_jar" name="Create Runnable .jar for Project atarirommaker">
+	<!--ANT 1.7 is required                                        -->
+	<target name="create_run_jar">
+
+		<!-- Project specific settings -->
+		<property name="project.platform" value="atari800" />
+		<property name="project.name" value="Atari ROM Maker" />
+		<property name="project.filename" value="AtariROMMaker" />
+		<property name="project.filename.lowercase" value="atarirommaker" />
+		<property name="project.copyright" value="(c) 2015-2016 Peter Dell" />
+		<property name="productions.folder" value="C:\jac\system\WWW\Sites\www.wudsn.com\productions" />
+
+		<!-- Start build -->
+		<property name="productions.project.folder" value="${productions.folder}\${project.platform}\${project.filename.lowercase}" />
+		<property name="productions.project.file" value="${productions.project.folder}\${project.filename.lowercase}" />
+		<echo message="Building '${project.name}' (${project.filename}/${project.filename.lowercase}) to ${productions.project.folder}." />
+
+		<!-- Remove unwanted files -->
+		<delete dir="tst/out" />
+		<mkdir dir="tst/out" />
+
+		<!-- Create .version file in bin folder -->
+		<property name="project.version.file" value="bin\com\wudsn\productions\${project.platform}\${project.filename.lowercase}\${project.filename}.version" />
+		<exec executable="C:\jac\bin\wbin\date.exe">
+			<arg value="+%Y-%m-%d %H:%M:%S" />
+			<redirector output="${project.version.file}" />
+		</exec>
+
+		<!-- Create JAR file -->
+		<property name="project.jarfile" value="tst/out/${project.filename}.jar" />
+		<jar destfile="${project.jarfile}" filesetmanifest="mergewithoutmain">
+			<fileset dir="../com.wudsn.tools.base/bin" />
+			<fileset dir="../com.wudsn.tools.base.atari/bin" />
+			<fileset dir="bin" />
+		</jar>
+
+		<!-- Create Mac OS X app folder -->
+		<!-- The ".icns" file was created using https://cloudconvert.com/png-to-icns -->
+		<jarbundler dir="tst/out" name="${project.filename}" copyright="${project.copyright}" mainclass="com.wudsn.tools.${project.filename.lowercase}.${project.filename}" jar="${project.jarfile}" jvmversion="1.6+" vmoptions="-Xms256M -Xmx1024M" shortname="${project.name}" build="$${version}" icon="src/icons/main-16x16.icns" />
+		<copy todir="tst/out/${project.filename}.app/Contents/MacOS" overwrite="true">
+			<fileset file="build/JavaApplicationStub" />
+		</copy>
+
+		<!-- Create Windows executable -->
+		<exec executable="C:\jac\system\Java\Tools\RUN\launch4j\launch4jc.exe">
+			<arg value="build\${project.filename}.launch4j.xml" />
+		</exec>
+		<copy todir="tst/out/" overwrite="true">
+			<fileset file="build/AtariROMMaker-Script.bat" />
+		</copy>
+		<!-- Create Linux script -->
+		<echo message="#!/bin/sh&#xA;java -Xms256M -jar ${project.filename}.jar &amp;" file="tst/out/${project.filename}.sh"/>
+
+		<!-- ZIP code and source from Eclipse workspace to productions folder -->
+		<zip destfile="${productions.project.file}.zip">
+			<fileset dir="tst/out" />
+		</zip>
+		<zip destfile="${productions.project.file}-source.zip">
+			<fileset dir="../com.wudsn.tools.base" excludes="bin/**" />
+			<fileset dir="../com.wudsn.productions.${project.platform}.${project.filename.lowercase}" excludes="bin/**, tst/**" />
+		</zip>
+
+	</target>
+</project>
