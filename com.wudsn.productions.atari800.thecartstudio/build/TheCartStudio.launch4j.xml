@@ -3,7 +3,7 @@
   <dontWrapJar>true</dontWrapJar>
   <headerType>gui</headerType>
   <jar>.\TheCartStudio.jar</jar>
-  <outfile>C:\jac\system\Java\Programming\Workspaces\Productions\com.wudsn.productions.atari800.thecartstudio\tst\out\TheCartStudio.exe</outfile>
+  <outfile>C:\jac\system\Java\Programming\Repositories\Productions\com.wudsn.productions.atari800.thecartstudio\tst\out\TheCartStudio.exe</outfile>
   <errTitle></errTitle>
   <cmdLine></cmdLine>
   <chdir></chdir>
@@ -13,7 +13,7 @@
   <stayAlive>false</stayAlive>
   <restartOnCrash>false</restartOnCrash>
   <manifest></manifest>
-  <icon>C:\jac\system\Java\Programming\Workspaces\Productions\com.wudsn.productions.atari800.thecartstudio\src\icons\main-16x16.ico</icon>
+  <icon>C:\jac\system\Java\Programming\Repositories\Productions\com.wudsn.productions.atari800.thecartstudio\src\icons\main-16x16.ico</icon>
   <jre>
     <path></path>
     <bundledJre64Bit>false</bundledJre64Bit>

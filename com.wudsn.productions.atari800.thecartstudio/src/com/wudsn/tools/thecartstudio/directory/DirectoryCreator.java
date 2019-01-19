@@ -11,7 +11,7 @@ public final class DirectoryCreator extends Main {
 		Directory directory = new Directory();
 
 		String path;
-		path = "C:\\jac\\system\\Java\\Programming\\Workspaces\\Productions\\"
+		path = "C:\\jac\\system\\Java\\Programming\\Repositories\\Productions\\"
 				+ "com.wudsn.productions.atari800.thecartstudio\\tst\\fandal\\atari.fandal.cz.csv";
 
 		directory.readRecords(path, "files_nazev");

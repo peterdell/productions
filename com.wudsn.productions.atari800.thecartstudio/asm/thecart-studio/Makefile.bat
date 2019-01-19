@@ -1,7 +1,7 @@
 @echo off
 
 REM Setup and paths.
-cd C:\jac\system\Java\Programming\Workspaces\Productions\com.wudsn.productions.atari800.thecartstudio\asm\thecart-studio
+cd C:\jac\system\Java\Programming\Repositories\Productions\com.wudsn.productions.atari800.thecartstudio\asm\thecart-studio
 setlocal
 set MADS=C:\jac\system\Atari800\Tools\ASM\MADS\mads.exe
 set TARGET=..\..\src\data
