@@ -500,7 +500,8 @@ public final class Workbook {
 		return null; // Action cancelled by user
 
 	    case WorkbookAddEntriesCallback.AddResult.OVERWRITE:
-		// If size is identical, re-use title and bank assignment. Otherwise
+		// If size is identical, re-use title and bank assignment.
+		// Otherwise
 		// unassigned only banks first.
 		title = entry.getTitle();
 		if (file.length() != entry.getFileSize()) {
@@ -533,8 +534,8 @@ public final class Workbook {
 	if (nameIndex >= 0) {
 	    fileName = fileName.substring(0, nameIndex);
 	}
-	if (title==null){
-	    title=fileName;
+	if (title == null) {
+	    title = fileName;
 	}
 	entry.setTitle(title);
 
@@ -1477,8 +1478,16 @@ public final class Workbook {
 			// Modify file content? This will extended the file size
 			// to a multiple of {@link AtrFile#SECTOR_SIZE_SD}
 			if (entry.getContentType().equals(ContentType.FILE_ATR)) {
-			    entryContent = AtrLoader.modifyContent(entry,
-				    entryContent);
+			    try {
+				entryContent = AtrLoader.modifyContent(entry,
+					entryContent);
+			    } catch (RuntimeException ex) {
+				throw new RuntimeException("Entry '"
+					+ entry.getTitle()
+					+ "' with file path "
+					+ entry.getFilePath()
+					+ " is no valid ATR file", ex);
+			    }
 			}
 
 			// Copy to file content to output array.
