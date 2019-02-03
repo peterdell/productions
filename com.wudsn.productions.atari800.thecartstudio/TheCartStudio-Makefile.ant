@@ -159,6 +159,7 @@
 		<replace file="${productionFolder}\help\TheCartStudio.html" token="font-size: 10px;" value="font-size: 12px">
 		</replace>
 
+		<echo  message="Opening ${productionFolder}"/>
 		<exec executable="explorer.exe">
 			<arg value="${productionFolder}"/>
 		</exec>
