@@ -5,7 +5,7 @@
 ;
 ;	The definition in this file are used by both the RAM and the ROM part of the ATR started.
 ;	Only zero page locations used by DISKIN/SIOV must be used.
-;	Using zero page locations usde by CIO will break DOS like access.
+;	Using zero page locations used by CIO will break DOS like access.
 
 selected_item_number	= $00	;Byte, used in patched ATR file menus, see AtrLoader.java
 bootini    		= $04	;Word, same as in OS boot process

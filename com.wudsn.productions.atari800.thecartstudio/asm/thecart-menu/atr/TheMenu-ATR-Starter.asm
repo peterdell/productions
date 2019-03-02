@@ -15,7 +15,7 @@
 	paragraph_2 = 6		;Byte 3 of 4
 	paragraph_3 = 7		;Byte 4 of 4
 
-	sd_paragraphs = $1680	;Value of paragraph_0/1/2/3 for single sided single desity disk with 720 sectors
+	sd_paragraphs = $1680	;Value of paragraph_0/1/2/3 for single sided single density disk with 720 sectors
 	.ende
 
 	.enum sector_size
