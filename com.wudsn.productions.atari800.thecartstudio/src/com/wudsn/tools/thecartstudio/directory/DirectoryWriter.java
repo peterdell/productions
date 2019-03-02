@@ -1,7 +1,7 @@
 package com.wudsn.tools.thecartstudio.directory;
 
 /**
- * Copyright (C) 2013 - 2018 <a href="http://www.wudsn.com" target="_top">Peter Dell</a>
+ * Copyright (C) 2013 - 2019 <a href="http://www.wudsn.com" target="_top">Peter Dell</a>
  *
  * This file is part of The!Cart Studio distribution.
  * 
