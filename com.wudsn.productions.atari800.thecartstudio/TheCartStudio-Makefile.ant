@@ -65,8 +65,7 @@
 		</delete>
 
 		<!-- Create Mac OS X app folder. -->
-		<!-- The ".icns" file was created using http://iconverticons.com/online -->
-		<jarbundler dir="tst/out" name="TheCartStudio" copyright="(C) 2013-2018 Peter Dell" mainclass="com.wudsn.tools.thecartstudio.TheCartStudio" jar="tst/out/TheCartStudio.jar" jvmversion="1.6+" vmoptions="-Xms256M -Xmx1024M" shortname="The!Cart Studio" build="$${version}" icon="src/icons/main-16x16.icns" />
+		<jarbundler dir="tst/out" name="TheCartStudio" copyright="(C) 2013-2019 Peter Dell" mainclass="com.wudsn.tools.thecartstudio.TheCartStudio" jar="tst/out/TheCartStudio.jar" jvmversion="1.6+" vmoptions="-Xms256M -Xmx1024M" shortname="The!Cart Studio" build="$${version}" icon="src/icons/main-48x48.icns" />
 		<copy todir="tst/out/TheCartStudio.app/Contents/MacOS" overwrite="true">
 			<fileset file="build/JavaApplicationStub" />
 		</copy>

@@ -375,7 +375,7 @@ public final class TheCartStudio implements ActionListener, Listener {
 
 		mainWindowFrame.setTitle(Texts.MainWindow_Title);
 		ImageIcon imageIcon = ElementFactory
-				.createImageIcon("icons/main-16x16.png");
+				.createImageIcon("icons/main-48x48.png");
 
 		mainWindowFrame.setIconImage(imageIcon.getImage());
 
