@@ -2,7 +2,7 @@
 ;	Sample BIN ROM image for creating sample ".ROM" and ".CAR" files.
 ;	System equates are defined in the main program depending on architecture.
 ;	Compile using "Makefile.bat".
-;	Note that for types with very small banke like "AST 32 KB (47)" not all texts is displayed.
+;	Note that for types with very small banks like "AST 32 KB (47)" not all texts is displayed.
 ;
 ;	(c) 2013-06-07 JAC!	
 ;	(r) 2018-05-30 JAC!	
