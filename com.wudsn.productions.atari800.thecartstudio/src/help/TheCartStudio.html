@@ -171,16 +171,15 @@
 		<h3>
 			<a name="Linux">Linux</a>
 		</h3>
-		<p>After extracting the "TheCartStudio.sh" and the
-			"TheCartStudio.jar" file from the download archive, the so called
-			"executable bit" should already be set. In case it is not, you will
-			see the following error message when you double-click one of the
-			files.
+		<p>After extracting the "TheCartStudio.sh" and the "TheCartStudio.jar"
+			file from the download archive, the so called "executable bit" should
+			already be set. In case it is not, you will see the following error
+			message when you double-click one of the files.
 		</p>
 		<p>
 			<img src="images/linux-executable-message.png" alt="After unpacking" />
 		</p>
-		<p<p>Open the file properties, set the executable flag as shown below
+		<p>Open the file properties, set the executable flag as shown below
 			for both files.
 		</p>
 		<p>
@@ -679,12 +678,12 @@
 		<h3>
 			<a name="FileFormatAndContentType">File Format and Content Type</a>
 		</h3>
-		<p>Several file formats are supported when adding entries. In order
-			to properly handle the ROM specific bank switching scheme, every
-			entry must know its content type. For those file formats where the
-			content type cannot be determined automatically, for example because
-			there are multiple possible options, you have to select it in the
-			"Content Type" column. The value help in the "Content Type" column is
+		<p>Several file formats are supported when adding entries. In order to
+			properly handle the ROM specific bank switching scheme, every entry
+			must know its content type. For those file formats where the content
+			type cannot be determined automatically, for example because there
+			are multiple possible options, you have to select it in the "Content
+			Type" column. The value help in the "Content Type" column is
 			automatically filtered based on the file length and content. So it
 			only offers the potentially matching content types. In additional
 			some file formats even automatically converted before they are added
@@ -874,8 +873,8 @@
 						existing file in the workbook. In this case, the analysis is
 						performed again and a default for the parameters is generated.
 					</p>
-					<p>The SIO simulation in this approach supports both the read
-						("R", $52) and the status ("S", $53) command for "D1:". The status
+					<p>The SIO simulation in this approach supports both the read ("R",
+						$52) and the status ("S", $53) command for "D1:". The status
 						command set the 3 density bits of the "DVSTAT" status based on the
 						density and size of the ATR. Using other disk units than "D1:"
 						results in the error code "130 - Nonexistent Device". Using
@@ -1175,10 +1174,10 @@
 				</td>
 			</tr>
 		</table>
-		<p>The export always also generates a ".txt" index file with the
-			title and origin of all menu entries. This way you can use the file
-			system search of your operating system function to find games in
-			exports. The index file also contains the information the for example
+		<p>The export always also generates a ".txt" index file with the title
+			and origin of all menu entries. This way you can use the file system
+			search of your operating system function to find games in exports.
+			The index file also contains the information the for example
 			"Amaurote 128 (130 XE)" is one of the menu entry that stees from the
 			"Multiple Entries" setting for the workbook entry with the title
 			"GAMES403" stored in "GAMES403.ATR"."
@@ -1315,12 +1314,13 @@
 		</h2>
 		<div>
 			Pressing the RESET button on the "The!Cart" cartridge followed by
-			pressing the RESET button on your Atari will take you to the menu.
-			Holding OPTION while pressing RESET on the Atari disables the
-			cartridge. If the cartridge contains the extended menu, holding
-			SELECT while pressing RESET on the Atari starts the simple menu. This
-			allows for starting the flasher and update the extended menu in case
-			it does not work properly.
+			pressing the RESET button on your Atari will take you to the menu. If
+			the cartridge contains the extended menu, holding OPTION while
+			pressing RESET on the Atari starts the simple menu. This allows for
+			starting the built-in flasher and update the extended menu in case it
+			does not work properly. Holding SELECT while pressing RESET on the
+			Atari disables the cartridge completely. This allowes for starting
+			booting the flasher from a disk drive.
 			<br />
 			You can use the joystick or the keyboard to control the extended
 			menu. You can narrow list by selecting the tab of a genre. The tab
@@ -1585,9 +1585,18 @@
 				<td>base=$0400, $011d=siov, $1101a=$ea, $1101b=$ea, $1101c=$ea</td>
 			</tr>
 		</table>
-		<h3>
+		<h3 id="ChangeHistory">
 			<a name="ChangeHistory">Change History</a>
 		</h3>
+		<h4>2019-06-01</h4>
+		<div>
+			<ul>
+				<li>The boot sequence now correctly disables and locks The!Cart if
+					SELECT was pressed. This fixes the problem that The!Ramdisk driver
+					sees The!Cart even though it is not usable.
+				</li>
+			</ul>
+		</div>
 		<h4>2019-03-02</h4>
 		<div>
 			<ul>
@@ -1746,7 +1755,8 @@
 					contains the extended menu, holding SELECT while pressing RESET on
 					the Atari starts the simple menu. This allows for starting the
 					flasher and update the extended menu in case it does not work
-					properly.
+					properly. Note: The function of these two key was swapped in later
+					versions.
 				</li>
 			</ul>
 		</div>
