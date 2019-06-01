@@ -25,7 +25,9 @@
 
 	.proc cold_start
 	sei				;Prevent VBI stage 2
-	mva #0 the_cart.primary_bank_enable
+	lda #the_cart_mode.tc_mode_off	;Disable and lock the cartridge
+	sta the_cart.mode
+	sta the_cart.configuration_lock
 	mva trig3 gintlk		;Make sure cartridge status is up to date
 	cli
 	jmp coldsv
