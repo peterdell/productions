@@ -71,6 +71,7 @@ entry_runcart_adr	= $a012	;Start cartridge, IN: <A>=mode, <X>=bank lo, <Y>=bank 
 	.ende
 	
 	.enum the_cart_mode	;Special The!Cart mode value used by the studio.
+tc_mode_off		= $00
 tc_mode_8k		= $01
 tc_mode_flexi		= $20
 tc_mode_binary_file	= $e0
