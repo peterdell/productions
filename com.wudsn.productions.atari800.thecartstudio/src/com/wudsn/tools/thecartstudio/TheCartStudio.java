@@ -94,7 +94,7 @@ import com.wudsn.tools.thecartstudio.ui.WorkbookEntriesPanel;
 import com.wudsn.tools.thecartstudio.ui.WorkbookOptionsDialog;
 
 /**
- * TODO Implement favourites support <br/>
+ * TODO Implement favorites support <br/>
  * TODO Add XEX loader <br/>
  * TODO Replay .SAP files, https://github.com/epi/sapemu<br/>
  * TODO Support Disk Swapping in ATR loader<br/>
