@@ -26,8 +26,31 @@ input_buffer	.ds screen_width
 	sty input_length
 	sty input_blink
 
-	lsr krpdel			;Half the time to wait for repeat
-	lsr keyrep			;Twice the speed to repeat
+;	Set keyboard delay and repeat delay based on the original values
+;	LDA PAL
+;	AND #$0E
+;	BNE IS_NTSC
+;	LDA #$05
+;	LDX #$01
+;	LDY #$28
+;	BNE STORE
+;IS_NTSC
+;	LDA #$06
+;	LDX #$00
+;	LDY #$30
+;STORE	STA KEYREP
+;	STX PALNTS
+;	STY KRPDEL
+	lda pal
+	and #$0e
+	bne is_ntsc
+	ldx #$05/2
+	ldy #$28/2
+	bne store
+is_ntsc	ldx #$06/2
+	ldy #$30/2
+store	stx keyrep			;Twice the speed to repeat
+	sty krpdel			;Half the time to wait for repeat
 	rts
 	.endp
 

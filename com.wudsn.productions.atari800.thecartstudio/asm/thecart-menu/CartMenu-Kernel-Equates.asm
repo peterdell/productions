@@ -140,6 +140,7 @@ grafm	= $d011
 colpm0	= $d012
 colpm1	= $d013
 colpm2	= $d014
+pal		= $d014
 colpm3	= $d015
 colpf0	= $d016
 colpf1	= $d017
