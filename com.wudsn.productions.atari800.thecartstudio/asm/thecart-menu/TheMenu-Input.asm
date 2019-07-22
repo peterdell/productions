@@ -27,20 +27,6 @@ input_buffer	.ds screen_width
 	sty input_blink
 
 ;	Set keyboard delay and repeat delay based on the original values
-;	LDA PAL
-;	AND #$0E
-;	BNE IS_NTSC
-;	LDA #$05
-;	LDX #$01
-;	LDY #$28
-;	BNE STORE
-;IS_NTSC
-;	LDA #$06
-;	LDX #$00
-;	LDY #$30
-;STORE	STA KEYREP
-;	STX PALNTS
-;	STY KRPDEL
 	lda pal
 	and #$0e
 	bne is_ntsc
