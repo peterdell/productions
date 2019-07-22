@@ -635,7 +635,7 @@
 					of a workbook automatically. This is done based on a strategy that
 					keeps the position of existing entries stable as long as there is
 					enough free space. Together with the incremental flashing feature
-					of the flashing software, this helps keeping the time require for
+					of the flashing software, this helps keeping the time required for
 					updating "The!Cart" short. If you are a developer that creates
 					software specifically for "The!Cart" or you even create other
 					arbitrary binary exports with "The!Cart Studio", you may want to
@@ -1128,7 +1128,7 @@
 				<td style="white-space: nowrap" valign="top">ATR Programming Image for
 					AspeQt
 				</td>
-				<td> Single disk image in ATR format for use with AspeQt and the
+				<td>Single disk image in ATR format for use with AspeQt and the
 					"The!Cart" flasher software on the Atari. The ATR file uses large
 					sectors to achieve the maximum transmission speed and to store up
 					to about 512 MB of information (65534 sectors of 8k size) in a
@@ -1455,7 +1455,8 @@
 		</p>
 		<ul>
 			<li>
-				Use wrong flash module type and size in the workbook options
+				You have used the wrong flash module type and size in the workbook
+				options
 				<br />
 				Make sure you set the flash module type and size to the actual type
 				and size of your cartridge. This is esp. important if you did not
@@ -1463,7 +1464,7 @@
 				people may have other hardware then you.
 			</li>
 			<li>
-				Use wrong menu in the workbook options
+				Yout have used the wrong menu in the workbook options
 				<br />
 				Make sure you set the flash module type to "Extended Menu" to get
 				the Google-like search. This is esp. important if you did not create
@@ -1471,13 +1472,26 @@
 				workbooks use the "Simple Menu".
 			</li>
 			<li>
-				Use wrong flashing mode
+				You have use the wrong flashing mode in the flasher
 				<br />
 				Make sure you use "Program Cartridge" by default. Programming raw
 				files or images is not required when using "The!Cart Studio". Make
 				sure you use incremental flashing by default if it is available to
 				save time. Non-incremental/full flashing is only required is nothing
-				else helps.
+				else helps. In non-incremental mode, all blocks (16 banks are 1
+				block) of "The!Cart" are are explicitly erased to initialize the
+				flash, even though the banks may have been empty already.
+			</li>
+			<li>
+				You have used the "E) Erase cartridge" option in flasher
+				<br />
+				This completely erases all content in the Flash ROM, including the
+				menu and the flasher. The empty cartrige will lock up the computer
+				during the boot process. See section "If The!Cart does not start
+				anymore after flashing" for the required steps. The first flash
+				process will again erase all blocks (16 banks are 1 block) to
+				initialize the flash, even though the banks may have been empty
+				already.
 			</li>
 		</ul>
 		<p>
