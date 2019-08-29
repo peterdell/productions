@@ -915,10 +915,17 @@ public final class TheCartStudio implements ActionListener, Listener {
 	// Propose file name with proper file extension when dialog is opened.
 	File file = exportFileChooser.getSelectedFile();
 	if (file == null) {
-	    file = workbook.getFile();
-	    if (file == null) {
-		// Default to title.
-		file = new File(workbook.getRoot().getTitle());
+	    // Devices which use 16MB images can typically only display 8.3 file
+	    // names.
+	    // Therefore we default to a short enough name.
+	    if (exportFormat == ExportFormat.ATR_IMAGES) {
+		file = new File("Part");
+	    } else {
+		file = workbook.getFile();
+		if (file == null) {
+		    // Default to title.
+		    file = new File(workbook.getRoot().getTitle());
+		}
 	    }
 	}
 	file = FileUtility.normalizeFileExtension(file, fileExtension);
