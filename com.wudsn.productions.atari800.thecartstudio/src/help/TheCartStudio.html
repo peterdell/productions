@@ -1,8 +1,8 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
         "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!-- Anchors are defined explicitly and not with element ids, because the 
-	HTML control in Swing only understands <a name="Example">Example</a> not 
-	lot element ids. -->
+	HTML control in Swing only understands <a name="Example">Example</a> but 
+	not element ids. -->
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 	<head>
 		<title>The!Cart Studio</title>
@@ -250,10 +250,9 @@
 		<p>
 			In case you are creating workbooks for "The!Cart", you can make use
 			of the native cartridge emulation feature and reuse the existing
-			software for "Atari Maxflash Cardridges" and "MegaCart cartridges".
-			This means you can one the one hand directly use existing
-			compilations and just add them as a single file. On the other hand
-			you can use
+			software for "Atari Maxflash" cartridge and "MegaCart"". This means
+			you can one the one hand directly use existing compilations and just
+			add them as a single file. On the other hand you can use
 			<a href="http://www.atarimax.com/flashcart/documentation/" target="_blank">Maxflash
 				Studio
 			</a>
@@ -309,7 +308,7 @@
 			</tr>
 			<tr>
 				<td>The!Cart Studio</td>
-				<td>Modified ATR Image</td>
+				<td>Modified ATR Disk Image</td>
 				<td>Yes</td>
 				<td>No (planned)</td>
 				<td>Yes</td>
@@ -472,7 +471,7 @@
 				<td>Yes</td>
 				<td>The genre of the entry. Genres like "Games", "Demos" or "Tools"
 					can be defined in the workbook options. Every entry can optionally
-					be assigned to a genre. There are three way to do this. First by
+					be assigned to a genre. There are three ways to do this. First by
 					typing in the name of the genre with the keyboard. Second by
 					choosing the genre from the drop down list of the field. Third by
 					the action "Set Genre..." in the "Edit" menu. Using the "Set
@@ -480,7 +479,7 @@
 					entries at once. If an entry not assigned to a genre, is will only
 					be present on the "All" tab of the extended menu. If a type is
 					assigned to a genre, it will be present on the "All" tab and on the
-					tab for the genere.
+					tab for the genre.
 				</td>
 			</tr>
 			<tr>
@@ -736,9 +735,9 @@
 						target="_blank">Maxflash Studio</a>
 					are sometimes available as "ATR Programming Images" instead of
 					"BIN" or "ROM" cartridge images. They are bootable disk images
-					which contain the program to flash the "Maxflash" cartridge
-					directly from the Atari. They cannot be run or tested in an
-					emulator. These programming images are recognized by "The!Cart
+					which contain the program to flash the "Atarimax Maxflash"
+					cartridge directly from the Atari. They cannot be run or tested in
+					an emulator. These programming images are recognized by "The!Cart
 					Studio". When you add such a file as entry, it is first converted
 					into a ".CAR" cartridge image which is saved in the folder of the
 					programming image. In case the ".CAR" file already exists in that
@@ -759,18 +758,18 @@
 					requires a simulation of the SIO routines that are located in ROM
 					of the original Atari OS. For example the code for the simulation
 					must be located in the RAM and may be overwritten when the loading
-					from the ATR image starts. In addition the banks of the flash
+					from the ATR disk image starts. In addition the banks of the flash
 					cartridge have to be activated during the SIO operation to load the
-					data of the ATR image. As a consequence a program that uses a
+					data of the ATR disk image. As a consequence a program that uses a
 					display list, graphics or interrupts in the cartridge memory area
 					will run into problems. Also programs that try to write data to the
 					disk will fail when run from an ATR simulation. For the simulation
 					itself two approaches are used,
-					<i>Modified ATR Images</i>
+					<i>Modified ATR Disk Images</i>
 					and
 					<i>Modified Atari OS in RAM</i>
-					. It depends on the individual ATR file and its programs which of
-					them will work best.
+					. It depends on the individual ATR disk image and its programs
+					which of them will work best.
 					<p>
 						<b>Modified ATR Images</b>
 						<br />
@@ -780,28 +779,29 @@
 						SIO routines are identified. For disks that contain a known DOS
 						(DOS 2.0S, DOS 2.5, MyDOS) and its "DOS.SYS" file, only the
 						sectors that belong to that file are patched by default. For disks
-						that contain the Bootmanager by Mike Langer, only the sectors or
-						the Bootmanager are patched. For all other disks, the complete
-						disk is scanned for usages of the SIO and that may potentially
-						result in some false positives you have to removed manually from
-						the parameters. The result of this analysis is stored in the
-						"Parameters" column in the form "base=$100, $123=SIOV,
-						$456=DSKINV". This column is hidden by default and can be made
-						visible via the context menu of the table. When the workbook is
-						exported for to the Atari, the calls at the found offsets are
-						modified to point to the SIO simulation which as located at the
-						address specified with the "base=$...." parameter. The advantage
-						of this approach is that it works also on Atari 400 an Atari 800
-						machines that do not have RAM under the OS and for software that
-						uses the RAM under the OS like for example "Turbo Basic XL 1.5" or
-						"The Brundles". And by specifying the corresponding parameters it
-						will work even for software that uses nonstandard SIO routines
-						instead of the Atari OS SIO routines like for example "MyPicoDOS".
-						The disadvantage of this approach is that it will not work with
-						program where the code that calls the SIO vectors is packed or
-						encrypted in the ATR. The following parameters are supported.
-						Numbers are given in hexadecimal notation and are just example
-						values. In the appendix
+						that contain the
+						<a href="#BootManger">Bootmanager by Mike Langer</a>
+						, only the sectors of the Bootmanager are patched. For all other
+						disks, the complete disk is scanned for usages of the SIO and that
+						may potentially result in some false positives you have to removed
+						manually from the parameters. The result of this analysis is
+						stored in the "Parameters" column in the form "base=$100,
+						$123=SIOV, $456=DSKINV". This column is hidden by default and can
+						be made visible via the context menu of the table. When the
+						workbook is exported for to the Atari, the calls at the found
+						offsets are modified to point to the SIO simulation which as
+						located at the address specified with the "base=$...." parameter.
+						The advantage of this approach is that it works also on Atari 400
+						an Atari 800 machines that do not have RAM under the OS and for
+						software that uses the RAM under the OS like for example "Turbo
+						Basic XL 1.5" or "The Brundles". And by specifying the
+						corresponding parameters it will work even for software that uses
+						nonstandard SIO routines instead of the Atari OS SIO routines like
+						for example "MyPicoDOS". The disadvantage of this approach is that
+						it will not work with program where the code that calls the SIO
+						vectors is packed or encrypted in the ATR disk image. The
+						following parameters are supported. Numbers are given in
+						hexadecimal notation and are just example values. In the appendix
 						<a href="#CompatibilityPatches">Compatibility Patches</a>
 						you can find a list of known parameter combinations for programs
 						that don't work with the default parameters.
@@ -812,11 +812,11 @@
 							<br />
 							This specified the base address for the SIO simulation code which
 							is less than 256 bytes in size. The default base address is $400.
-							If the ATR crashes while loading, it might be the case that the
-							program overwrites this memory area. For example MyPicoDOS uses
-							the memory location $400-$40f during loading. To solve this
-							problem you can change the base address to $410 for example.
-							Other good choices for base addresses are $100, $400,
+							If the ATR disk image crashes while loading, it might be the case
+							that the program overwrites this memory area. For example
+							MyPicoDOS uses the memory location $400-$40f during loading. To
+							solve this problem you can change the base address to $410 for
+							example. Other good choices for base addresses are $100, $400,
 							$480,$500,$600 and $100. Just try which one works for the
 							specific program.
 						</li>
@@ -864,36 +864,37 @@
 							used to modify inner menus to skip the selection and start the
 							selected entry automatically. The item numbers are counted
 							starting at zero. For example if you select the a menu entry
-							which represents the 3rd item on a disk based ATR, the values in
-							the memory location will be "2".
+							which represents the 3rd item on a disk based ATR disk image, the
+							values in the memory location will be "2".
 						</li>
 					</ul>
 					<p>If you messed up the parameters somehow, you can simply add the
-						ATR file again to the workbook and choose to overwrite the
+						ATR disk image again to the workbook and choose to overwrite the
 						existing file in the workbook. In this case, the analysis is
 						performed again and a default for the parameters is generated.
 					</p>
 					<p>The SIO simulation in this approach supports both the read ("R",
 						$52) and the status ("S", $53) command for "D1:". The status
 						command set the 3 density bits of the "DVSTAT" status based on the
-						density and size of the ATR. Using other disk units than "D1:"
-						results in the error code "130 - Nonexistent Device". Using
-						commands than "R" and "S" results in the error code "132 - Unknown
-						command".
+						density and size of the ATR disk image. Using other disk units
+						than "D1:" results in the error code "130 - Nonexistent Device".
+						Using commands than "R" and "S" results in the error code "132 -
+						Unknown command".
 					</p>
 					<p>
 						<b>Modified Atari OS in RAM</b>
 						<br />
-						This is the approach used by the Maxflash Menu or MegaCart Menu.
-						The operating system is copied to the RAM under the OS ROM and is
-						then modified to load the "disk sectors" from the flash cartridge
-						instead of the real disk. The advantage of this approach is that
-						it works equally for all software that uses the standard Atari OS
-						SIO vectors, even if the SIO relevant code on the ATR is packed on
-						encrypted. The disadvantage is that the approach will not work on
-						machines like the Atari 400 or Atari 800 that do not have RAM
-						under the OS like the Atari and not with programs that use the RAM
-						under the OS themselves. You can use the
+						This is the approach used by the "Atarimax Maxflash" Menu or
+						""MegaCart" Menu. The operating system is copied to the RAM under
+						the OS ROM and is then modified to load the "disk sectors" from
+						the flash cartridge instead of the real disk. The advantage of
+						this approach is that it works equally for all software that uses
+						the standard Atari OS SIO vectors, even if the SIO relevant code
+						on the ATR disk image is packed on encrypted. The disadvantage is
+						that the approach will not work on machines like the Atari 400 or
+						Atari 800 that do not have RAM under the OS like the Atari and not
+						with programs that use the RAM under the OS themselves. You can
+						use the
 						<a href="http://www.atarimax.com/flashcart/documentation/"
 							target="_blank">Maxflash Studio</a>
 						or
@@ -922,30 +923,61 @@
 				</td>
 				<td>
 					This is the Atari DOS composite file format of executable files
-					that can be loaded from a DOS. Many disk based programs that are
-					available in this format can also be started from flash cartridges.
-					To achieve this, typically a minimal DOS is copied to the RAM. The
-					DOS is modified to load the "file segment" from the flash cartridge
-					instead of the real disk. Of course this emulation has its
-					limitations, for example for programs that use the RAM where the
-					DOS or loader is located or perform real DOS operations like
-					reading the directory or writing to disk. Currently you cannot add
-					these files directly to a workbook. Instead you can use the
-					<a href="http://www.atarimax.com/flashcart/documentation/"
-						target="_blank">Maxflash Studio</a>
-					or
-					<a href="http://www.abbuc.de/~bernd/4MB_FLASH_MEGACART/english/"
-						target="_blank">MegaCart Studio</a>
-					to create 128 KB, 1 MB or 2 MB collections with COM/EXE/XEX
-					executables. Both studios come with proven emulation and provides
-					several options to specify how the executable shall be handled. You
-					can then export the collection as BIN or CAR cartridge image and
-					add that to the workbook.
-					<br />
-					<img style="vertical-align:top" src="images/maxflash-studio-add-exe-01.png"
-						alt="Adding an EXE executable" />
-					<img style="vertical-align:top" src="images/maxflash-studio-add-exe-02.png"
-						alt="Setting EXE executable options" />
+					that can be loaded from a DOS. They can be added to "The!Cart" in
+					three ways. All of them have advantages and disadvangates.
+					<p>
+						<b>Directly as single file</b>
+						<br />
+						Executable files (COM,EXE,XEX) canm be added directly to the
+						workbook. Only files with a valid RUNADR ($2e0) segment will
+						start, just like under DOS 2.5. While adding file directly is very
+						convenient, the worst case waste of space is 8191 bytes per file.
+						Therefore it is recommended to use the below mentioned options
+						instead, if you add many executable files.
+					</p>
+					<p>
+						<b>Included with multiple files on an ATR disk image</b>
+						<br />
+						The most compatible and most space efficient way to run these
+						files is to copy them together with the required DOS onto an disk.
+						For execuable files which load additional data like fonts from
+						separate files, it is even the only valid way. And while adding
+						executable files direcly in the workbook is possible, adding them
+						onto an ATR disk image with the
+						<a href="#BootManger">Bootmanager by Mike Langer</a>
+						first, and then adding the ATR disk image has advantages. You can
+						create ATR disk images which represent compilations and also work
+						on real disk drives. In addition, ATR disk images work with
+						sectors of 128 or 256 bytes. So if multiple file are copied to one
+						disk, at most 127 or 255 bytes of space are wasted. The
+						<a href="#Homesoft">HomeSoft web site</a>
+						contains many disk images which are already prepared with the
+						<a href="#BootManger">Bootmanager by Mike Langer</a>
+						.
+					</p>
+					<p>
+						<b>Included with multiple files on an "Atarimax Maxflash" or
+							"MegaCart" cartridge
+						</b>
+						<br />
+						This is similar to including files on an ATR disk images. Instead
+						of using DOS and a Bootmanager, you can use the
+						<a href="http://www.atarimax.com/flashcart/documentation/"
+							target="_blank">Maxflash Studio</a>
+						or
+						<a href="http://www.abbuc.de/~bernd/4MB_FLASH_MEGACART/english/"
+							target="_blank">MegaCart Studio</a>
+						to create 128 KB, 1 MB or 2 MB collections with COM/EXE/XEX
+						executables. Both studios come with proven emulation and provide
+						several options to specify, how the executable shall be handled.
+						You can then export the collection as BIN or CAR cartridge image
+						and add that to the workbook.
+						<br />
+						<img style="vertical-align:top" src="images/maxflash-studio-add-exe-01.png"
+							alt="Adding an EXE executable" />
+						<img style="vertical-align:top" src="images/maxflash-studio-add-exe-02.png"
+							alt="Setting EXE executable options" />
+					</p>
 				</td>
 			</tr>
 		</table>
@@ -1040,12 +1072,12 @@
 				<td>Disk Image</td>
 				<td>Bootmanager by Mike Langer</td>
 				<td>
-					Multiple entries is supported for the 1996 version of the program,
-					which is the only known version. Direct start is not supported. You
-					can find the huge archive of disk images that use "Bootmanager" on
-					the
-					<a href="http://www.mushca.com/f/atari" target="_blank">HomeSoft web site
-					</a>
+					Multiple entries is supported for the 1996 version of the
+					<a href="#BootManger">Bootmanager by Mike Langer</a>
+					, which is the only known version. Direct start is not supported.
+					You can find the huge archive of disk images that use the
+					Bootmanager on the
+					<a href="#Homesoft">HomeSoft web site</a>
 					.
 				</td>
 			</tr>
@@ -1333,7 +1365,7 @@
 			joystick and the cursor keys to scroll though the result list. You
 			can use the following controls:
 			<ul>
-				<li>HELP - Display the help menu</li>
+				<li>HELP / ATARI - Display the help menu</li>
 				<li>DELETE - Delete the last character from the search term.</li>
 				<li>Joystick UP, cursor UP or "-" - Move the cursor line up.</li>
 				<li>Joystick DOWN, cursor DOWN or "=" - Move the cursor line down.
@@ -1531,6 +1563,20 @@
 				</a>
 				by Ray Ataergin.
 			</li>
+			<li>
+				<a name="BootManger" href="Bootmanager_1996_Langer_Mike_DE.atr">Bootmanager by Mike Langer</a>
+				is Atari 8-bit utility program that allows you to create a boot menu
+				for regular DOS 2.5 disks. You can also specify long, case-sensitive
+				titles for each file on the disk. If you add a single ATR disk image
+				with a Bootmanger menu, the Extended will automatically present each
+				file on the disk with the given long, case-sensitive title in the
+				menu and search.
+			</li>
+			<li>
+				<a name="Homesoft" href="http://www.mushca.com/f/atari" target="_blank">>Homesoft
+				</a>
+				is a web site with program compilations in ATR disk image format.
+			</li>
 		</ul>
 		<h3>
 			<a name="CompatibilityPatches">Compatibility Patches</a>
@@ -1604,15 +1650,41 @@
 		<h3 id="ChangeHistory">
 			<a name="ChangeHistory">Change History</a>
 		</h3>
+		<h4>2019-10-28</h4>
+		<div>
+			<ul>
+				<li>Executable files (COM,EXE,XEX) can now be added and started
+					directly to the workbook. Previously they had to be copied to an
+					ATR disk image or be included in an AtariMax ROM. Only files with a
+					valid RUNADR ($2e0) segment will start, just like under DOS 2.5.
+				</li>
+				<li>
+					<a href="#BootManger">Bootmanager by Mike Langer</a>
+					is now included in the The!Cart studio download and online help.
+					While adding executable files direcly in the workbook is possible,
+					adding them onto an ATR disk image with the boot manager first, and
+					then adding the ATR disk image has advantages. ATR disk images work
+					with sectors of 128 or 256 bytes. So if multiple file are copied to
+					one disk, at most 127 or 255 bytes of space are wasted. If you add
+					executable file direcly, you waste 8191 bytes of space per file in
+					the worst case.
+				</li>
+				<li>In addition to the HELP key, the ATARI now also displays a
+					built-in help menu that explains all controls. This solves the
+					problem that there is no HELP key on the Atari 400 and the Atari
+					800.
+				</li>
+			</ul>
+		</div>
 		<h4>2019-08-29</h4>
 		<div>
 			<ul>
 				<li>The default file name for the "Export To ATR Programming Images
 					(16MB)" is now fixed to "Part.atr". The resulting export files are
-					then named "Part_1.atr" to "Part_9.atr". This ensures that on
-					devices like SIO2USB and SIO2SD, which only display "8.3" file names,
-					can actually display the full file name and users do not mix up
-					the parts.
+					then named "Part_1.atr" to "Part_9.atr". This ensures that devices
+					like SIO2USB and SIO2SD, which only display "8.3" file names, can
+					actually display the full file name and users do not mix up the
+					parts.
 				</li>
 			</ul>
 		</div>
@@ -1910,8 +1982,11 @@
 		<h4>2014-09-25</h4>
 		<div>
 			<ul>
-				<li>The last entry on from "Bootmanager" disks is now visible in the
-					extended menu. Thanks to Frank for pointing out the bug.
+				<li>
+					The last entry on from
+					<a href="#BootManger">Bootmanager by Mike Langer</a>
+					disks is now visible in the extended menu. Thanks to Frank for
+					pointing out the bug.
 				</li>
 				<li>New cartridge type "67 - XEGS 64 KB cartridge (banks 8-15)"
 					added to list of recognized cartridge and content types for
@@ -1922,9 +1997,12 @@
 		<h4>2014-09-24</h4>
 		<div>
 			<ul>
-				<li>Bootable ATRs without DOS 2.x or MYDOS are now correctly
-					recognized again. They had worked before and became broken with the
-					support for the "Bootmanager" ATRs.
+				<li>
+					Bootable ATRs without DOS 2.x or MYDOS are now correctly recognized
+					again. They had worked before and became broken with the support
+					for the
+					<a href="#BootManger">Bootmanager by Mike Langer</a>
+					ATR disk images.
 				</li>
 				<li>The new menu entry "Tools/Preview" allows for a testing preview
 					of the complete cartridge export and its menu in an emulator, just
@@ -1984,9 +2062,11 @@
 					the entry even if the search is still active. Before RETURN was
 					interpreted as ESC in this case and the simple menu was started.
 				</li>
-				<li>Menu entries from double density "Bootmanager" disks with more
-					than 9 entries (i.e. more than 1 directory sector) now appear
-					correctly in the extended menu. Example: "GAMES009.ATR".
+				<li>
+					Menu entries from double density
+					<a href="#BootManger">Bootmanager by Mike Langer</a>
+					disks with more than 9 entries (i.e. more than 1 directory sector)
+					now appear correctly in the extended menu. Example: "GAMES009.ATR".
 				</li>
 				<li>The documentation has been extended with the description on
 					starting Java with enough memory to export large workbook. The
@@ -1996,11 +2076,14 @@
 					problem on Mac OS X 10.9 where the default heap size for Java is
 					128 MB on some machines.
 				</li>
-				<li>The new parameter "$123=SELECTEDITEMNUMBER" can be used to patch
+				<li>
+					The new parameter "$123=SELECTEDITEMNUMBER" can be used to patch
 					menu code of ATR images to directly load the correct menu item. For
-					"Bootmanager" disks, this is done automatically already now. So you
-					can start all of them from the extended menu without bothering with
-					the actual "Bootmanager" menu.
+					<a href="#BootManger">Bootmanager by Mike Langer</a>
+					disks, this is done automatically already now. So you can start all
+					of them from the extended menu without bothering with the actual
+					<a href="#BootManger">Bootmanager by Mike Langer</a>
+					menu.
 				</li>
 			</ul>
 		</div>
@@ -2016,17 +2099,19 @@
 					dialog to display the local and the version available on the web
 					site.
 				</li>
-				<li>The analysis of the ATR with respect to SIO patching has been
+				<li>
+					The analysis of the ATR with respect to SIO patching has been
 					improved. For disks that contain a known DOS (DOS 2.0S, DOS 2.5,
 					MyDOS) and its "DOS.SYS" file, only the sectors that belong to that
-					file are patched by default. For disks that contain the Bootmanager
-					by Mike Langer, only the sectors or the Bootmanager are patched.
-					For all other disks, the complete disk is scanned for usages of the
-					SIO and that may potentially result in some false positives you
-					have to removed manually from the parameters. If you added ATR
-					files to a workbook before and did not manually modify the
-					parameters, you should add those files again. This will set the
-					parameter to the new default, reducing the risk of wrong patches.
+					file are patched by default. For disks that contain the
+					<a href="#BootManger">Bootmanager by Mike Langer</a>
+					, only the sectors or the Bootmanager are patched. For all other
+					disks, the complete disk is scanned for usages of the SIO and that
+					may potentially result in some false positives you have to removed
+					manually from the parameters. If you added ATR files to a workbook
+					before and did not manually modify the parameters, you should add
+					those files again. This will set the parameter to the new default,
+					reducing the risk of wrong patches.
 				</li>
 				<li>Patches specified in the "Parameters" column for ATR files can
 					now also be used for direct patching and pokes. You can specify a
