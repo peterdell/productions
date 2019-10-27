@@ -80,25 +80,31 @@ public final class Application {
 
     }
 
-    public static void createInstance(String urlString, String jarFileName, String versionPath) {
+    public static void createInstance(String urlString, String jarFileName,
+	    String versionPath) {
 	if (urlString == null) {
-	    throw new IllegalArgumentException("Parameter 'urlString' must not be null.");
+	    throw new IllegalArgumentException(
+		    "Parameter 'urlString' must not be null.");
 	}
 	if (jarFileName == null) {
-	    throw new IllegalArgumentException("Parameter 'jarFileName' must not be null.");
+	    throw new IllegalArgumentException(
+		    "Parameter 'jarFileName' must not be null.");
 	}
 	if (versionPath == null) {
-	    throw new IllegalArgumentException("Parameter 'versionPath' must not be null.");
+	    throw new IllegalArgumentException(
+		    "Parameter 'versionPath' must not be null.");
 	}
 	if (instance != null) {
-	    throw new IllegalStateException("An application with URL '" + urlString + "' was already created.");
+	    throw new IllegalStateException("An application with URL '"
+		    + urlString + "' was already created.");
 	}
 	instance = new Application();
 	instance.urlString = urlString;
 	instance.jarFileName = jarFileName;
 	instance.versionPath = versionPath;
-	
-	// Ensure native look and feel also for popups resulting from early errors.
+
+	// Ensure native look and feel also for popups resulting from early
+	// errors.
 	UIManager.init();
     }
 
@@ -134,18 +140,22 @@ public final class Application {
 	    zipInputStream = new ZipInputStream(urlInputStream);
 	    ZipEntry jarZipEntry = null;
 	    ZipEntry zipEntry;
-	    while (jarZipEntry == null && (zipEntry = zipInputStream.getNextEntry()) != null) {
+	    while (jarZipEntry == null
+		    && (zipEntry = zipInputStream.getNextEntry()) != null) {
 		if (zipEntry.getName().equals(jarFileName)) {
 		    jarZipEntry = zipEntry;
 		}
 	    }
 	    if (jarZipEntry != null) {
-		JarInputStream jarInputStream = new JarInputStream(zipInputStream);
+		JarInputStream jarInputStream = new JarInputStream(
+			zipInputStream);
 		String versionResource = null;
-		while (versionResource == null && (zipEntry = jarInputStream.getNextEntry()) != null) {
+		while (versionResource == null
+			&& (zipEntry = jarInputStream.getNextEntry()) != null) {
 		    if (zipEntry.getName().equals(versionPath)) {
 			try {
-			    versionResource = FileUtility.readString(versionPath, jarInputStream,
+			    versionResource = FileUtility.readString(
+				    versionPath, jarInputStream,
 				    FileUtility.MAX_SIZE_1MB);
 			    result = versionResource.trim();
 			} catch (CoreException igore) {
@@ -192,31 +202,42 @@ public final class Application {
     /**
      * Asynchronously checks for an update and display a notification dialog if
      * an update is available.
+     * 
+     * @param exitForUpdateRunnable
+     *            Callback when the user as selected to download the update and
+     *            the application should exit, so it can be replaced. Can be
+     *            <code>null</code>.
      */
-    public void checkForUpdate() {
+    public void checkForUpdate(final Runnable exitForUpdateRunnable) {
 	Thread thread = new Thread(new Runnable() {
 
 	    @Override
 	    public void run() {
-		checkForUpdateSync();
+		checkForUpdateSync(exitForUpdateRunnable);
 	    }
 	});
 	thread.start();
 
     }
 
-    void checkForUpdateSync() {
+    void checkForUpdateSync(Runnable exitForUpdateRunnable) {
 	String localVersion = getLocalVersion();
 	String webVersion = getWebVersion();
+
 	// Both versions defined and local version less than web version?
-	if (!localVersion.equals(UNKNOWN_VERSION) && !webVersion.equals(UNKNOWN_VERSION)
+	if (!localVersion.equals(UNKNOWN_VERSION)
+		&& !webVersion.equals(UNKNOWN_VERSION)
 		&& localVersion.compareTo(webVersion) < 0) {
-	    String message = TextUtility.format(Texts.UpdateDialog_Text, webVersion);
-	    int dialogResult = JOptionPane.showConfirmDialog(null, message, Texts.UpdateDialog_Title,
-		    JOptionPane.YES_NO_OPTION);
+	    String message = TextUtility.format(Texts.UpdateDialog_Text,
+		    webVersion);
+	    int dialogResult = JOptionPane.showConfirmDialog(null, message,
+		    Texts.UpdateDialog_Title, JOptionPane.YES_NO_OPTION);
 
 	    if (dialogResult == JOptionPane.YES_OPTION) {
 		Desktop.openBrowser(urlString);
+		if (exitForUpdateRunnable != null) {
+		    exitForUpdateRunnable.run();
+		}
 	    }
 	}
 

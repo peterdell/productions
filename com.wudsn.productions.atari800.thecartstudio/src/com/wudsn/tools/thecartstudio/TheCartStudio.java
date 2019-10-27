@@ -51,6 +51,7 @@ import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileFilter;
 
 import com.wudsn.tools.base.atari.CartridgeType;
+import com.wudsn.tools.base.atari.cartridge.CartridgeDatabase;
 import com.wudsn.tools.base.common.Application;
 import com.wudsn.tools.base.common.DateUtility;
 import com.wudsn.tools.base.common.FileUtility;
@@ -73,7 +74,6 @@ import com.wudsn.tools.base.repository.Action;
 import com.wudsn.tools.base.repository.Attribute;
 import com.wudsn.tools.base.repository.Message;
 import com.wudsn.tools.base.repository.NLS;
-import com.wudsn.tools.base.atari.cartridge.CartridgeDatabase;
 import com.wudsn.tools.thecartstudio.model.ExportFormat;
 import com.wudsn.tools.thecartstudio.model.Exporter;
 import com.wudsn.tools.thecartstudio.model.FlashTargetType;
@@ -342,7 +342,14 @@ public final class TheCartStudio implements ActionListener, Listener {
 	sendMessage(Messages.I100);
 	dataToUI();
 
-	Application.getInstance().checkForUpdate();
+	Application.getInstance().checkForUpdate(new Runnable() {
+
+	    @Override
+	    public void run() {
+		actionPerformed(new ActionEvent(this, 0, Commands.EXIT));
+
+	    }
+	});
 
     }
 
