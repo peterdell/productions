@@ -23,8 +23,6 @@
 	dd	= $100
 	.ende
 
-	icl "TheMenu-ATR-Starter-Globals.asm"
-
 starter_ptr		= fmszpg	;Used during initialization only, make sure it is not in the user ZP $80-$ff
 jsr_ptr			= fmszpg+2	;Used during initialization only
 
@@ -38,7 +36,7 @@ start_atr_entry
 
 ;===============================================================
 
-	.proc copy_starter		;Copy start routine to low RAM, OUT: <p1>=loader_base_address
+	.proc copy_starter		;Copy start routine to low RAM, OUT: <starter_ptr>=loader_base_address
 
 ;	Relocate JSR calls in to JSR JUMP_...
 	.macro m_reloc jsr_label jump_label
@@ -53,7 +51,7 @@ start_atr_entry
 	mwa cursor.selected_entry.loader_base_address starter_ptr
 
 	ldy #0
-loop	lda starter,y		
+loop	lda starter_template,y		
 	sta (starter_ptr),y
 	iny
 	cpy #.len starter
@@ -99,8 +97,9 @@ loop	lda starter,y
 	disk_size_mode = x2
 
 	sei
+;	Activate the original The!Cart Mode
+;	Do not set the configuration lock, we need to acces the full The!Cart registers
 	mva #the_cart_mode.tc_mode_flexi the_cart.mode
-;	sta the_cart.configuration_lock		TODO: Mail sent to hias
 	ldx cursor.selected_entry.start_bank_number
 	ldy cursor.selected_entry.start_bank_number+1 
 	jsr menu_core.set_bank
@@ -185,7 +184,7 @@ is_large
 ;===============================================================
 
 starter_template
-	.proc starter			;Starter RAM part, Must be relocatable
+	.proc starter			;Starter RAM part, must be relocatable
 
 jmp_boot				;Fixed start address offset +0
 	jmp simulate_boot

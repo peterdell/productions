@@ -7,7 +7,7 @@
 
 	.proc start_atr_file_rom	;Starter ROM part, must be completely within the first bank
 
-	icl "TheMenu-ATR-Starter-Globals.asm"
+	icl "..\TheMenu-Starter-Globals.asm"
 
 ;===============================================================
 

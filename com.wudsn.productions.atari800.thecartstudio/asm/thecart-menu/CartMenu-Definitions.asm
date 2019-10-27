@@ -70,10 +70,10 @@ entry_default_cartstart	= $a00f	;Default cartride start vector used by the flash
 entry_runcart_adr	= $a012	;Start cartridge, IN: <A>=mode, <X>=bank lo, <Y>=bank hi, <C>=lockflag, <runadr>=run address
 	.ende
 	
-	.enum the_cart_mode	;Special The!Cart mode value used by the studio.
+	.enum the_cart_mode	;Special The!Cart mode value used by the studio, see the_cart.mode
 tc_mode_off		= $00
-tc_mode_8k		= $01
-tc_mode_flexi		= $20
+tc_mode_8k		= $01	;Configuration lock is ignored in this mode
+tc_mode_flexi		= $20	;Configuration lock is ignored in this mode, The!Cart 
 tc_mode_binary_file	= $e0
 tc_mode_executable_file = $e1;	
 tc_mode_atr_file	= $e2
@@ -86,8 +86,6 @@ primary_bank_enable	= $d5a2
 secondary_bank_lo	= $d5a3
 secondary_bank_hi	= $d5a4
 secondary_bank_enable	= $d5a5
-mode			= $d5a6
+mode			= $d5a6	;See the_cart_mode above
 configuration_lock	= $d5af
 	.ende
-
-

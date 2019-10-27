@@ -14,6 +14,8 @@
 
 	.proc starter	
 
+	icl "TheMenu-Starter-Globals.asm"
+
 	lda search.search_status
 	cmp #search.status.start_simple_menu
 	beq start_simple_menu
@@ -57,6 +59,8 @@
 	lda cursor.selected_entry.the_cart_mode
 	cmp #the_cart_mode.tc_mode_atr_file
 	jeq atr_starter.start_atr_entry ;ATRs get their own handling
+	cmp #the_cart_mode.tc_mode_executable_file
+	jeq xex_starter.start_xex_entry ;XEXs get their own handling
 
 	lda #0				;Initialize boot and RESET relevant state
 	sta warmst
@@ -126,6 +130,10 @@ clear_zp				;Clear user ZP $80-$ff
 ;===============================================================
 
 	icl "atr/TheMenu-ATR-Starter.asm"
+
+;===============================================================
+
+	icl "xex/TheMenu-XEX-Starter.asm"
 
 	.endp				;End of start_selected_entry
 

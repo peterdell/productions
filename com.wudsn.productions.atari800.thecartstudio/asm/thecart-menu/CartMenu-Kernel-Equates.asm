@@ -62,6 +62,8 @@ strig0	= $284
 krpdel	= $2d9
 keyrep	= $2da
 
+runadr	= $2e0
+iniadr	= $2e2
 dvstat	= $2ea				;Bit 7=1 means disk is ED, bit 5=1 means disk is DD
 
 pcolor0	= $2c0
