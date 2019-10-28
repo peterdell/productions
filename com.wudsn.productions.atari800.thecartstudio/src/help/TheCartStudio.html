@@ -47,7 +47,7 @@
 			or
 			<a href="http://lotharek.pl/product.php?pid=23" target="_blank">SIO2SD</a>
 			. For "The!Cart", you do not need a USB programmer device or other PC
-			related hardware for programming. Because "The!Cart Studio"" can also
+			related hardware for programming. Because "The!Cart Studio" can also
 			create plain binary export files for a workbook, you can of course
 			also use an USB programmer device to burn or flash them into any kind
 			of cartridge supported by the device.
@@ -250,7 +250,7 @@
 		<p>
 			In case you are creating workbooks for "The!Cart", you can make use
 			of the native cartridge emulation feature and reuse the existing
-			software for "Atari Maxflash" cartridge and "MegaCart"". This means
+			software for "Atari Maxflash" cartridge and "MegaCart". This means
 			you can one the one hand directly use existing compilations and just
 			add them as a single file. On the other hand you can use
 			<a href="http://www.atarimax.com/flashcart/documentation/" target="_blank">Maxflash
@@ -885,7 +885,7 @@
 						<b>Modified Atari OS in RAM</b>
 						<br />
 						This is the approach used by the "Atarimax Maxflash" Menu or
-						""MegaCart" Menu. The operating system is copied to the RAM under
+						"MegaCart" Menu. The operating system is copied to the RAM under
 						the OS ROM and is then modified to load the "disk sectors" from
 						the flash cartridge instead of the real disk. The advantage of
 						this approach is that it works equally for all software that uses
@@ -928,12 +928,12 @@
 					<p>
 						<b>Directly as single file</b>
 						<br />
-						Executable files (COM,EXE,XEX) canm be added directly to the
+						Executable files (COM,EXE,XEX) can be added directly to the
 						workbook. Only files with a valid RUNADR ($2e0) segment will
-						start, just like under DOS 2.5. While adding file directly is very
-						convenient, the worst case waste of space is 8191 bytes per file.
-						Therefore it is recommended to use the below mentioned options
-						instead, if you add many executable files.
+						start, just like under DOS 2.5. While adding files directly is
+						very convenient, the worst case waste of space is 8191 bytes per
+						file. Therefore it is recommended to use the below mentioned
+						options instead, if you add many executable files.
 					</p>
 					<p>
 						<b>Included with multiple files on an ATR disk image</b>
@@ -942,14 +942,15 @@
 						files is to copy them together with the required DOS onto an disk.
 						For execuable files which load additional data like fonts from
 						separate files, it is even the only valid way. And while adding
-						executable files direcly in the workbook is possible, adding them
+						executable files directly in the workbook is possible, adding them
 						onto an ATR disk image with the
 						<a href="#BootManger">Bootmanager by Mike Langer</a>
 						first, and then adding the ATR disk image has advantages. You can
 						create ATR disk images which represent compilations and also work
 						on real disk drives. In addition, ATR disk images work with
 						sectors of 128 or 256 bytes. So if multiple file are copied to one
-						disk, at most 127 or 255 bytes of space are wasted. The
+						disk, at most 127 or 255 bytes of space are wasted per file on a
+						full disk. The
 						<a href="#Homesoft">HomeSoft web site</a>
 						contains many disk images which are already prepared with the
 						<a href="#BootManger">Bootmanager by Mike Langer</a>
@@ -1531,7 +1532,7 @@
 			number of test workbooks are available for
 			<a
 				href="http://www.wudsn.com/productions/atari800/thecartstudio/thecartstudio-test.zip"
-				target="">download here</a>
+				target="_blank">download here</a>
 			. In case the computer does not even start with the cartridge
 			inserted, you can try holding down the OPTION key during power-on to
 			bypass the cartridge. The load the flasher program from disk instead
@@ -1564,7 +1565,8 @@
 				by Ray Ataergin.
 			</li>
 			<li>
-				<a name="BootManger" href="Bootmanager_1996_Langer_Mike_DE.atr">Bootmanager by Mike Langer</a>
+				<a name="BootManger"
+					href="https://www.wudsn.com/productions/atari800/thecartstudio/help/Bootmanager_1996_Langer_Mike_DE.zip">Bootmanager by Mike Langer</a>
 				is Atari 8-bit utility program that allows you to create a boot menu
 				for regular DOS 2.5 disks. You can also specify long, case-sensitive
 				titles for each file on the disk. If you add a single ATR disk image
@@ -1573,7 +1575,7 @@
 				menu and search.
 			</li>
 			<li>
-				<a name="Homesoft" href="http://www.mushca.com/f/atari" target="_blank">>Homesoft
+				<a name="Homesoft" href="http://www.mushca.com/f/atari" target="_blank">Homesoft
 				</a>
 				is a web site with program compilations in ATR disk image format.
 			</li>
@@ -1653,26 +1655,27 @@
 		<h4>2019-10-28</h4>
 		<div>
 			<ul>
-				<li>Executable files (COM,EXE,XEX) can now be added and started
-					directly to the workbook. Previously they had to be copied to an
-					ATR disk image or be included in an AtariMax ROM. Only files with a
-					valid RUNADR ($2e0) segment will start, just like under DOS 2.5.
+				<li>Executable files (COM,EXE,XEX) can now be added directly to the
+					workbook. Previously they had to be copied to an ATR disk image or
+					be included in an AtariMax ROM. The corresponding sections in the
+					documentation have been updated. For now, only files with a valid
+					RUNADR ($2e0) segment will start, just like under DOS 2.5.
 				</li>
 				<li>
 					<a href="#BootManger">Bootmanager by Mike Langer</a>
 					is now included in the The!Cart studio download and online help.
-					While adding executable files direcly in the workbook is possible,
+					While adding executable files directly in the workbook is possible,
 					adding them onto an ATR disk image with the boot manager first, and
 					then adding the ATR disk image has advantages. ATR disk images work
-					with sectors of 128 or 256 bytes. So if multiple file are copied to
-					one disk, at most 127 or 255 bytes of space are wasted. If you add
-					executable file direcly, you waste 8191 bytes of space per file in
-					the worst case.
+					with sectors of 128 or 256 bytes. So if multiple files are copied
+					to one disk, at most 127 or 255 bytes of space are wasted. If you
+					add executable files directly, you waste 8191 bytes of space per
+					file in the worst case.
 				</li>
-				<li>In addition to the HELP key, the ATARI now also displays a
-					built-in help menu that explains all controls. This solves the
-					problem that there is no HELP key on the Atari 400 and the Atari
-					800.
+				<li>In addition to the HELP key, the ATARI/INVERSE key now also
+					displays a built-in help menu that explains all controls. This
+					solves the problem that there is no HELP key on the Atari 400 and
+					the Atari 800.
 				</li>
 				<li>If the application detects that a new version is available, it
 					prompts the user if the download should be performed. If the user

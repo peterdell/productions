@@ -63,6 +63,11 @@ store	stx keyrep			;Twice the speed to repeat
 	.endp
 
 	ldy ch				;Any key pressed?
+	lda #$ff			;Clear key code
+	sta ch
+
+	cpy #$27			;ATARI key also works as HELP, because Atari 400/800 have no help key.
+	beq help_key_pressed
 	cpy #$ff
 	bne normal_key_pressed
 	ldy helpfg
@@ -82,9 +87,6 @@ store	stx keyrep			;Twice the speed to repeat
 	.endp
 
 	.proc normal_key_pressed
-	ldx #$ff			;Clear key code
-	stx ch
-
 	lda input_help_mode		;If help mode is active, any key first deactivates help mode
 	bne help_key_pressed
 

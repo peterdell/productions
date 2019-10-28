@@ -545,7 +545,7 @@ public final class TheCartStudio implements ActionListener, Listener {
     private void performHelpDialog() {
 	if (helpDialog == null) {
 	    helpDialog = new HelpDialog(mainWindowFrame,
-		    "help/TheCartStudio.html", 780, 320, null);
+		    "help/TheCartStudio.html", 826, 320, null);
 	}
 
 	helpDialog.show();
