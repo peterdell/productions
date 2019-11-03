@@ -38,6 +38,8 @@ import org.xml.sax.SAXException;
 import com.wudsn.tools.base.atari.AtrFile;
 import com.wudsn.tools.base.atari.CartridgeFileUtility;
 import com.wudsn.tools.base.atari.CartridgeType;
+import com.wudsn.tools.base.atari.ExecutableFile;
+import com.wudsn.tools.base.atari.SAPFile;
 import com.wudsn.tools.base.common.ByteArrayUtility;
 import com.wudsn.tools.base.common.CoreException;
 import com.wudsn.tools.base.common.FileUtility;
@@ -50,7 +52,6 @@ import com.wudsn.tools.base.common.XMLUtility;
 import com.wudsn.tools.base.gui.AttributeTableModel;
 import com.wudsn.tools.base.repository.Attribute;
 import com.wudsn.tools.base.atari.cartridge.*;
-
 import com.wudsn.tools.base.repository.Message;
 import com.wudsn.tools.base.repository.RepositoryValidation;
 import com.wudsn.tools.thecartstudio.DataTypes;
@@ -692,7 +693,13 @@ public final class Workbook {
 	// Detect ATR files.
 	if (AtrFile.isHeader(content)) {
 	    entry.setContentType(ContentType.FILE_ATR);
+	} else if (ExecutableFile.isHeader(content, 0)) {
+	    entry.setContentType(ContentType.FILE_EXECUTABLE);
+	} else if (SAPFile.isHeader(content)) {
+	    entry.setContentType(ContentType.FILE_SAP);
 	}
+
+	// TODO: Detect XEX and SAP files
 
 	// Special defaults for modules with known menus.
 	List<ContentType> contentTypes;

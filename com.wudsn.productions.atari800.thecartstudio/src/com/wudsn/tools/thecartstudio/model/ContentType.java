@@ -141,6 +141,7 @@ public final class ContentType extends ValueSet {
     public static final ContentType FILE_ATR;
     public static final ContentType FILE_BINARY;
     public static final ContentType FILE_EXECUTABLE;
+    public static final ContentType FILE_SAP;
 
     // Instances
     private static final Map<String, ContentType> values;
@@ -348,12 +349,14 @@ public final class ContentType extends ValueSet {
 		CartridgeType.CARTRIDGE_ADAWLIAH_64,
 		TheCartMode.TC_MODE_NOT_SUPPORTED);
 
+	FILE_ATR = add("FILE_ATR", CartridgeType.UNKNOWN,
+		TheCartMode.TC_MODE_ATR_FILE);
 	FILE_BINARY = add("FILE_BINARY", CartridgeType.UNKNOWN,
 		TheCartMode.TC_MODE_BINARY_FILE);
 	FILE_EXECUTABLE = add("FILE_EXECUTABLE", CartridgeType.UNKNOWN,
 		TheCartMode.TC_MODE_EXECUTABLE_FILE);
-	FILE_ATR = add("FILE_ATR", CartridgeType.UNKNOWN,
-		TheCartMode.TC_MODE_ATR_FILE);
+	FILE_SAP = add("FILE_SAP", CartridgeType.UNKNOWN,
+		TheCartMode.TC_MODE_SAP_FILE);
 
 	initializeClass(ContentType.class, ValueSets.class);
     }
@@ -435,8 +438,8 @@ public final class ContentType extends ValueSet {
      *         on its size.
      */
     public boolean isAligmentRequired() {
-	if (this == UNKNOWN || this == FILE_BINARY || this == FILE_EXECUTABLE
-		|| this == FILE_ATR) {
+	if (this == UNKNOWN || this == FILE_ATR || this == FILE_BINARY
+		|| this == FILE_EXECUTABLE || this == FILE_SAP) {
 	    return false;
 	}
 	return true;
