@@ -22,7 +22,7 @@ package com.wudsn.tools.base.atari;
 public final class ExecutableFile {
 
     /**
-     * Determines if a byte array contains executable file
+     * Determines if a byte array contains a valid Atari executable file.
      * 
      * @param data
      *            The data, not <code>null</code>.

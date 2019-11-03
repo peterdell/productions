@@ -24,9 +24,10 @@ import java.nio.charset.Charset;
 public final class SAPFile {
 
     /**
-     * Determines if a byte array contains executable file
+     * Determines if a byte array contains a valid Atari music file.
+     * See http://asap.sourceforge.net/sap-format.html
      * 
-     * @param atrData
+     * @param data
      *            The data, not <code>null</code>.
      * @return <code>true</code> If data has the required length and starts with
      *         the SAP magic bytes and has a correct binary part,
