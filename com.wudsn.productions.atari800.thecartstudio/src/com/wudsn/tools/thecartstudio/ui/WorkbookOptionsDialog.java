@@ -50,191 +50,191 @@ import com.wudsn.tools.thecartstudio.model.WorkbookRootValidation;
 @SuppressWarnings("serial")
 public final class WorkbookOptionsDialog extends ModalDialog {
 
-	private static final int ROWS = 8;
+    private static final int ROWS = 8;
 
-	private final JTextField titleTextField;
-	private final ValueSetField<FlashTargetType> flashTargetTypeField;
-	private final ValueSetField<CartridgeType> cartridgeTypeField;
-	private final IntegerField bankCountField;
-	private final MemorySizeField bankSizeField;
-	private final ValueSetField<CartridgeMenuType> cartridgeMenuTypeField;
-	private final MemorySizeField userSpaceSizeField;
-	private final JTextField genreNamesField;
+    private final JTextField titleTextField;
+    private final ValueSetField<FlashTargetType> flashTargetTypeField;
+    private final ValueSetField<CartridgeType> cartridgeTypeField;
+    private final IntegerField bankCountField;
+    private final MemorySizeField bankSizeField;
+    private final ValueSetField<CartridgeMenuType> cartridgeMenuTypeField;
+    private final MemorySizeField userSpaceSizeField;
+    private final JTextField genreNamesField;
 
-	transient WorkbookRoot root;
+    transient WorkbookRoot root;
 
-	public WorkbookOptionsDialog(JFrame parent, Preferences preferences) {
-		super(parent, Texts.WorkbookOptionsDialog_Title);
+    public WorkbookOptionsDialog(JFrame parent, Preferences preferences) {
+	super(parent, Texts.WorkbookOptionsDialog_Title);
 
-		titleTextField = SpringUtilities.createTextField(fieldsPane,
-				DataTypes.WorkbookRoot_Title);
-		flashTargetTypeField = SpringUtilities.createValueSetField(fieldsPane,
-				DataTypes.WorkbookRoot_FlashTargetType, FlashTargetType.class);
-		flashTargetTypeField.addActionListener(new ActionListener() {
+	titleTextField = SpringUtilities.createTextField(fieldsPane,
+		DataTypes.WorkbookRoot_Title);
+	flashTargetTypeField = SpringUtilities.createValueSetField(fieldsPane,
+		DataTypes.WorkbookRoot_FlashTargetType, FlashTargetType.class);
+	flashTargetTypeField.addActionListener(new ActionListener() {
 
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				performFlashTargetTypeChanged();
+	    @Override
+	    public void actionPerformed(ActionEvent e) {
+		performFlashTargetTypeChanged();
 
-			}
-		});
-		cartridgeTypeField = SpringUtilities.createValueSetField(fieldsPane,
-				DataTypes.WorkbookRoot_CartridgeType, CartridgeType.class);
-		bankCountField = SpringUtilities.createIntegerField(fieldsPane,
-				DataTypes.WorkbookRoot_BankCount);
-		bankSizeField = SpringUtilities.createMemorySizeField(fieldsPane,
-				DataTypes.WorkbookRoot_BankSize);
+	    }
+	});
+	cartridgeTypeField = SpringUtilities.createValueSetField(fieldsPane,
+		DataTypes.WorkbookRoot_CartridgeType, CartridgeType.class);
+	bankCountField = SpringUtilities.createIntegerField(fieldsPane,
+		DataTypes.WorkbookRoot_BankCount);
+	bankSizeField = SpringUtilities.createMemorySizeField(fieldsPane,
+		DataTypes.WorkbookRoot_BankSize);
 
-		cartridgeMenuTypeField = SpringUtilities.createValueSetField(
-				fieldsPane, DataTypes.WorkbookRoot_CartridgeMenuType,
-				CartridgeMenuType.class);
-		userSpaceSizeField = SpringUtilities.createMemorySizeField(fieldsPane,
-				DataTypes.WorkbookRoot_UserSpaceSize);
-		genreNamesField = SpringUtilities.createMemorySizeField(fieldsPane,
-				DataTypes.WorkbookRoot_GenreNames);
+	cartridgeMenuTypeField = SpringUtilities.createValueSetField(
+		fieldsPane, DataTypes.WorkbookRoot_CartridgeMenuType,
+		CartridgeMenuType.class);
+	userSpaceSizeField = SpringUtilities.createMemorySizeField(fieldsPane,
+		DataTypes.WorkbookRoot_UserSpaceSize);
+	genreNamesField = SpringUtilities.createMemorySizeField(fieldsPane,
+		DataTypes.WorkbookRoot_GenreNames);
+    }
+
+    public boolean showModal(Workbook workbook, MessageQueue messageQueue) {
+	if (workbook == null) {
+	    throw new IllegalArgumentException(
+		    "Parameter 'workbook' must not be null.");
+	}
+	if (messageQueue == null) {
+	    throw new IllegalArgumentException(
+		    "Parameter 'messageQueue' must not be null.");
+	}
+	this.root = workbook.getRoot().createCopy();
+	dataToUi();
+	okPressed = false;
+	// Lay out the panel.
+	int stringWidth = getParent().getGraphics().getFontMetrics()
+		.stringWidth("a")
+		* WorkbookRoot.Attributes.TITLE.getDataType()
+			.getMaximumLength();
+	Dimension size = titleTextField.getPreferredSize();
+	titleTextField
+		.setPreferredSize(new Dimension(stringWidth, size.height));
+
+	SpringUtilities.makeCompactGrid(fieldsPane, ROWS, 2, // rows, cols
+		6, 6, // initX, initY
+		6, 6); // xPad, yPad
+
+	// genresModel.fireTableDataChanged();
+	showModal(titleTextField);
+	if (okPressed) {
+	    workbook.getRoot().setTitle(root.getTitle());
+	    boolean contentStructureEquals = workbook.getRoot().contentEquals(
+		    root);
+	    if (!contentStructureEquals) {
+		workbook.getRoot().setFlashTargetType(
+			root.getFlashTargetType(), root.getCartridgeType(),
+			root.getBankCount(), root.getBankSize());
+		workbook.getRoot().setCartridgeMenuType(
+			root.getCartridgeMenuType());
+		workbook.getRoot().setUserSpaceSize(root.getUserSpaceSize());
+		workbook.unassignAllBanks(messageQueue);
+		Workbook.initializeBanksList(workbook.getRoot(), messageQueue);
+		workbook.assignNewBanks(messageQueue);
+	    }
+	    workbook.getRoot().getGenresList().clear();
+	    workbook.getRoot().getGenresList().addAll(root.getGenresList());
+	}
+	return okPressed;
+    }
+
+    @Override
+    protected void dataFromUi() {
+	root.setTitle(titleTextField.getText());
+	root.setFlashTargetType(flashTargetTypeField.getValue(),
+		cartridgeTypeField.getValue(), bankCountField.getValue(),
+		bankSizeField.getValue());
+	root.setCartridgeMenuType(cartridgeMenuTypeField.getValue());
+	root.setUserSpaceSize(userSpaceSizeField.getValue());
+
+	String[] genreNames = genreNamesField.getText().split(",");
+	for (int i = 0; i < genreNames.length; i++) {
+	    genreNames[i] = genreNames[i].trim();
+	}
+	Arrays.sort(genreNames, StringUtility.CASE_INSENSITIVE_COMPARATOR);
+
+	List<WorkbookGenre> genres = root.getGenresList();
+	genres.clear();
+	for (String genreName : genreNames) {
+	    WorkbookGenre genre = new WorkbookGenre();
+	    genreName = genreName.trim();
+	    // Skip empty entries
+	    if (StringUtility.isSpecified(genreName)) {
+		genre.setName(genreName);
+		genres.add(genre);
+	    }
 	}
 
-	public boolean showModal(Workbook workbook, MessageQueue messageQueue) {
-		if (workbook == null) {
-			throw new IllegalArgumentException(
-					"Parameter 'workbook' must not be null.");
-		}
-		if (messageQueue == null) {
-			throw new IllegalArgumentException(
-					"Parameter 'messageQueue' must not be null.");
-		}
-		this.root = workbook.getRoot().createCopy();
-		dataToUi();
-		okPressed = false;
-		// Lay out the panel.
-		int stringWidth = getParent().getGraphics().getFontMetrics()
-				.stringWidth("a")
-				* WorkbookRoot.Attributes.TITLE.getDataType()
-						.getMaximumLength();
-		Dimension size = titleTextField.getPreferredSize();
-		titleTextField
-				.setPreferredSize(new Dimension(stringWidth, size.height));
+    }
 
-		SpringUtilities.makeCompactGrid(fieldsPane, ROWS, 2, // rows, cols
-				6, 6, // initX, initY
-				6, 6); // xPad, yPad
+    @Override
+    protected void dataToUi() {
+	titleTextField.setText(root.getTitle());
+	flashTargetTypeField.setValue(root.getFlashTargetType());
+	boolean editable = root.getFlashTargetType().equals(
+		FlashTargetType.USER_DEFINED);
+	cartridgeTypeField.setEditable(editable);
+	cartridgeTypeField.setEnabled(editable);
 
-		// genresModel.fireTableDataChanged();
-		showModal(titleTextField);
-		if (okPressed) {
-			workbook.getRoot().setTitle(root.getTitle());
-			boolean contentStructureEquals = workbook.getRoot().contentEquals(
-					root);
-			if (!contentStructureEquals) {
-				workbook.getRoot().setFlashTargetType(
-						root.getFlashTargetType(), root.getCartridgeType(),
-						root.getBankCount(), root.getBankSize());
-				workbook.getRoot().setCartridgeMenuType(
-						root.getCartridgeMenuType());
-				workbook.getRoot().setUserSpaceSize(root.getUserSpaceSize());
-				workbook.unassignAllBanks(messageQueue);
-				Workbook.initializeBanksList(workbook.getRoot(), messageQueue);
-				workbook.assignNewBanks(messageQueue);
-			}
-			workbook.getRoot().getGenresList().clear();
-			workbook.getRoot().getGenresList().addAll(root.getGenresList());
-		}
-		return okPressed;
+	cartridgeTypeField.setValue(root.getCartridgeType());
+	bankCountField.setEditable(editable);
+	bankSizeField.setEditable(editable);
+	bankCountField.setValue(root.getBankCount());
+	bankSizeField.setValue(root.getBankSize());
+	editable = (root.getFlashTargetType().getSupportedCartridgeMenuTypes()
+		.size() > 1);
+	cartridgeMenuTypeField.setEditable(editable);
+	cartridgeMenuTypeField.setEnabled(editable);
+	CartridgeMenuType cartridgeMenuType = root.getCartridgeMenuType();
+	if (!root.getFlashTargetType().isCartridgeMenuTypeSupported(
+		cartridgeMenuType)) {
+	    cartridgeMenuType = CartridgeMenuType.NONE;
 	}
+	cartridgeMenuTypeField.setValue(cartridgeMenuType);
+	userSpaceSizeField.setValue(root.getUserSpaceSize());
 
-	@Override
-	protected void dataFromUi() {
-		root.setTitle(titleTextField.getText());
-		root.setFlashTargetType(flashTargetTypeField.getValue(),
-				cartridgeTypeField.getValue(), bankCountField.getValue(),
-				bankSizeField.getValue());
-		root.setCartridgeMenuType(cartridgeMenuTypeField.getValue());
-		root.setUserSpaceSize(userSpaceSizeField.getValue());
+	StringBuilder builder = new StringBuilder();
 
-		String[] genreNames = genreNamesField.getText().split(",");
-		for (int i = 0; i < genreNames.length; i++) {
-			genreNames[i] = genreNames[i].trim();
-		}
-		Arrays.sort(genreNames);
-
-		List<WorkbookGenre> genres = root.getGenresList();
-		genres.clear();
-		for (String genreName : genreNames) {
-			WorkbookGenre genre = new WorkbookGenre();
-			genreName = genreName.trim();
-			// Skip empty entries
-			if (StringUtility.isSpecified(genreName)) {
-				genre.setName(genreName);
-				genres.add(genre);
-			}
-		}
-
+	for (WorkbookGenre genre : root.getUnmodifiableGenresList()) {
+	    if (builder.length() > 0) {
+		builder.append(", ");
+	    }
+	    builder.append(genre.getName());
 	}
+	genreNamesField.setText(builder.toString());
+    }
 
-	@Override
-	protected void dataToUi() {
-		titleTextField.setText(root.getTitle());
-		flashTargetTypeField.setValue(root.getFlashTargetType());
-		boolean editable = root.getFlashTargetType().equals(
-				FlashTargetType.USER_DEFINED);
-		cartridgeTypeField.setEditable(editable);
-		cartridgeTypeField.setEnabled(editable);
-
-		cartridgeTypeField.setValue(root.getCartridgeType());
-		bankCountField.setEditable(editable);
-		bankSizeField.setEditable(editable);
-		bankCountField.setValue(root.getBankCount());
-		bankSizeField.setValue(root.getBankSize());
-		editable = (root.getFlashTargetType().getSupportedCartridgeMenuTypes()
-				.size() > 1);
-		cartridgeMenuTypeField.setEditable(editable);
-		cartridgeMenuTypeField.setEnabled(editable);
-		CartridgeMenuType cartridgeMenuType = root.getCartridgeMenuType();
-		if (!root.getFlashTargetType().isCartridgeMenuTypeSupported(
-				cartridgeMenuType)) {
-			cartridgeMenuType = CartridgeMenuType.NONE;
-		}
-		cartridgeMenuTypeField.setValue(cartridgeMenuType);
-		userSpaceSizeField.setValue(root.getUserSpaceSize());
-
-		StringBuilder builder = new StringBuilder();
-
-		for (WorkbookGenre genre : root.getUnmodifiableGenresList()) {
-			if (builder.length() > 0) {
-				builder.append(", ");
-			}
-			builder.append(genre.getName());
-		}
-		genreNamesField.setText(builder.toString());
+    void performFlashTargetTypeChanged() {
+	dataFromUi();
+	FlashTargetType flashTargetType = root.getFlashTargetType();
+	if (!flashTargetType.isCartridgeMenuTypeSupported(root
+		.getCartridgeMenuType())) {
+	    root.setCartridgeMenuType(flashTargetType
+		    .getSupportedCartridgeMenuTypes().get(0));
 	}
+	dataToUi();
+    }
 
-	void performFlashTargetTypeChanged() {
-		dataFromUi();
-		FlashTargetType flashTargetType = root.getFlashTargetType();
-		if (!flashTargetType.isCartridgeMenuTypeSupported(root
-				.getCartridgeMenuType())) {
-			root.setCartridgeMenuType(flashTargetType
-					.getSupportedCartridgeMenuTypes().get(0));
-		}
-		dataToUi();
+    @Override
+    protected boolean validateOK() {
+
+	WorkbookRootValidation validation = WorkbookRootValidation
+		.createInstance();
+	MessageQueue messageQueue = new MessageQueue();
+	validation.validateSave(root, messageQueue, false);
+	if (!messageQueue.containsError()) {
+	    Workbook.initializeBanksList(root, messageQueue);
 	}
-
-	@Override
-	protected boolean validateOK() {
-
-		WorkbookRootValidation validation = WorkbookRootValidation
-				.createInstance();
-		MessageQueue messageQueue = new MessageQueue();
-		validation.validateSave(root, messageQueue, false);
-		if (!messageQueue.containsError()) {
-			Workbook.initializeBanksList(root, messageQueue);
-		}
-		if (messageQueue.containsError()) {
-			StandardDialog.showErrorMessage(this, messageQueue.getFirstError()
-					.getMessageText(), getTitle());
-			return false;
-		}
-		return true;
+	if (messageQueue.containsError()) {
+	    StandardDialog.showErrorMessage(this, messageQueue.getFirstError()
+		    .getMessageText(), getTitle());
+	    return false;
 	}
+	return true;
+    }
 
 }

@@ -112,9 +112,9 @@ public final class WorkbookEntriesPanel extends AttributeTablePanel {
 	    addColumn(Attributes.FILE_NAME, Column.VISIBLE | Column.SORTABLE);
 	    addColumn(Attributes.FILE_SIZE, Column.HIDDEN | Column.SORTABLE);
 	    addColumn(Attributes.SIZE, Column.VISIBLE | Column.SORTABLE);
-	    addColumn(Attributes.MD5, Column.VISIBLE | Column.SORTABLE,
+	    addColumn(Attributes.MD5, Column.VISIBLE | Column.SORTABLE, null,
 		    md5CellRenderer, null);
-	    addColumn(Attributes.CRC32, Column.VISIBLE | Column.SORTABLE,
+	    addColumn(Attributes.CRC32, Column.VISIBLE | Column.SORTABLE, null,
 		    monoSpacedFontCellRenderer, null);
 
 	    addColumn(ROMVersion.Attributes.TYPE, Column.VISIBLE
@@ -132,7 +132,7 @@ public final class WorkbookEntriesPanel extends AttributeTablePanel {
 	    addColumn(ROMVersion.Attributes.PARTS, Column.VISIBLE
 		    | Column.SORTABLE);
 	    addColumn(Attributes.CHECK_SUMS, Column.VISIBLE | Column.SORTABLE,
-		    monoSpacedFontCellRenderer, null);
+		    null, monoSpacedFontCellRenderer, null);
 
 	    addColumn(ROMVersion.Attributes.COMMENT, Column.VISIBLE
 		    | Column.SORTABLE);

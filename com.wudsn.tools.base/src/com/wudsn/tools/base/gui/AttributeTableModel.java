@@ -20,6 +20,7 @@
 package com.wudsn.tools.base.gui;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 import javax.swing.DefaultCellEditor;
@@ -40,13 +41,16 @@ public abstract class AttributeTableModel extends AbstractTableModel {
 
 	private Attribute attribute;
 	private int flags;
+	private Comparator<?> comparator;
 	private DefaultTableCellRenderer defaultTableCellRenderer;
 	private DefaultCellEditor defaultCellEditor;
 
-	Column(Attribute attribute, int flags, DefaultTableCellRenderer defaultTableCellRenderer,
+	Column(Attribute attribute, int flags, Comparator<?> comparator,
+		DefaultTableCellRenderer defaultTableCellRenderer,
 		DefaultCellEditor defaultCellEditor) {
 	    this.attribute = attribute;
 	    this.flags = flags;
+	    this.comparator = comparator;
 	    this.defaultTableCellRenderer = defaultTableCellRenderer;
 	    this.defaultCellEditor = defaultCellEditor;
 	}
@@ -66,7 +70,11 @@ public abstract class AttributeTableModel extends AbstractTableModel {
 	public boolean isSortable() {
 	    return (flags & SORTABLE) == SORTABLE;
 	}
-	
+
+	public Comparator<?> getComparator() {
+	    return comparator;
+	}
+
 	public DefaultTableCellRenderer getDefaultTableCellRenderer() {
 	    return defaultTableCellRenderer;
 	}
@@ -84,12 +92,15 @@ public abstract class AttributeTableModel extends AbstractTableModel {
     }
 
     protected final void addColumn(Attribute attribute, int flags) {
-	addColumn(attribute, flags, null, null);
+	addColumn(attribute, flags, null, null, null);
     }
 
-    protected final void addColumn(Attribute attribute, int flags, DefaultTableCellRenderer defaultTableCellRenderer,
+    protected final void addColumn(Attribute attribute, int flags,
+	    Comparator<?> comparator,
+	    DefaultTableCellRenderer defaultTableCellRenderer,
 	    DefaultCellEditor defaultCellEditor) {
-	columns.add(new Column(attribute, flags, defaultTableCellRenderer, defaultCellEditor));
+	columns.add(new Column(attribute, flags, comparator,
+		defaultTableCellRenderer, defaultCellEditor));
     }
 
     @Override
@@ -100,7 +111,8 @@ public abstract class AttributeTableModel extends AbstractTableModel {
     // Used by the JTable object to set the column names
     @Override
     public final String getColumnName(int column) {
-	return columns.get(column).getAttribute().getDataType().getLabelWithoutMnemonics();
+	return columns.get(column).getAttribute().getDataType()
+		.getLabelWithoutMnemonics();
     }
 
     // Used by the JTable object to render different
@@ -131,7 +143,8 @@ public abstract class AttributeTableModel extends AbstractTableModel {
      */
     public final int getColumnIndex(Attribute attribute) {
 	if (attribute == null) {
-	    throw new IllegalArgumentException("Parameter 'attribute' must not be null.");
+	    throw new IllegalArgumentException(
+		    "Parameter 'attribute' must not be null.");
 	}
 	int index = -1;
 	for (int i = 0; i < columns.size() && index == -1; i++) {
@@ -146,11 +159,13 @@ public abstract class AttributeTableModel extends AbstractTableModel {
      * Sets the attribute table used to display the table. This is used to
      * compute the line numbering.
      * 
-     * @param table The table, not <code>null</code>.
+     * @param table
+     *            The table, not <code>null</code>.
      */
     public final void setTable(AttributeTable table) {
 	if (table == null) {
-	    throw new IllegalArgumentException("Parameter 'table' must not be null.");
+	    throw new IllegalArgumentException(
+		    "Parameter 'table' must not be null.");
 	}
 	this.table = table;
     }

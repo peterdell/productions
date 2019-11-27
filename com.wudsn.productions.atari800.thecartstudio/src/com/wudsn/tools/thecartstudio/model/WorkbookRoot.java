@@ -33,6 +33,7 @@ import org.xml.sax.SAXException;
 
 import com.wudsn.tools.base.atari.CartridgeType;
 import com.wudsn.tools.base.common.ASCIIString;
+import com.wudsn.tools.base.common.StringUtility;
 import com.wudsn.tools.base.repository.Attribute;
 import com.wudsn.tools.thecartstudio.DataTypes;
 import com.wudsn.tools.thecartstudio.model.ReservedContentProviderFactory.CheckSumContentProvider;
@@ -313,7 +314,7 @@ public final class WorkbookRoot {
 	for (WorkbookGenre genre : genresList) {
 	    result.add(genre.getName());
 	}
-	Collections.sort(result);
+	Collections.sort(result, StringUtility.CASE_INSENSITIVE_COMPARATOR);
 	Collections.unmodifiableList(result);
 	return result;
     }

@@ -63,27 +63,33 @@ public final class AttributeTable extends JTable {
      * @param prefix
      *            The attributeTablePreferences prefix, not <code>null</code>.
      */
-    public AttributeTable(AttributeTableModel model, AttributeTablePreferences attributeTablePreferences, String prefix) {
+    public AttributeTable(AttributeTableModel model,
+	    AttributeTablePreferences attributeTablePreferences, String prefix) {
 	super();
 	if (model == null) {
-	    throw new IllegalArgumentException("Parameter 'model' must not be null.");
+	    throw new IllegalArgumentException(
+		    "Parameter 'model' must not be null.");
 	}
 	if (attributeTablePreferences == null && prefix != null) {
 	    throw new IllegalArgumentException(
 		    "Parameter 'attributeTablePreferences' must not be null if prefix is specified.");
 	}
 	if (attributeTablePreferences != null && prefix == null) {
-	    throw new IllegalArgumentException("Parameter 'prefix' must not be null if preferecces are specified.");
+	    throw new IllegalArgumentException(
+		    "Parameter 'prefix' must not be null if preferecces are specified.");
 	}
 	this.model = model;
 	this.attributeTablePreferences = attributeTablePreferences;
 	this.prefix = prefix;
 	allTableColumns = new ArrayList<TableColumn>();
 
-	setDefaultRenderer(MemorySize.class, ElementFactory.createMemorySizeTableCellRenderer());
-	setDefaultRenderer(Number.class, ElementFactory.createNumberTableCellRenderer());
+	setDefaultRenderer(MemorySize.class,
+		ElementFactory.createMemorySizeTableCellRenderer());
+	setDefaultRenderer(Number.class,
+		ElementFactory.createNumberTableCellRenderer());
 
-	TableRowSorter<AttributeTableModel> rowSorter = new TableRowSorter<AttributeTableModel>(model);
+	TableRowSorter<AttributeTableModel> rowSorter = new TableRowSorter<AttributeTableModel>(
+		model);
 	for (int i = 0; i < model.getColumnCount(); i++) {
 
 	    Class<?> columnClass = model.getColumnClass(i);
@@ -93,9 +99,10 @@ public final class AttributeTable extends JTable {
 		setDefaultEditor(columnClass, new DefaultCellEditor(field));
 	    }
 
-	    // Use binary comparator for ATASCII string.
-	    if (columnClass.isAssignableFrom(ASCIIString.class)) {
-		rowSorter.setComparator(i, ASCIIString.COMPARATOR);
+	    Column column = model.getColumn(i);
+	    Comparator<?> comparator = column.getComparator();
+	    if (comparator != null) {
+		rowSorter.setComparator(i, comparator);
 	    }
 	}
 
@@ -119,7 +126,8 @@ public final class AttributeTable extends JTable {
     @Override
     public TableCellRenderer getCellRenderer(int row, int column) {
 	TableColumn tableColumn = columnModel.getColumn(column);
-	TableCellRenderer renderer = model.getColumn(tableColumn.getModelIndex()).getDefaultTableCellRenderer();
+	TableCellRenderer renderer = model.getColumn(
+		tableColumn.getModelIndex()).getDefaultTableCellRenderer();
 	if (renderer == null) {
 	    renderer = getDefaultRenderer(getColumnClass(column));
 	}
@@ -129,7 +137,8 @@ public final class AttributeTable extends JTable {
     @Override
     public TableCellEditor getCellEditor(int row, int column) {
 	TableColumn tableColumn = getColumnModel().getColumn(column);
-	TableCellEditor editor = model.getColumn(tableColumn.getModelIndex()).getDefaultCellEditor();
+	TableCellEditor editor = model.getColumn(tableColumn.getModelIndex())
+		.getDefaultCellEditor();
 	if (editor == null) {
 	    editor = getDefaultEditor(getColumnClass(column));
 	}
@@ -138,10 +147,12 @@ public final class AttributeTable extends JTable {
 
     final void setColumnDefaults() {
 
-	for (int modelColumnIndex = 0; modelColumnIndex < model.getColumnCount(); modelColumnIndex++) {
+	for (int modelColumnIndex = 0; modelColumnIndex < model
+		.getColumnCount(); modelColumnIndex++) {
 	    setColumnVisible(modelColumnIndex, false);
 	}
-	for (int modelColumnIndex = 0; modelColumnIndex < model.getColumnCount(); modelColumnIndex++) {
+	for (int modelColumnIndex = 0; modelColumnIndex < model
+		.getColumnCount(); modelColumnIndex++) {
 	    Column column = model.getColumn(modelColumnIndex);
 	    setColumnVisible(modelColumnIndex, column.isVisible());
 	}
@@ -171,10 +182,12 @@ public final class AttributeTable extends JTable {
 		for (int i = 0; i < getColumnCount() - 1; i++) {
 		    TableColumn tc = columnModel.getColumn(i);
 		    if (modelColumnIndex > tc.getModelIndex()) {
-			closestBefore = Math.max(closestBefore, tc.getModelIndex());
+			closestBefore = Math.max(closestBefore,
+				tc.getModelIndex());
 		    }
 		    if (modelColumnIndex < tc.getModelIndex()) {
-			closestAfter = Math.min(closestAfter, tc.getModelIndex());
+			closestAfter = Math.min(closestAfter,
+				tc.getModelIndex());
 		    }
 		}
 
@@ -209,13 +222,15 @@ public final class AttributeTable extends JTable {
 	    properties = null;
 	}
 	List<TableColumn> tableColumns = new ArrayList<TableColumn>();
-	for (int modelColumnIndex = 0; modelColumnIndex < model.getColumnCount(); modelColumnIndex++) {
+	for (int modelColumnIndex = 0; modelColumnIndex < model
+		.getColumnCount(); modelColumnIndex++) {
 	    TableColumn tableColumn = new TableColumn(modelColumnIndex);
 	    Column column = model.getColumn(modelColumnIndex);
 	    boolean visible = column.isVisible();
 	    int viewColumnIndex = Integer.MAX_VALUE;
 	    if (properties != null) {
-		String columnKey = prefix + ".columns." + column.getAttribute().getName();
+		String columnKey = prefix + ".columns."
+			+ column.getAttribute().getName();
 		String value = properties.get(columnKey + ".visible");
 
 		int width = -1;
@@ -223,11 +238,13 @@ public final class AttributeTable extends JTable {
 		    visible = Boolean.parseBoolean(value) || column.isFixed();
 
 		    try {
-			viewColumnIndex = Integer.parseInt(properties.get(columnKey + ".index"));
+			viewColumnIndex = Integer.parseInt(properties
+				.get(columnKey + ".index"));
 		    } catch (NumberFormatException ignore) {
 		    }
 		    try {
-			width = Integer.parseInt(properties.get(columnKey + ".width"));
+			width = Integer.parseInt(properties.get(columnKey
+				+ ".width"));
 			if (width > 0) {
 			    tableColumn.setPreferredWidth(width);
 			}
@@ -254,13 +271,17 @@ public final class AttributeTable extends JTable {
 	    TableCellRenderer headerRenderer = new TableCellRenderer() {
 
 		@Override
-		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
-			boolean hasFocus, int row, int column) {
-		    Component result = finalParent.getTableCellRendererComponent(table, value, isSelected, hasFocus,
-			    row, column);
+		public Component getTableCellRendererComponent(JTable table,
+			Object value, boolean isSelected, boolean hasFocus,
+			int row, int column) {
+		    Component result = finalParent
+			    .getTableCellRendererComponent(table, value,
+				    isSelected, hasFocus, row, column);
 		    if (result instanceof JComponent) {
 			TableColumn tableColumn = columnModel.getColumn(column);
-			DataType dataType = model.getColumn(tableColumn.getModelIndex()).getAttribute().getDataType();
+			DataType dataType = model
+				.getColumn(tableColumn.getModelIndex())
+				.getAttribute().getDataType();
 			String toolTip = dataType.getToolTip();
 			((JComponent) result).setToolTipText(toolTip);
 		    }
@@ -283,7 +304,9 @@ public final class AttributeTable extends JTable {
 
 	// Set attribute name as identifier for all columns.
 	for (TableColumn tableColumn : allTableColumns) {
-	    tableColumn.setIdentifier(model.getColumn(tableColumn.getModelIndex()).getAttribute().getName());
+	    tableColumn.setIdentifier(model
+		    .getColumn(tableColumn.getModelIndex()).getAttribute()
+		    .getName());
 	}
 
 	// Create visible columns in order.
@@ -298,9 +321,11 @@ public final class AttributeTable extends JTable {
      */
     public void saveLayout() {
 	if (attributeTablePreferences == null) {
-	    throw new RuntimeException("This table has not attributeTablePreferences assigned.");
+	    throw new RuntimeException(
+		    "This table has not attributeTablePreferences assigned.");
 	}
-	Map<String, String> properties = attributeTablePreferences.getLayoutProperties();
+	Map<String, String> properties = attributeTablePreferences
+		.getLayoutProperties();
 	List<String> keys = new ArrayList<String>(properties.keySet());
 	for (String key : keys) {
 	    if (key.startsWith(prefix)) {
@@ -312,10 +337,12 @@ public final class AttributeTable extends JTable {
 	    TableColumn tableColumn = allTableColumns.get(modelIndex);
 	    int viewIndex = convertColumnIndexToView(modelIndex);
 	    boolean visible = (viewIndex != -1);
-	    String columnKey = prefix + ".columns." + column.getAttribute().getName();
+	    String columnKey = prefix + ".columns."
+		    + column.getAttribute().getName();
 	    properties.put(columnKey + ".visible", Boolean.toString(visible));
 	    properties.put(columnKey + ".index", Integer.toString(viewIndex));
-	    properties.put(columnKey + ".width", Integer.toString(tableColumn.getWidth()));
+	    properties.put(columnKey + ".width",
+		    Integer.toString(tableColumn.getWidth()));
 
 	}
 
@@ -351,15 +378,19 @@ public final class AttributeTable extends JTable {
 	}
     }
 
-    public boolean print(String headerText, String subHeaderText, String footerText) throws PrinterException {
+    public boolean print(String headerText, String subHeaderText,
+	    String footerText) throws PrinterException {
 	if (headerText == null) {
-	    throw new IllegalArgumentException("Parameter 'headerText' must not be null.");
+	    throw new IllegalArgumentException(
+		    "Parameter 'headerText' must not be null.");
 	}
 	if (subHeaderText == null) {
-	    throw new IllegalArgumentException("Parameter 'subHeaderText' must not be null.");
+	    throw new IllegalArgumentException(
+		    "Parameter 'subHeaderText' must not be null.");
 	}
 	if (footerText == null) {
-	    throw new IllegalArgumentException("Parameter 'footerText' must not be null.");
+	    throw new IllegalArgumentException(
+		    "Parameter 'footerText' must not be null.");
 	}
 	AttributeTablePrinter printer = new AttributeTablePrinter(this);
 	return printer.print(headerText, subHeaderText, footerText);

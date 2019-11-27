@@ -19,13 +19,29 @@
 
 package com.wudsn.tools.base.common;
 
+import java.util.Comparator;
+
 /**
  * Utility class to handle strings.
  * 
  * @author Peter Dell
- *
+ * 
  */
 public final class StringUtility {
+
+    private final static class CaseInsensitiveComparator implements
+	    Comparator<String> {
+	@Override
+	public int compare(String s1, String s2) {
+	    return s1.toUpperCase().compareTo(s2.toUpperCase());
+	}
+    };
+
+    public final static Comparator<String> CASE_INSENSITIVE_COMPARATOR;
+
+    static {
+	CASE_INSENSITIVE_COMPARATOR = new CaseInsensitiveComparator();
+    }
 
     /**
      * Creation is private.

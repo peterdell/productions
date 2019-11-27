@@ -26,77 +26,77 @@ import com.wudsn.tools.base.common.ASCIIString;
  */
 public final class WorkbookMenuEntry implements Comparable<WorkbookMenuEntry> {
 
-	public static final int SOURCE_TYPE_MENU_ENTRY = 0;
-	public static final int SOURCE_TYPE_MENU_ENTRY_ITEM = 1;
+    public static final int SOURCE_TYPE_MENU_ENTRY = 0;
+    public static final int SOURCE_TYPE_MENU_ENTRY_ITEM = 1;
 
-	private WorkbookEntry workbookEntry;
-	private boolean titleSet;
-	private String title;
-	private int sourceType;
-	private int itemMenuVersion;
-	private int itemNumber;
+    private WorkbookEntry workbookEntry;
+    private boolean titleSet;
+    private String title;
+    private int sourceType;
+    private int itemMenuVersion;
+    private int itemNumber;
 
-	public WorkbookMenuEntry(WorkbookEntry workbookEntry) {
-		if (workbookEntry == null) {
-			throw new IllegalArgumentException(
-					"Parameter 'workbookEntry' must not be null.");
-		}
-		this.workbookEntry = workbookEntry;
-		this.titleSet = false;
-		this.title = "";
-		this.sourceType = SOURCE_TYPE_MENU_ENTRY;
-		this.itemNumber = 0;
+    public WorkbookMenuEntry(WorkbookEntry workbookEntry) {
+	if (workbookEntry == null) {
+	    throw new IllegalArgumentException(
+		    "Parameter 'workbookEntry' must not be null.");
 	}
+	this.workbookEntry = workbookEntry;
+	this.titleSet = false;
+	this.title = "";
+	this.sourceType = SOURCE_TYPE_MENU_ENTRY;
+	this.itemNumber = 0;
+    }
 
-	public WorkbookEntry getWorkbookEntry() {
-		return workbookEntry;
-	}
+    public WorkbookEntry getWorkbookEntry() {
+	return workbookEntry;
+    }
 
-	public void setTitle(String title) {
-		if (title == null) {
-			throw new IllegalArgumentException(
-					"Parameter 'title' must not be null.");
-		}
-		this.titleSet = true;
-		this.title = title;
+    public void setTitle(String title) {
+	if (title == null) {
+	    throw new IllegalArgumentException(
+		    "Parameter 'title' must not be null.");
 	}
+	this.titleSet = true;
+	this.title = title;
+    }
 
-	public String getTitle() {
-		if (titleSet) {
-			return title;
-		}
-		return workbookEntry.getTitle();
+    public String getTitle() {
+	if (titleSet) {
+	    return title;
 	}
+	return workbookEntry.getTitle();
+    }
 
-	public void setSourceType(int sourceType) {
-		this.sourceType = sourceType;
-	}
+    public void setSourceType(int sourceType) {
+	this.sourceType = sourceType;
+    }
 
-	public int getSourceType() {
-		return sourceType;
-	}
+    public int getSourceType() {
+	return sourceType;
+    }
 
-	public void setItemMenuVersion(int itemMenuVersion) {
-		this.itemMenuVersion = itemMenuVersion;
-	}
+    public void setItemMenuVersion(int itemMenuVersion) {
+	this.itemMenuVersion = itemMenuVersion;
+    }
 
-	public int getItemMenuVersion() {
-		return itemMenuVersion;
-	}
+    public int getItemMenuVersion() {
+	return itemMenuVersion;
+    }
 
-	public void setItemNumber(int itemNumber) {
-		this.itemNumber = itemNumber;
-	}
+    public void setItemNumber(int itemNumber) {
+	this.itemNumber = itemNumber;
+    }
 
-	public int getItemNumber() {
-		return itemNumber;
-	}
+    public int getItemNumber() {
+	return itemNumber;
+    }
 
-	@Override
-	public int compareTo(WorkbookMenuEntry other) {
-		// Compare ignoring case.
-		return ASCIIString.COMPARATOR.compare(getTitle().toUpperCase(), other
-				.getTitle().toUpperCase());
-	}
+    @Override
+    public int compareTo(WorkbookMenuEntry other) {
+	// Compare ignoring case.
+	return ASCIIString.CASE_INSENSITIVE_COMPARATOR.compare(getTitle(),
+		other.getTitle());
+    }
 
 }

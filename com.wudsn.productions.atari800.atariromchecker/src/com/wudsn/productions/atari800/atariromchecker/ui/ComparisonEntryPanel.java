@@ -52,24 +52,29 @@ public final class ComparisonEntryPanel extends AttributeTablePanel {
 
 	public TableModel(final Comparison comparison) {
 	    if (comparison == null) {
-		throw new IllegalArgumentException("Parameter 'comparison' must not be null.");
+		throw new IllegalArgumentException(
+			"Parameter 'comparison' must not be null.");
 	    }
 
 	    this.comparison = comparison;
 
-	    final Font monoSpacedFont = new Font(Font.MONOSPACED, Font.PLAIN, 12);
+	    final Font monoSpacedFont = new Font(Font.MONOSPACED, Font.PLAIN,
+		    12);
 	    DefaultTableCellRenderer cellRenderer = new DefaultTableCellRenderer() {
 
 		@Override
-		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
-			boolean hasFocus, int row, int column) {
-		    Component result = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row,
-			    column);
+		public Component getTableCellRendererComponent(JTable table,
+			Object value, boolean isSelected, boolean hasFocus,
+			int row, int column) {
+		    Component result = super.getTableCellRendererComponent(
+			    table, value, isSelected, hasFocus, row, column);
 		    int modelRowIndex = table.convertRowIndexToModel(row);
-		    int modelColumnIndex = table.convertColumnIndexToModel(column);
+		    int modelColumnIndex = table
+			    .convertColumnIndexToModel(column);
 		    setForeground(table.getForeground()); // Ignore selection.
 		    if (modelColumnIndex >= Columns.VALUE) {
-			setBackground(comparison.getEntry(modelRowIndex).getColor(modelColumnIndex - Columns.VALUE));
+			setBackground(comparison.getEntry(modelRowIndex)
+				.getColor(modelColumnIndex - Columns.VALUE));
 		    } else {
 			setBackground(table.getBackground());
 		    }
@@ -80,14 +85,18 @@ public final class ComparisonEntryPanel extends AttributeTablePanel {
 	    };
 
 	    addColumn(Attributes.ID, Column.VISIBLE);
-	    addColumn(Attributes.OFFSET, Column.VISIBLE|Column.SORTABLE, cellRenderer, null);
-	    addColumn(Attributes.ADDRESS, Column.VISIBLE|Column.SORTABLE, cellRenderer, null);
+	    addColumn(Attributes.OFFSET, Column.VISIBLE | Column.SORTABLE,
+		    null, cellRenderer, null);
+	    addColumn(Attributes.ADDRESS, Column.VISIBLE | Column.SORTABLE,
+		    null, cellRenderer, null);
 	    for (int i = 0; i < comparison.getWorkbookEntryCount(); i++) {
 		DataType dataType = new DataType(String.class);
 		WorkbookEntry workbookEntry = comparison.getWorkbookEntry(i);
-		dataType.setTexts(workbookEntry.getFileName(), workbookEntry.getFolderPath());
+		dataType.setTexts(workbookEntry.getFileName(),
+			workbookEntry.getFolderPath());
 		Attribute attribute = new Attribute("value" + i, dataType);
-		addColumn(attribute, Column.VISIBLE|Column.SORTABLE, cellRenderer, null);
+		addColumn(attribute, Column.VISIBLE | Column.SORTABLE, null,
+			cellRenderer, null);
 	    }
 	}
 
@@ -99,11 +108,13 @@ public final class ComparisonEntryPanel extends AttributeTablePanel {
 	    case Columns.ID:
 		return Integer.valueOf(table.convertRowIndexToView(row) + 1);
 	    case Columns.OFFSET:
-		return entry.getOffset() >= 0 ? TextUtility.formatAsHexaDecimal(entry.getOffset(),
-			comparison.getMaximumOffset()) : "";
+		return entry.getOffset() >= 0 ? TextUtility
+			.formatAsHexaDecimal(entry.getOffset(),
+				comparison.getMaximumOffset()) : "";
 	    case Columns.ADDRESS:
-		return entry.getAddress() >= 0 ? TextUtility.formatAsHexaDecimal(entry.getAddress(),
-			comparison.getMaximumAddress()) : "";
+		return entry.getAddress() >= 0 ? TextUtility
+			.formatAsHexaDecimal(entry.getAddress(),
+				comparison.getMaximumAddress()) : "";
 	    default:
 		return entry.getValue(column - Columns.VALUE);
 	    }
@@ -123,10 +134,12 @@ public final class ComparisonEntryPanel extends AttributeTablePanel {
 
     private Comparison comparison;
 
-    public ComparisonEntryPanel(Preferences preferences, final Comparison comparison) {
+    public ComparisonEntryPanel(Preferences preferences,
+	    final Comparison comparison) {
 	super(new TableModel(comparison), preferences, "comparisonEntriesTable");
 	this.comparison = comparison;
-	comparison.setEntriesTableModel((AttributeTableModel) getTable().getModel());
+	comparison.setEntriesTableModel((AttributeTableModel) getTable()
+		.getModel());
     }
 
     /**
@@ -138,11 +151,14 @@ public final class ComparisonEntryPanel extends AttributeTablePanel {
      * @param attribute
      *            The attribute, not <code>null</code>.
      */
-    public void setSelectedComparisonEntry(ComparisonEntry comparisonEntry, Attribute attribute) {
+    public void setSelectedComparisonEntry(ComparisonEntry comparisonEntry,
+	    Attribute attribute) {
 	if (comparisonEntry == null) {
-	    throw new IllegalArgumentException("Parameter 'comparisonEntry' must not be null.");
+	    throw new IllegalArgumentException(
+		    "Parameter 'comparisonEntry' must not be null.");
 	}
-	int modelRowIndex = comparison.getUnmodifiableEntriesList().indexOf(comparisonEntry);
+	int modelRowIndex = comparison.getUnmodifiableEntriesList().indexOf(
+		comparisonEntry);
 	table.selectCell(modelRowIndex, attribute);
     }
 }
