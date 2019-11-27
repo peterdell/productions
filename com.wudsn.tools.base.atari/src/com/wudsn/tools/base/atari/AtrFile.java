@@ -204,7 +204,7 @@ public final class AtrFile {
 		    "Parameter 'data' must not be null.");
 	}
 	for (int i = 0; i < data.length; i++) {
-	    if (data[offset + i] != data[i]) {
+	    if (this.data[offset + i] != data[i]) {
 		return false;
 	    }
 	}
