@@ -74,9 +74,10 @@ entry_runcart_adr	= $a012	;Start cartridge, IN: <A>=mode, <X>=bank lo, <Y>=bank 
 tc_mode_off		= $00
 tc_mode_8k		= $01	;Configuration lock is ignored in this mode
 tc_mode_flexi		= $20	;Configuration lock is ignored in this mode, The!Cart 
-tc_mode_binary_file	= $e0
-tc_mode_executable_file = $e1;	
-tc_mode_atr_file	= $e2
+tc_mode_atr_file	= $e0
+tc_mode_binary_file	= $e1
+tc_mode_executable_file = $e2	
+tc_mode_sap_file	= $e3	
 	.ende
 	
 	.enum the_cart

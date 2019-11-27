@@ -75,7 +75,50 @@ loop	sta (buffer_ptr),y
 	ldy #cursor.selected_entry.start_bank_number-cursor.selected_entry
 	mwa starter_entry,y cart_bank	;Copy start bank to counter
 
+;===============================================================
+
+	sei
+	lda cart_bank
+	sta the_cart.primary_bank_lo	;Set primary bank register low byte (0-255, default: 0), also enables the cart (!)
+	lda cart_bank+1
+	sta the_cart.primary_bank_hi	;Set primary bank register high byte (0-63, default: 0), also enables the cart (!)
+
+;===============================================================
+
 	mwa #module_a000 cart_ptr	;Start a begin of first file bank
+
+	ldy #cursor.selected_entry.the_cart_mode-cursor.selected_entry
+	lda starter_entry,y
+	cmp #the_cart_mode.tc_mode_sap_file
+	bne no_sap
+
+	.proc start_sap
+loop	ldy #0
+	lda (cart_ptr),y
+	iny
+	and (cart_ptr),y
+	cmp #$ff
+	beq end_sap
+
+	ldy #0
+	lda (cart_ptr),y
+	cmp #$0a
+	bne no_cr
+	lda #$9b
+	bne put_char
+no_cr	cmp #$0d
+	beq skip_char
+put_char
+	sta (88),y
+	inw 88
+skip_char
+	inw cart_ptr
+	jmp loop
+end_sap
+	.byte 2
+	.endp
+
+no_sap
 
 	.proc segment_loop
 
@@ -143,12 +186,6 @@ skip
 dl_not_in_module
 	.endp				;End of disable_screen
 
-;===============================================================
-
-	lda cart_bank
-	sta the_cart.primary_bank_lo	;Set primary bank register low byte (0-255, default: 0), also enables the cart (!)
-	lda cart_bank+1
-	sta the_cart.primary_bank_hi	;Set primary bank register high byte (0-63, default: 0), also enables the cart (!)
 
 ;===============================================================
 

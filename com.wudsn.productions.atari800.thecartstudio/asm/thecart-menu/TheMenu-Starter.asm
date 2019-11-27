@@ -58,9 +58,11 @@
 
 	lda cursor.selected_entry.the_cart_mode
 	cmp #the_cart_mode.tc_mode_atr_file
-	jeq atr_starter.start_atr_entry ;ATRs get their own handling
+	jeq atr_starter.start_atr_entry ;ATR files get their own handling
 	cmp #the_cart_mode.tc_mode_executable_file
-	jeq xex_starter.start_xex_entry ;XEXs get their own handling
+	jeq xex_starter.start_xex_entry ;Executable files get their own handling
+	cmp #the_cart_mode.tc_mode_sap_file
+	jeq xex_starter.start_xex_entry ;SAP files get their own handling, they are basically executable file
 
 	lda #0				;Initialize boot and RESET relevant state
 	sta warmst

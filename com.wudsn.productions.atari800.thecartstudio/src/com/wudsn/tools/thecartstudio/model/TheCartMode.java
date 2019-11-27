@@ -28,8 +28,10 @@ package com.wudsn.tools.thecartstudio.model;
  * <li>TC_MODE_MEGA_2048 (might get one in future)</li>
  * <li>TC_MODE_8K_RAM (makes no sense as CART id)</li>
  * <li>TC_MODE_PICODOS (makes no sense as CART id)</li>
+ * <li>TC_MODE_ATR_FILE (no alignment)</li>
  * <li>TC_MODE_BINARY_FILE (no alignment)</li>
  * <li>TC_MODE_EXECUTABLE_FILE (no alignment)</li>
+ * <li>TC_MODE_SAP_FILE (no alignment)</li>
  * </ul>
  * 
  * @author Peter Dell, Matthias Reichel
