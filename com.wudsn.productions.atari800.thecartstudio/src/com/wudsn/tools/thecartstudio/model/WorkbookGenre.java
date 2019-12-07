@@ -31,7 +31,6 @@ import com.wudsn.tools.thecartstudio.DataTypes;
  */
 public final class WorkbookGenre {
 
-	public static final int START_BANK_UNDEFINED = -1;
 	public static final String ALL = "All";
 
 	public static final class Attributes {
