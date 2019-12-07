@@ -48,6 +48,12 @@ menu_entry_size	= 64
 
 ;===============================================================
 
+	.enum menu_genre
+	flags			= 0	;Byte
+	reserved		= 1	;Byte
+	text_offset		= 2	;Word
+	.ende
+
 	.enum menu_entry
 	number			= 0	; Word
 	the_cart_mode 		= 2	; Byte

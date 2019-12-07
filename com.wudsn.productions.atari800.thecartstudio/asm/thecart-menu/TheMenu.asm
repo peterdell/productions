@@ -13,8 +13,9 @@ result_lines	= 20
 result_sm	= sm+screen_width*2
 
 
-genres_list 	  = menu_data_start	;Up to menu_mcb.menu_genres_count addresses (lo/hi) of the genre names followed by the genre names, $400 bytes 
-genre_sm	  = genres_list+$400	;Screen memory for the genre line, $400 bytes
+genres_list 	  = menu_data_start	;Up to menu_mcb.menu_genres_count genre records, followed by the genre names 
+genres_list_size  = $400
+genre_sm	  = genres_list+genres_list_size ;Screen memory for the genre line, $400 bytes
 found_entries	  = genre_sm+$400	;Numbers (lo/hi) of entries that have been found, 16384*2 = 32768 bytes
 found_entries_end = menu_data_end
 
@@ -272,27 +273,18 @@ loop	cmp $14
 	ldy menu_mcb.menu_genres_start_bank_number+1
 	jsr menu_core.set_bank
 
-	lda menu_mcb.menu_genres_count 
-	asl
-	sta x1
-
-	ldx #0
-genres_loop
-	adw module_a000,x #module_a000 p1
-	adw module_a000,x #genres_list p2
-	mwa p2 genres_list,x
-
+	mwa #module_a000 p1
+	mwa #genres_list p2
+	ldx #>genres_list_size
 	ldy #0
-character_loop
-	lda (p1),y
+loop	lda (p1),y
 	sta (p2),y
 	iny
-	cmp #0
-	bne character_loop
-	inx
-	inx
-	cpx x1
-	bne genres_loop
+	bne loop
+	inc p1+1
+	inc p2+1
+	dex
+	bne loop
 	rts
 	.endp
 	.endp

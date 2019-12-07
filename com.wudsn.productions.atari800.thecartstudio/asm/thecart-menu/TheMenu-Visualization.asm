@@ -554,20 +554,41 @@ not_visible
 	.endp
 
 ;===============================================================
+	.proc compute_genre_text_adr	; IN: <A>=genre number, OUT: p1=text address, does not change <X>
+	sta p1
+	lda #0
+	asl p1
+	ror
+	asl p1
+	ror
+	sta p1+1
+	adw p1 #genres_list
+	ldy #menu_genre.text_offset
+	lda (p1),y
+	clc
+	adc #<genres_list
+	pha
+	iny
+	lda (p1),y
+	adc #>genres_list
+	sta p1+1
+	pla
+	sta p1
+	rts
+	.endp
+
+;===============================================================
 
 	.proc print_selected_genre
 	.var inverse .byte
 
+;	Compute text start for selected genre
 	lda cursor.selected_genre.number
-	asl
-	tay
-	mwa genres_list,y print_adr
-	
+	jsr compute_genre_text_adr
+
 	mva #$80 inverse
 	ldy #0
-loop
-print_adr = *+1
-	lda $ffff,y
+loop	lda (p1),y
 	bne not_end
 	asl inverse
 	lda #' '
@@ -595,33 +616,27 @@ not_ff	ora inverse
 
 ;===============================================================
 
-	.proc readable_details
+	.proc readable_details		;IN: <X>=print cursor X position
 	print.m_print_text "Genre:"
 
 	.proc copy_genre
 	lda cursor.selected_entry.genre_number
-	asl
-	tay
-	mwa genres_list,y genre_adr
+	jsr compute_genre_text_adr
 	ldy #0
-loop
-genre_adr = *+1
-	lda genres_list,y
+loop	lda (p1),y
 	sta print.print_sm,x
 	beq exit
-	cmp #$c0
-	sne
-	jam
 	iny
 	inx
+	cpx #screen_width
 	bne loop
 exit
-	.endp
+	.endp 
 
 	.proc clear_genre
 	lda #' '
 loop	cpx #screen_width
-	beq exit
+	bcs exit
 	sta print.print_sm,x
 	inx
 	bne loop
