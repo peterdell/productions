@@ -19,6 +19,7 @@ start_xex_entry
 	jsr copy_starter
 	lda #>(starter_template+$ff)	;Clear everything starting at the relocatable parts
 	m_clear_main_ram_and_zp
+	mva #1 boot?			;Indicate that disk boot was successful
 	jmp starter_code		;Jump to starter code
 
 ;===============================================================
@@ -119,7 +120,6 @@ end_sap
 	.endp
 
 no_sap
-
 	.proc segment_loop
 
 	mwa #segment_start buffer_ptr	;Load 2 byte header
