@@ -59,9 +59,10 @@ public final class CartridgeMenu {
     private static final class Genre {
 	public static final int RECORD_SIZE = 4;
 	public static final int FLAGS = 0;
-	public static final int RESERVED = 1;
+	public static final int TEXT_LENGTH = 1;
 	public static final int TEXT_OFFSET = 2;
 
+	private static final int MAX_TEXT_LENGTH = 40;
 	private final int number;
 	private final String name;
 	private final byte[] nameBytes;
@@ -81,12 +82,17 @@ public final class CartridgeMenu {
 	    this.result = result;
 	    int offset = number * RECORD_SIZE;
 	    setByte(result, offset + FLAGS, 0);
-	    setByte(result, offset + RESERVED, 0);
+
+	    String text = name;
+	    if (text.length() > MAX_TEXT_LENGTH) {
+		text = text.substring(0, MAX_TEXT_LENGTH);
+	    }
+	    setByte(result, offset + TEXT_LENGTH, text.length());
 	    setWord(result, offset + TEXT_OFFSET, nameOffset);
 
 	    ByteArrayOutputStream buffer = new ByteArrayOutputStream();
 	    try {
-		buffer.write(ASCIIString.getBytes(name));
+		buffer.write(ASCIIString.getBytes(text));
 	    } catch (IOException ex) {
 		throw new RuntimeException(ex);
 	    }
@@ -616,6 +622,7 @@ public final class CartridgeMenu {
 	int bankSize = workbook.getRoot().getBankSize();
 
 	int entryOffset = bankSize;
+	Genre allGenre = genresList.get(0);
 	StringBuilder builder = new StringBuilder(WorkbookEntry.TITLE_LENGTH);
 	for (int i = 0; i < workbookMenuEntries.size(); i++) {
 	    WorkbookMenuEntry workbookMenuEntry = workbookMenuEntries.get(i);
@@ -681,7 +688,7 @@ public final class CartridgeMenu {
 
 	    // Default genre to "All".
 	    if (genre == null) {
-		genre = genresList.get(0);
+		genre = allGenre;
 	    }
 	    setByte(result, offset, genre.getNumber());
 
@@ -690,6 +697,7 @@ public final class CartridgeMenu {
 		    : 0);
 	    if (workbookEntry.getFavoriteIndicator()) {
 		genre.setFavoritesAvailableIndicator();
+		allGenre.setFavoritesAvailableIndicator();
 	    }
 	    entryOffset += MENU_ENTRY_LENGTH;
 
