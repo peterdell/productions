@@ -50,7 +50,7 @@ menu_entry_size	= 64
 
 	.enum menu_genre
 	flags			= 0	;Byte
-	reserved		= 1	;Byte
+	text_length		= 1	;Byte
 	text_offset		= 2	;Word
 	.ende
 
@@ -66,7 +66,7 @@ menu_entry_size	= 64
 	title_length		= 13	; Byte
 	title			= 14	; 40 Bytes
 	genre_number		= 54	; Byte, 0 means no genre assigned
-	favorite_indicate	= 55	; Byte
+	favorite_indicator	= 55	; Byte
 	.ende
 	
 	.enum menu_entry_source_type
@@ -378,11 +378,11 @@ max_bank =*+1
 
 ;===============================================================
 
-	opt f-				;Extended Menu Data, 40k, bank 11
-	org $0000
+	opt f-
+	org $0000			;Extended Menu Data, 40k, bank 11
 	opt f+
 
-	org $9fff
+	.align $9fff
 	.byte 0
 
 ;===============================================================
