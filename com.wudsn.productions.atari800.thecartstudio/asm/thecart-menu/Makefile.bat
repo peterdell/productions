@@ -25,7 +25,7 @@ REM set WORKBOOK=CAR-Correct-Small-128MB
 REM set WORKBOOK=CAR-Atarimax-Single
 REM set WORKBOOK=Atarimax-Menus
 
-REM Copy working versions to temp folder.
+REM Copy working versions from last ANT build to temp folder.
 copy /Y %OUT%\TheCartStudio.jar %TEMP%
 copy CartMenu-Extended.rom %TEMP%\cartmenu-extended.rom
 
