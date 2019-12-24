@@ -554,53 +554,117 @@ not_visible
 	.endp
 
 ;===============================================================
-	.proc compute_genre_text_adr	; IN: <A>=genre number, OUT: p1=text address, does not change <X>
-	sta p1
+
+	.proc print_selected_genre	;Print select genre as inverse tab title and the rest before/after the selected tab
+
+	.var genre_number .byte
+	.var text_start_adr .word
+	.var text_end_adr .word
+	.var text_end_offset .word
+	.var inverse .byte
+
 	lda #0
-	asl p1
-	ror
-	asl p1
-	ror
-	sta p1+1
-	adw p1 #genres_list
-	ldy #menu_genre.text_offset
+	jsr genres.compute_genre_text_start_adr
+	mwa p1 text_start_adr
+
+	lda cursor.selected_genre.number
+	jsr genres.compute_genre_text_end_adr
+	mwa p1 text_end_adr
+
+	sbw text_end_adr text_start_adr text_end_offset
+
+	lda text_end_offset+1
+	bne print_right_to_left
+	lda text_end_offset
+	cmp #screen_width
+	bcs print_right_to_left
+
+	.proc print_left_to_right
+	mva #0 genre_number		;Start gerne on the left
+	ldx #0				;Current print x offset
+
+genre_loop
+	lda genre_number
+	jsr genres.compute_genre_text_start_adr
+
+	jsr compute_inverse
+ 
+	ldy #0
+text_loop
 	lda (p1),y
-	clc
-	adc #<genres_list
-	pha
-	iny
+	beq end_of_text
+	ora inverse
+	sta genre_sm,x
+	inw p1
+	inx
+	cpx #screen_width
+	bcs all_done
+	jmp text_loop
+
+end_of_text
+	lda #' '
+	sta genre_sm,x
+	inx
+	cpx #screen_width
+	bcs all_done
+
+	inc genre_number
+	lda genre_number
+	cmp menu_mcb.menu_genres_count
+	bne genre_loop
+
+all_done
+	rts
+	.endp				;end of print_left_to_right
+
+	.proc print_right_to_left
+	mva cursor.selected_genre.number genre_number		;Start gerne on the right
+	ldx #39				;Current print x offset
+
+genre_loop
+	lda genre_number
+	jsr genres.compute_genre_text_end_adr
+
+	jsr compute_inverse
+ 
+	ldy #0
+text_loop
 	lda (p1),y
-	adc #>genres_list
-	sta p1+1
-	pla
-	sta p1
+	beq end_of_text
+	ora inverse
+	sta genre_sm,x
+	dew p1
+	dex
+	cpx #$ff
+	beq all_done
+	jmp text_loop
+
+end_of_text
+	lda #' '
+	sta genre_sm,x
+	dex
+	cpx #$ff
+	beq all_done
+
+	dec genre_number
+	lda genre_number
+	cmp #$ff
+	bne genre_loop
+
+all_done
 	rts
 	.endp
 
-;===============================================================
-
-	.proc print_selected_genre
-	.var inverse .byte
-
-;	Compute text start for selected genre
-	lda cursor.selected_genre.number
-	jsr compute_genre_text_adr
-
-	mva #$80 inverse
-	ldy #0
-loop	lda (p1),y
-	bne not_end
-	asl inverse
-	lda #' '
-not_end	cmp #$ff
-	bne not_ff
-	lda #' '
-not_ff	ora inverse
-	sta genre_sm,y
-	iny
-	cpy #screen_width
-	bne loop
-	rts
+	.proc compute_inverse		;Selected gerne shall be inverse
+	ldy #$00
+	lda genre_number
+ 	cmp cursor.selected_genre.number
+ 	sne
+ 	ldy #$80
+ 	sty inverse
+ 	rts
+ 	.endp
+ 
 	.endp
 
 ;===============================================================
@@ -621,7 +685,7 @@ not_ff	ora inverse
 
 	.proc copy_genre
 	lda cursor.selected_entry.genre_number
-	jsr compute_genre_text_adr
+	jsr genres.compute_genre_text_start_adr
 	ldy #0
 loop	lda (p1),y
 	sta print.print_sm,x
@@ -629,7 +693,7 @@ loop	lda (p1),y
 	iny
 	inx
 	cpx #screen_width
-	bne loop
+	bcc loop
 exit
 	.endp 
 

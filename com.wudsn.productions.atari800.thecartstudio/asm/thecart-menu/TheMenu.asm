@@ -287,6 +287,55 @@ loop	lda (p1),y
 	bne loop
 	rts
 	.endp
+	
+;===============================================================
+
+	.proc compute_adr		; IN: <A>=genre number, OUT: p1=genre address, does not change <X>
+	sta p1
+	lda #0
+	asl p1
+	rol
+	asl p1
+	rol
+	sta p1+1
+	adw p1 #genres_list
+	rts
+	.endp
+
+;===============================================================
+
+	.proc compute_genre_text_start_adr	; IN: <A>=genre number, OUT: p1=text start address, <A>=text_length, does not change <X>
+	jsr compute_adr
+	ldy #menu_genre.text_length
+	lda (p1),y
+	pha
+	ldy #menu_genre.text_offset
+	lda (p1),y
+	clc
+	adc #<genres_list
+	pha
+	iny
+	lda (p1),y
+	adc #>genres_list
+	sta p1+1
+	pla
+	sta p1
+	pla
+	rts
+	.endp
+
+	.proc compute_genre_text_end_adr	; IN: <A>=genre number, OUT: p1=text end address, does not change <X>
+	jsr compute_genre_text_start_adr
+	clc
+	adc p1
+	sta p1
+	lda p1+1
+	adc #0
+	sta p1+1
+	dew p1
+	rts
+	.endp
+	
 	.endp
 
 ;===============================================================
@@ -538,7 +587,8 @@ loop
 	.var search_status .byte		;Public, write access
 	.var input_length .byte			;Public, write access
 input_buffer .ds input.input_max_length		;Public, write access
-	.var search_genre_number .byte		;Private, fill when search is started
+	.var search_genre_number .byte		;Private, filled when search is started
+	.var search_genre_favorite_flag .byte	;Private, filled when search is started
 	.var search_entry_max_index .word	;Private, maximum number of entries that fit into found_entries
 	.var search_entry_index	.word		;Private, counting up, read access by visualization
 	.var search_entry_counter .word		;Private, counting down, read access by visualization
@@ -570,6 +620,11 @@ search_loop
 	mva #status.searching search_status	;Start searching	
 
 	mva cursor.selected_genre.number search_genre_number
+	jsr genres.compute_adr
+	ldy #menu_genre.flags
+	lda (p1),y
+	and #$80
+	sta search_genre_favorite_flag
 
 ;	Compute number of entries that will fit into the found_entries
 ;	The end of the physical ram is store in memtop.
@@ -635,7 +690,7 @@ not_finished_user_break
 
 not_specific_genre
 	ldx input_length			;Empty string matches everything
-	beq matching_entry_found
+	beq find_all_or_favorites		;--- or favorites
 
 ;	ldx #0					;Find first substring
 ;	.proc find_substring_start
@@ -703,6 +758,13 @@ substring_not_matching
 matching_subtring_found
 	.endp					;End of search_substring
 
+find_all_or_favorites
+	lda search_genre_favorite_flag		;Restrict to favorites?
+	beq matching_entry_found		;No
+	ldy #menu_entry.favorite_indicator	;Yes, so check...
+	lda (search_pointer),y			;... if favorite flag is set
+	beq entry_not_matching
+;TODO TODO TODO
 	.proc matching_entry_found
 	lda result.found_entry_index+1 		;Check if there is space for more found entries in the list
 	cmp search_entry_max_index+1
