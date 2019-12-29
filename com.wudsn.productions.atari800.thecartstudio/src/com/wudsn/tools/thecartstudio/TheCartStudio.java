@@ -95,18 +95,18 @@ import com.wudsn.tools.thecartstudio.ui.WorkbookOptionsDialog;
 
 /**
  * TODO Implement favorites support <br/>
- * TODO Add XEX loader <br/>
- * TODO Replay .SAP files, https://github.com/epi/sapemu<br/>
- * TODO Support Disk Swapping in ATR loader<br/>
+ * TODO Replay .SAP files, https://github.com/epi/sapemu. Requires file length
+ * to be known, this would also allow for autostart XEX without INIADR/RUNADR
+ * segments<<br/>
  * TODO Allow setting of one cart as the "Autorun" default, see
  * http://atariage.com/forums/user/8819-ebiguy message.<br/>
  * TODO Add support for "AtariMax" & "MegaCart" Bankswitching in the extended
  * menu<br/>
  * Actually typing in "P M", "Pac Man" or "Man Pac * " should find it. Only
- * letters and numbers are relevant, order of words should be ignored. That the
- * point of the Google like search. But it looks at some point a bug has creeped
- * in and the space is taken as part of the word instead of the word separator.
- * I'll have a look, but it'll take a while."
+ * letters and numbers are relevant, order of words should be ignored. That is
+ * the point of the Google like search. But it looks at some point a bug has
+ * creeped in and the space is taken as part of the word instead of the word
+ * separator. I'll have a look, but it'll take a while."
  * 
  * @author Peter Dell
  */

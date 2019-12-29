@@ -54,7 +54,7 @@
 			<fileset dir="../com.wudsn.tools.base/bin" />
 			<fileset dir="../com.wudsn.tools.base.atari/bin" />
 			<fileset dir="../com.wudsn.tools.base.atari.cartridge/bin" />
-		   <fileset dir="bin" />
+			<fileset dir="bin" />
 		</jar>
 
 		<!-- Remove unwanted temporary files -->
@@ -85,7 +85,7 @@
 		<java jar="${studio.jar}" fork="true">
 			<arg value="-createSampleFiles:${unitTestsFolder}" />
 		</java>
-		
+
 		<antcall target="update_sample_workbook">
 			<param name="workbook" value="CAR-Correct-Supported-128MB" />
 		</antcall>
@@ -149,7 +149,7 @@
 
 		<!-- Merge version from ".version file" into help file -->
 		<loadfile property="version" srcFile="bin\com\wudsn\tools\thecartstudio\TheCartStudio.version" />
-		<echo message="${version}"/>
+		<echo message="${version}" />
 		<replace file="${productionFolder}\help\TheCartStudio.html">
 			<replacefilter token="$${version}" value="${version}" />
 		</replace>
@@ -158,9 +158,9 @@
 		<replace file="${productionFolder}\help\TheCartStudio.html" token="font-size: 10px;" value="font-size: 12px">
 		</replace>
 
-		<echo  message="Opening ${productionFolder}"/>
+		<echo message="Opening ${productionFolder}" />
 		<exec executable="explorer.exe">
-			<arg value="${productionFolder}"/>
+			<arg value="${productionFolder}" />
 		</exec>
 	</target>
 </project>

@@ -8,7 +8,7 @@
 
 p1		= $80		;General purpose ZP pointer (not in interrupts)
 p2		= $82		;General purpose ZP pointer (not in interrupts)
-p3		= $84		;General purpose ZP pointer (not in interrupts)
+search_pointer	= $84		;Special purpose ZP pointer (see TheMenu.asm)
 x1		= $86		;General purpose ZP variable (not in interrupts)
 x2		= $87		;General purpose ZP variable (not in interrupts)
 
@@ -44,7 +44,7 @@ menu_mcb.menu_entries_start_bank_number	= menu_mcb_zp + $0a; ZP address of the s
 menu_mcb.menu_title			= menu_mcb_zp + $0c; ZP address of the title ($28 bytes)
 
 menu_start_bank	= 8
-menu_entry_size	= 64
+menu_entry_size	= 64			;Must be a divider of $2000!
 
 ;===============================================================
 
@@ -57,16 +57,17 @@ menu_entry_size	= 64
 	.enum menu_entry
 	number			= 0	; Word
 	the_cart_mode 		= 2	; Byte
-	start_bank_number	= 4	; Word
-	initial_bank_number	= 6	; Word
-	loader_base_address	= 8	; Word
-	source_type		= 10	; Byte
-	item_menu_version	= 11	; Byte
-	item_number		= 12	; Byte
-	title_length		= 13	; Byte
-	title			= 14	; 40 Bytes
-	genre_number		= 54	; Byte, 0 means no genre assigned
-	favorite_indicator	= 55	; Byte
+	content_size 		= 4	; 4 Bytes
+	start_bank_number	= 8	; Word
+	initial_bank_number	= 10	; Word
+	loader_base_address	= 12	; Word
+	source_type		= 14	; Byte
+	item_menu_version	= 15	; Byte
+	item_number		= 16	; Byte
+	title_length		= 17	; Byte
+	title			= 18	; 40 Bytes
+	genre_number		= 58	; Byte, 0 means no genre assigned
+	favorite_indicator	= 59	; Byte
 	.ende
 	
 	.enum menu_entry_source_type
@@ -76,30 +77,11 @@ menu_entry_size	= 64
 
 ;===============================================================
 
-;+---------------------------------------------------------------------------+
-;| Type 41: Atarimax 128 KB Flash cartridge                                  |
-;+---------------------------------------------------------------------------+
-;
-; This bank-switched cartridge occupies 8 KB of address space between $A000
-; and $BFFF. The cartridge memory is divided into 16 banks, 8 KB each.
-; The 4 lowest bits of the address written to $D500-$D50F select the bank
-; mapped to $A000-$BFFF. Writing to $D510-$D51F disables the cartridge
-; and any write to $D520-$D5FF is ignored.
-;
-;+---------------------------------------------------------------------------+
-;| Type 42: Atarimax 1 MB Flash cartridge                                    |
-;+---------------------------------------------------------------------------+
-;
-; This bank-switched cartridge occupies 8 KB of address space between $A000
-; and $BFFF. The cartridge memory is divided into 128 banks, 8 KB each.
-; The seven lowest bits of the address written to $D500-$D57F select the bank
-; mapped to $A000-$BFFF, bit 7 disables the cartridge.
-
 	.enum cartridge_type
-	CARTRIDGE_ATMAX_1024	= 42
-	CARTRIDGE_THECART_32M	= 65
-	CARTRIDGE_THECART_64M	= 66
-	CARTRIDGE_THECART_128M	= 62
+	CARTRIDGE_ATMAX_1024	= 42	;Type 42: Atarimax 1 MB Flash cartridge  
+	CARTRIDGE_THECART_32M	= 65	;Type 65: The!Cart 32 MB Flash cartridge
+	CARTRIDGE_THECART_64M	= 66	;Type 64: The!Cart 64 MB Flash cartridge
+	CARTRIDGE_THECART_128M	= 62	;Type 61: The!Cart 128 MB Flash cartridge
 	.ende
 
 	icl "CartMenu-Kernel-Equates.asm"
@@ -131,11 +113,11 @@ menu_entry_size	= 64
 ;	Init normal screen etc. while bank 0 is active
 	cld
 	jsr cartmenu.entry_initos
-	lda #$ff
+
+	lda #$ff			;Disable BASIC ROM in MMU on XL machines
+	sta portb			;On an Atari 800 this does not work, but also does not harm as it is a write to a read registere
 	sta coldst			;RESET triggers coldstart by default
-	sta portb			;Disable BASIC ROM in MMU on XL machines
-	mva #$01 basicf			;Ensure it's not enabled during warmstart
-;       TODO: On an Atari 800 this does not work!
+	mva #$01 basicf			;Ensure BASIC is not re-enabled during warmstart
 	lda #$c0			;Use RAM in cartridge area in XL machines
 	sta ramtop			;Change the values used by the graphics screen
 	sta ramsiz			;The memtop for the physical RAM must not be changed
@@ -270,7 +252,7 @@ copy_page
 
 	.proc set_bank			;IN: <X>=Bank lo, <Y>=Bank hi
 jump_adr = *+1
-	jmp set_bank			;Lo bytes is adapted by initialization
+	jmp set_bank			;Lo byte is adapted by initialization
 
 	.proc set_bank_atmax_1024
 	sta $d500,x
@@ -280,11 +262,10 @@ jump_adr = *+1
 	.endp				;End of set_bank_maxflash
 
 	.proc set_bank_thecart_128m
-	stx the_cart.primary_bank_lo		;Set primary bank register low byte (0-255, default: 0)
-	sty the_cart.primary_bank_hi		;Set primary bank register high byte (0-63, default: 0)
-;	n/a the_cart.primary_bank_enable	;Set primary bank enable (1=enable, 0=disable, default: 1)
-max_bank =*+1
-	cpy #64
+	stx the_cart.primary_bank_lo	;Set primary bank register low byte (0-255, default: 0)
+	sty the_cart.primary_bank_hi	;Set primary bank register high byte (0-63, default: 0)
+;	n/a the_cart.primary_bank_enable;Set primary bank enable (1=enable, 0=disable, default: 1)
+	cpy #64				;Max bank hard coded for 128 MB
 	bcs bank_error
 	rts
 	.endp				;End of set_bank_thecart
@@ -307,9 +288,6 @@ max_bank =*+1
 	rts
 	.endp
 
-	.endp
-
-	.proc disable_bank
 	.endp
 
 ;===============================================================

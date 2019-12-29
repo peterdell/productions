@@ -377,6 +377,17 @@ skip
 	jsr print.print_hex
 	.endm
 
+	.macro m_print_long
+	lda :1+3
+	jsr print.print_hex
+	lda :1+2
+	jsr print.print_hex
+	lda :1+1
+	jsr print.print_hex
+	lda :1
+	jsr print.print_hex
+	.endm
+
 	.proc print_text		;Low byte of text_adr must have been pushed before
 	sta text_adr
 	lda text_adr+1			;Push for recursive call, high byte
@@ -547,7 +558,11 @@ not_visible
 
 	.proc toggle_details_mode
 	lda details_mode
-	eor #$ff
+	clc
+	adc #1
+	cmp #3
+	sne
+	lda #0
 	sta details_mode
 	jsr print_selected_entry
 	rts
@@ -613,6 +628,14 @@ end_of_text
 	cmp menu_mcb.menu_genres_count
 	bne genre_loop
 
+	lda #' '
+clear_rest_of_line
+	cpx #screen_width
+	bcs all_done
+	sta genre_sm,x
+	inx
+	bne clear_rest_of_line
+
 all_done
 	rts
 	.endp				;end of print_left_to_right
@@ -670,7 +693,12 @@ all_done
 ;===============================================================
 
 	.proc print_selected_entry
-	ldx #0
+	ldx #screen_width		;Clear line
+	lda #' '
+loop	sta print.print_sm-1,x
+	dex
+	bne loop
+
 	print.m_print_text "Entry:"
 	print.m_print_word cursor.selected_entry.number
 	inx
@@ -688,8 +716,8 @@ all_done
 	jsr genres.compute_genre_text_start_adr
 	ldy #0
 loop	lda (p1),y
-	sta print.print_sm,x
 	beq exit
+	sta print.print_sm,x
 	iny
 	inx
 	cpx #screen_width
@@ -697,22 +725,16 @@ loop	lda (p1),y
 exit
 	.endp 
 
-	.proc clear_genre
-	lda #' '
-loop	cpx #screen_width
-	bcs exit
-	sta print.print_sm,x
-	inx
-	bne loop
-exit
-	.endp
-
 	rts
 	.endp
 
 ;===============================================================
 
-	.proc technical_details
+	.proc technical_details		;IN: <A>=1/2
+	cmp #1
+	jne part2
+
+	.proc part1
 	print.m_print_text "Mode:"
 	print.m_print_byte cursor.selected_entry.the_cart_mode
 	print.m_print_space
@@ -738,6 +760,14 @@ menu_entry_item
 	mva #')' print.print_sm,x+
 no_menu_entry_item	
 	rts
+	.endp			;End of part1
+
+	.proc part2
+	print.m_print_text "Size:"
+	print.m_print_long cursor.selected_entry.content_size
+	rts
+	.endp			;End of part2
+
 	.endp			;End of technical_details
 
 	.endp			;End of print_selected_entry

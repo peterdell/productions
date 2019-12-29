@@ -47,7 +47,7 @@ public final class CartridgeMenu {
     private static final String EXTERNAL_SIMPLE_MENU = "cartmenu.rom";
     private static final String EXTERNAL_EXTENDED_MENU = "cartmenu-extended.rom";
 
-    public static final int MENU_ENTRY_LENGTH = 64;
+    public static final int MENU_ENTRY_LENGTH = 64; // Must be a divisor of $2000
 
     // Create genre entries.
     // The first block is an array of genre records.
@@ -195,20 +195,21 @@ public final class CartridgeMenu {
 	// Relative offsets in the menu entries.
 	public static final int MENU_ENTRY_NUMBER = 0; // Word
 	public static final int MENU_ENTRY_THE_CART_MODE = 2; // Byte
-	public static final int MENU_ENTRY_START_BANK_NUMBER = 4; // Word
-	public static final int MENU_ENTRY_INITIAL_BANK_NUMBER = 6; // Word
-	public static final int MENU_ENTRY_LOADER_BASE_ADDRESS = 8; // Word
-	public static final int MENU_ENTRY_SOURCE_TYPE = 10; // Byte
-	public static final int MENU_ENTRY_ITEM_MENU_VERSION = 11; // Byte
-	public static final int MENU_ENTRY_ITEM_NUMBER = 12; // Byte
-	public static final int MENU_ENTRY_TITLE_LENGTH = 13; // Bytes
-	public static final int MENU_ENTRY_TITLE = 14; // 40 Bytes
-	public static final int MENU_ENTRY_GENRE_NUMBER = 54; // Byte
-	public static final int MENU_ENTRY_FAVORITE_INDICATOR = 55; // Byte
+	public static final int MENU_ENTRY_CONTENT_SIZE = 4; // 4 Bytes
+	public static final int MENU_ENTRY_START_BANK_NUMBER = 8; // Word
+	public static final int MENU_ENTRY_INITIAL_BANK_NUMBER = 10; // Word
+	public static final int MENU_ENTRY_LOADER_BASE_ADDRESS = 12; // Word
+	public static final int MENU_ENTRY_SOURCE_TYPE = 14; // Byte
+	public static final int MENU_ENTRY_ITEM_MENU_VERSION = 15; // Byte
+	public static final int MENU_ENTRY_ITEM_NUMBER = 16; // Byte
+	public static final int MENU_ENTRY_TITLE_LENGTH = 17; // Byte
+	public static final int MENU_ENTRY_TITLE = 18; // 40 Bytes
+	public static final int MENU_ENTRY_GENRE_NUMBER = 58; // Byte
+	public static final int MENU_ENTRY_FAVORITE_INDICATOR = 59; // Byte
     }
 
     /**
-     * Collector callback to get the entries from an importable cartidge menu
+     * Collector callback to get the entries from an importable cartridge menu
      * into the workbook menu.
      * 
      */
@@ -636,11 +637,14 @@ public final class CartridgeMenu {
 	    setByte(result, offset, workbookEntry.getContentType()
 		    .getTheCartMode());
 
+	    offset = entryOffset + Offsets.MENU_ENTRY_CONTENT_SIZE;
+	    setLong(result, offset, workbookEntry.getContentSize());
+
 	    offset = entryOffset + Offsets.MENU_ENTRY_START_BANK_NUMBER;
 	    setWord(result, offset, workbookEntry.getStartBankNumber());
 
 	    // Some cartridge types do not have relative start bank 0.
-	    // Therefore The!Cart support "uneven" start banks in modes greater
+	    // Therefore The!Cart supports "uneven" start banks in modes greater
 	    // then 8k.
 	    int initialBankNumber = workbookEntry.getContentType()
 		    .getCartridgeType().getInitialBankNumber();
@@ -693,8 +697,8 @@ public final class CartridgeMenu {
 	    setByte(result, offset, genre.getNumber());
 
 	    offset = entryOffset + Offsets.MENU_ENTRY_FAVORITE_INDICATOR;
-	    setByte(result, offset, workbookEntry.getFavoriteIndicator() ? 1
-		    : 0);
+	    setByte(result, offset, workbookEntry.getFavoriteIndicator() ? 0x80
+		    : 0x00);
 	    if (workbookEntry.getFavoriteIndicator()) {
 		genre.setFavoritesAvailableIndicator();
 		allGenre.setFavoritesAvailableIndicator();
@@ -713,8 +717,15 @@ public final class CartridgeMenu {
     }
 
     private static void setWord(byte[] content, int offset, int value) {
-	content[offset] = (byte) (value & 0xff);
-	content[offset + 1] = (byte) (value >> 8 & 0xff);
+	content[offset + 0] = (byte) (value & 0xff);
+	content[offset + 1] = (byte) (value >>> 8 & 0xff);
+    }
+
+    private static void setLong(byte[] content, int offset, long value) {
+	content[offset + 0] = (byte) (value & 0xff);
+	content[offset + 1] = (byte) (value >>> 8 & 0xff);
+	content[offset + 2] = (byte) (value >>> 16 & 0xff);
+	content[offset + 3] = (byte) (value >>> 24 & 0xff);
     }
 
     private static void setString(byte[] content, int offset, String value,

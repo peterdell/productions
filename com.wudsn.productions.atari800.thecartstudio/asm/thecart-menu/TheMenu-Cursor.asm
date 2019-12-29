@@ -17,6 +17,7 @@ number			.byte	;Public
 	.local selected_entry	;Public
 number			.word	;Public
 the_cart_mode		.byte	;Public
+content_size		.dword	;Public
 start_bank_number	.word	;Public
 initial_bank_number	.word	;Public
 loader_base_address	.word	;Public
@@ -159,6 +160,17 @@ different_genre
 	mva (bank_address),y selected_entry.:1+1
 	.endm
 
+	.macro m_get_long
+ 	ldy #menu_entry.:1
+	mva (bank_address),y selected_entry.:1
+	iny
+	mva (bank_address),y selected_entry.:1+1
+	iny
+	mva (bank_address),y selected_entry.:1+2
+	iny
+	mva (bank_address),y selected_entry.:1+3
+	.endm
+
 	lda result.found_entry_index
 	ora result.found_entry_index+1
 	bne some_entries_found
@@ -191,6 +203,7 @@ some_entries_found
 
 	m_get_word number
 	m_get_byte the_cart_mode
+ 	m_get_long content_size
  	m_get_word start_bank_number
  	m_get_word initial_bank_number
  	m_get_word loader_base_address

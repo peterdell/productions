@@ -487,14 +487,12 @@
 					<b>Favorite</b>
 				</td>
 				<td>Yes</td>
-				<td>The favorite indicator is currently not used by the extended
-					menu. It is planned to be used as additional filter in the future.
-					The idea is that if you set the favorite indicator for an entry,
-					the initial list of entries in the extended menu only shows the
-					favorites. This way you can use the joystick or cursor key to
+				<td>If you set the favorite indicator for an entry, the initial list
+					of entries in the extended menu only shows the favorites for the
+					active genre. This way you can use the joystick or cursor keys to
 					select from restricted list of entries. As soon as you start typing
-					a search term, the favorite indicator become irrelevant and all
-					entries are searched.
+					a search term, the favorite indicator becomes irrelevant and all
+					entries are searched foe the search term.
 				</td>
 			</tr>
 			<tr>
@@ -666,7 +664,7 @@
 				<td>No</td>
 				<td>This checkbox indicates the required banks for the entry could
 					be assigned correctly. If there is not enough continuous space for
-					the banks of the entry left on the cartridge, the "Banks Asigned"
+					the banks of the entry left on the cartridge, the "Banks Assigned"
 					checkbox will not be set. Saving the workbook is possible in this
 					case, but exporting the workbook is disabled. You can use the menu
 					"Edit/Reassign Banks" to trigger a reordering of all entries to
@@ -1652,12 +1650,28 @@
 		<h3 id="ChangeHistory">
 			<a name="ChangeHistory">Change History</a>
 		</h3>
+		<h4>2019-12-29</h4>
+		<div>
+			<ul>
+				<li>The long pending feature to mark entries as favorites is now
+					working. If you set the favorite indicator for an entry, the
+					initial list of entries in the extended menu only shows the
+					favorites for the active genre. This way you can use the joystick
+					or cursor keys to select from restricted list of entries. As soon
+					as you start typing a search term, the favorite indicator becomes
+					irrelevant and all entries are searched foe the search term.
+				</li>
+				<li>The search which was broken in the version 2019-12-24 is working
+					again.
+				</li>
+			</ul>
+		</div>
 		<h4>2019-12-24</h4>
 		<div>
 			<ul>
-				<li>The tabbed display for the genres now only scrolls, if the select
-					genre does not fit on the screen. This is what you'd expect from a
-					tabbed visualization.
+				<li>The tabbed display for the genres now only scrolls, if the
+					select genre does not fit on the screen. This is what you'd expect
+					from a tabbed visualization.
 				</li>
 				<li>The XEX loader now sets the BOOT? flag to $01, like a DOS would.
 					This fixes problems with programs that rely on the XEX being loaded

@@ -595,8 +595,6 @@ input_buffer .ds input.input_max_length		;Public, write access
 	.var search_bank_number	.word		;Private, read access by visualization
 	.var search_frame_counter .word		;Private, see increment_frame_counter, read access by visualization
 
-	search_pointer = p1			;Private zero page pointer
-
 ;===============================================================
 
 	.proc loop				;Main search loop
@@ -625,6 +623,8 @@ search_loop
 	lda (p1),y
 	and #$80
 	sta search_genre_favorite_flag
+	ora #$01
+	sta $1404
 
 ;	Compute number of entries that will fit into the found_entries
 ;	The end of the physical ram is store in memtop.
@@ -686,11 +686,12 @@ not_finished_user_break
 	lda search_genre_number
 	beq not_specific_genre			;If the search genre is not specified, continue with comparing the title
 	cmp (search_pointer),y			;If the search genre is specific...
-	bne entry_not_matching			;... but it's different from the entry genre, then it's no match
+	jne entry_not_matching			;... but it's different from the entry genre, then it's no match
 
 not_specific_genre
 	ldx input_length			;Empty string matches everything
 	beq find_all_or_favorites		;--- or favorites
+	stx search_substring.compare_input_length ;Self-modifying code to save cycles
 
 ;	ldx #0					;Find first substring
 ;	.proc find_substring_start
@@ -700,9 +701,10 @@ not_specific_genre
 ;	inx
 ;	cpx input_length
 ;	bne loop
-;	beq substring_not_matching
+;	jmp search_substring.substring_not_matching
 ;found
 ;	.endp
+
 ;	stx substring_start
 ;find_substring_loop
 ;	lda input_buffer,x
@@ -712,8 +714,6 @@ not_specific_genre
 ;	cpx input_length
 ;	bne find_substring_loop
 ;substring_end_found
-
-	stx search_substring.compare_input_length ;Self-modifying code to save cycles
 
 	.proc search_substring
 	title_position = x1			;ZP variables
@@ -739,7 +739,7 @@ compare_title_end_position = *+1		;End position of the entry title
 	bcs no_lower_case
 	sbc #$20-1
 no_lower_case
-	cmp input_buffer,x
+	cmp input_buffer,x			;Compute with upper-case input buffer
 	bne no_char_match_found			;Restart compare for substring at next title position
 	iny
 	inx
@@ -760,10 +760,13 @@ matching_subtring_found
 
 find_all_or_favorites
 	lda search_genre_favorite_flag		;Restrict to favorites?
-	beq matching_entry_found		;No
-	ldy #menu_entry.favorite_indicator	;Yes, so check...
+	beq matching_entry_found		;... if not, we ave a match
+	lda input_length			;User input available?
+	bne matching_entry_found		;... then inore favorites filter
+	ldy #menu_entry.favorite_indicator	;Restricted but no user input, so check...
 	lda (search_pointer),y			;... if favorite flag is set
-	beq entry_not_matching
+	bpl entry_not_matching			;... and skip if not set
+
 ;TODO TODO TODO
 	.proc matching_entry_found
 	lda result.found_entry_index+1 		;Check if there is space for more found entries in the list
@@ -812,9 +815,6 @@ next_entry
 	ldx search_bank_number			;Activate bank of the entry to search in
 	ldy search_bank_number+1
 	jsr menu_core.set_bank
-search_bank_number_not_high
-	lda brkkey
-	
 not_next_bank
 
 finished
