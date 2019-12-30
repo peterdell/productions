@@ -106,7 +106,29 @@ import com.wudsn.tools.thecartstudio.ui.WorkbookOptionsDialog;
  * letters and numbers are relevant, order of words should be ignored. That is
  * the point of the Google like search. But it looks at some point a bug has
  * creeped in and the space is taken as part of the word instead of the word
- * separator. I'll have a look, but it'll take a while."
+ * separator. I'll have a look, but it'll take a while."<br/>
+ * TODO Save last 24 entries in EEPROM $A006: Read SPI EEPROM $A009: Write SPI
+ * EEPROM
+ * 
+ * Der ZP Vektor in $E0/$E1 muß auf die zu lesenden/schreibenden Daten zeigen, X
+ * den Byte-Count und Y die Adresse im EEPROM enthalten. Bei einem Fehler ist
+ * nach dem Return das Carry-Flag gesetzt (clear bei OK).
+ * 
+ * Beim Schreiben von Daten musst Du folgendes beachten: Das EEPROM ist intern
+ * in Blöcken zu 16-Bytes organisiert und der interne Adress-Zähler kann diese
+ * Grenzen nicht überschreiten (er macht dann einen wrap-around).
+ * 
+ * Schreibst Du zB 3 Bytes ab Adresse 14, so landen die in den Adressen 14, 15,
+ * 0.
+ * 
+ * Also am besten immer max. 16 Bytes schreiben und aufpassen, daß Du keine
+ * 16-Byte Grenze überschreitest.
+ * 
+ * Wie's beim Lesen aussieht hab' ich noch nicht getestet, aber lieber aufpassen
+ * und kleine Häppchen schreiben :)
+ * 
+ * Achja: Das CartMenu verwendet die EEPROM Adressen ab $F0, der Rest darunter
+ * ist frei.<br/>
  * 
  * @author Peter Dell
  */
@@ -845,16 +867,16 @@ public final class TheCartStudio implements ActionListener, Listener {
 
 	@SuppressWarnings("synthetic-access")
 	CommandWorker commandWorker = new CommandWorker() {
-	    private WorkbookExport workbookExport;
 
 	    @Override
 	    protected void performWork() throws Exception {
+		WorkbookExport workbookExport;
 		workbookExport = workbook.export(exportFormat, messageQueue);
+		performExportToFile(menuItem, exportFormat, workbookExport);
 	    }
 
 	    @Override
-	    protected void performDone() {
-		performExportToFile(menuItem, exportFormat, workbookExport);
+	    protected void performDone() {	
 	    }
 
 	};
