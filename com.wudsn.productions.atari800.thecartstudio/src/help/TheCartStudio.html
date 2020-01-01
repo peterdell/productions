@@ -927,11 +927,10 @@
 						<b>Directly as single file</b>
 						<br />
 						Executable files (COM,EXE,XEX) can be added directly to the
-						workbook. Only files with a valid RUNADR ($2e0) segment will
-						start, just like under DOS 2.5. While adding files directly is
-						very convenient, the worst case waste of space is 8191 bytes per
-						file. Therefore it is recommended to use the below mentioned
-						options instead, if you add many executable files.
+						workbook. While adding files directly is very convenient, the
+						worst case waste of space is 8191 bytes per file. Therefore it is
+						recommended to use the below mentioned options instead, if you add
+						many executable files.
 					</p>
 					<p>
 						<b>Included with multiple files on an ATR disk image</b>
@@ -1650,7 +1649,7 @@
 		<h3 id="ChangeHistory">
 			<a name="ChangeHistory">Change History</a>
 		</h3>
-		<h4>2019-12-30</h4>
+		<h4>2020-01-01</h4>
 		<div>
 			<ul>
 				<li>The long pending feature to mark entries as favorites is now
@@ -1663,6 +1662,14 @@
 				</li>
 				<li>The search which was broken in the version 2019-12-24 is working
 					again.
+				</li>
+				<li>The XEX loader now also handles files without RUNAD segment and
+					file where the RUNAD segment is not the last segement correctly.
+				</li>
+				<li>The XEX loader now clears the cold start flag (COLDST, $244),
+					like DOS would. This way programs that perform the start via
+					changing the DOS vectors and jumping to a warm start can start
+					correctly.
 				</li>
 				<li>The wait cursor is now also displayed while saving the files
 					created via "File / Export" to indicate the program is still busy.
