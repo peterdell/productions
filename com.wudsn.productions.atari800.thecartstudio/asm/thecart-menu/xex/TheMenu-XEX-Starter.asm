@@ -1,4 +1,4 @@
-
+;
 ;	>>>  The!Cart - ExtendedMenu by JAC! <<<
 ;
 ;	@com.wudsn.ide.asm.mainsourcefile=../CartMenu-Extended.asm
@@ -6,9 +6,10 @@
 
 	.proc xex_starter	;The!Cart is OFF
 
-
-segment_start	= fmszpg
-segment_end	= fmszpg+2
+content_size_length = 4
+content_size	= dskfms	;4 bytes
+segment_start	= fmszpg	;Word
+segment_end	= fmszpg+2	;Word
 
 starter_marker	= $700	;"T" to differentiate $00,$03" for DOS 2x, "M" for MyDos, "S" for SpartaDOS
 starter_version	= $701	;Version of the control block and entry structure
@@ -20,6 +21,7 @@ start_xex_entry
 	lda #>(starter_template+$ff)	;Clear everything starting at the relocatable parts
 	m_clear_main_ram_and_zp
 	mva #1 boot?			;Indicate that disk boot was successful
+	mva #0 coldst			;Indicate that next RESET is a warmstart
 	jmp starter_code		;Jump to starter code
 
 ;===============================================================
@@ -36,7 +38,17 @@ loop	lda cursor.selected_entry,x
 	dex
 	bpl loop
 	.endp
-	
+
+	.proc copy_content_size
+	ldx #content_size_length-1
+	ldy #cursor.selected_entry.content_size-cursor.selected_entry+content_size_length-1
+loop	lda starter_entry,y
+	sta content_size,x
+	dey
+	dex
+	bpl loop
+	.endp
+
 	.if .len starter > $200
 	.error "Starter too large. Adapt copy code."
 	.endif
@@ -120,12 +132,28 @@ end_sap
 	.endp
 
 no_sap
+
+;===============================================================
+
+	.proc load_xex
+	
+	mwa #0 runad			;Mark RUNAD as not yet set
+
 	.proc segment_loop
+	mwa #rts_initad initad		;Set INITAD to RTS
 
 	mwa #segment_start buffer_ptr	;Load 2 byte header
-	mwa #2 buffer_len
+	mwa #2 buffer_len		;EOF?
 
 	jsr simulate_bget
+	beq eof_error
+
+	lda runad			;Default RUNAD to first segment
+	ora runad+1
+	bne runad_set
+	mwa segment_start runad
+runad_set
+
 	lda segment_start		;Skip header?
 	and segment_start+1
 	cmp #$ff
@@ -134,36 +162,52 @@ no_sap
 	mwa #segment_end buffer_ptr	;Load end address
 	mwa #2 buffer_len
 	jsr simulate_bget
+	beq eof_error			;EOF?
 
 	mwa segment_start buffer_ptr	;Set buffer and compute length
 	sbw segment_end buffer_ptr buffer_len
 	inw buffer_len
 	
 	jsr simulate_bget		;Load segment
-
-	.proc check_runadr		;Check if RUNADR was set
-	cpw segment_start #runadr
-	bne skip
-	jsr jump
+	pha
+	jsr jmp_initad			;Handle INITAD first
+	pla
+	beq eof_ok			;EOF?, the handle RUNAD
 	jmp segment_loop
-jump	jmp (runadr)
-skip
-	.endp
 
-	.proc check_iniadr		;Check if INIADR was set
-	cpw segment_start #iniadr
-	bne skip
-	jsr jump
-	jmp segment_loop
-jump	jmp (iniadr)
-skip
-	.endp
-
-	jmp segment_loop
 	.endp				;end of segment_loop
 
-	.proc simulate_bget		;IN: .word buffer_ptr, .word buffer_len
+jmp_initad
+	jmp (initad)
+
+rts_initad
+	rts
+
+eof_ok	jmp (runad)	
+
+eof_error				;structure error
+	mva #$38 $d01a
+	jmp eof_error
+	.endp
+
+;===============================================================
+
+	.proc simulate_bget		;IN: .word buffer_ptr, .word buffer_len, OUT: <Z>=1 if EOF
 	sei				;Disable TRIG3 check for setting The!Cart registers and shadow register copying
+
+	sec				;content_size=content_size-buffer_len
+	lda content_size
+	sbc buffer_len
+	sta content_size
+	lda content_size+1
+	sbc buffer_len+1
+	sta content_size+1
+	lda content_size+2
+	sbc #0
+	sta content_size+2
+	lda content_size+3
+	sbc #0
+	sta content_size+3
 
 	.proc disable_screen		;Create empty DL and set hardware pointers to it.
 	lda sdmctl			;Screen is already off
@@ -208,12 +252,18 @@ loop	stx the_cart.primary_bank_enable;Enable The!Cart
 	lda cart_bank+1
 	sta the_cart.primary_bank_hi	;Set primary bank register high byte (0-63, default: 0), also enables the cart (!)
 skip
+
 	inw buffer_ptr
 
 	dew buffer_len
 	lda buffer_len
 	ora buffer_len+1
 	bne loop
+
+	lda content_size
+	ora content_size+1
+	ora content_size+2
+	ora content_size+3
 
 	cli
 	rts
