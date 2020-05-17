@@ -189,12 +189,12 @@ public final class Folder {
 	}
     }
 
-    private String getDesktopIniContent(String iconFile, int iconIndex) {
+    private static String getDesktopIniContent(String iconFile, int iconIndex) {
 	return "[.ShellClassInfo]\r\n" + "IconResource=" + iconFile + "," + iconIndex + "\r\n" + "IconFile=" + iconFile
 		+ "\r\n" + "IconIndex=" + iconIndex + "\r\n";
     }
 
-    private void exec(String command, MessageQueue messageQueue) {
+    private static void exec(String command, MessageQueue messageQueue) {
 	if (command == null) {
 	    throw new IllegalArgumentException("Parameter 'command' must not be null.");
 	}
