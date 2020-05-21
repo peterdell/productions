@@ -103,10 +103,19 @@ loop	sta (buffer_ptr),y
 	ldy #cursor.selected_entry.the_cart_mode-cursor.selected_entry
 	lda starter_entry,y
 	cmp #the_cart_mode.tc_mode_sap_file
-	bne no_sap
+	beq start_sap
 
-	.proc start_sap
-loop	ldy #0
+	.proc start_xex
+	jsr load_xex
+	jmp (runad)
+	.endp
+
+	.proc start_sap // TODO: SAP handling is untested
+	mwa #0 buffer_len
+
+loop	lda #1
+	sta the_cart.primary_bank_enable;Enable The!Cart
+	ldy #0
 	lda (cart_ptr),y
 	iny
 	and (cart_ptr),y
@@ -122,16 +131,28 @@ loop	ldy #0
 no_cr	cmp #$0d
 	beq skip_char
 put_char
-	sta (88),y
-	inw 88
+	sty the_cart.primary_bank_enable;Disable The!Cart
+	jsr putchr
 skip_char
 	inw cart_ptr
+	inw buffer_len
 	jmp loop
 end_sap
+
+	jsr adjust_content_size
+	jsr load_xex
 	.byte 2
 	.endp
 
-no_sap
+	.proc putchr
+	tax
+	lda $e407
+	pha
+	lda $e406
+	pha
+	txa
+	rts
+	.endp
 
 ;===============================================================
 
@@ -140,7 +161,7 @@ no_sap
 	mwa #0 runad			;Mark RUNAD as not yet set
 
 	.proc segment_loop
-	mwa #rts_initad initad		;Set INITAD to RTS
+	mwa #return initad		;Set INITAD to RTS
 
 	mwa #segment_start buffer_ptr	;Load 2 byte header
 	mwa #2 buffer_len		;EOF?
@@ -172,18 +193,14 @@ runad_set
 	pha
 	jsr jmp_initad			;Handle INITAD first
 	pla
-	beq eof_ok			;EOF?, the handle RUNAD
+	beq return			;EOF?
 	jmp segment_loop
 
+return	rts
 	.endp				;end of segment_loop
 
 jmp_initad
 	jmp (initad)
-
-rts_initad
-	rts
-
-eof_ok	jmp (runad)	
 
 eof_error				;structure error
 	mva #$38 $d01a
@@ -195,19 +212,7 @@ eof_error				;structure error
 	.proc simulate_bget		;IN: .word buffer_ptr, .word buffer_len, OUT: <Z>=1 if EOF
 	sei				;Disable TRIG3 check for setting The!Cart registers and shadow register copying
 
-	sec				;content_size=content_size-buffer_len
-	lda content_size
-	sbc buffer_len
-	sta content_size
-	lda content_size+1
-	sbc buffer_len+1
-	sta content_size+1
-	lda content_size+2
-	sbc #0
-	sta content_size+2
-	lda content_size+3
-	sbc #0
-	sta content_size+3
+	jsr adjust_content_size		;content_size=content_size-buffer_len
 
 	.proc disable_screen		;Create empty DL and set hardware pointers to it.
 	lda sdmctl			;Screen is already off
@@ -269,6 +274,23 @@ skip
 	rts
 
 	.endp				;End of simulate_bget
+
+	.proc adjust_content_size	;content_size=content_size-buffer_len
+	sec
+	lda content_size
+	sbc buffer_len
+	sta content_size
+	lda content_size+1
+	sbc buffer_len+1
+	sta content_size+1
+	lda content_size+2
+	sbc #0
+	sta content_size+2
+	lda content_size+3
+	sbc #0
+	sta content_size+3
+	rts
+	.endp
 
 starter_end
 	.endp				;End of starter
