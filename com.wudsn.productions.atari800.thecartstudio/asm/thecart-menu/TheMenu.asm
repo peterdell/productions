@@ -623,8 +623,6 @@ search_loop
 	lda (p1),y
 	and #$80
 	sta search_genre_favorite_flag
-	ora #$01
-	sta $1404
 
 ;	Compute number of entries that will fit into the found_entries
 ;	The end of the physical ram is store in memtop.
