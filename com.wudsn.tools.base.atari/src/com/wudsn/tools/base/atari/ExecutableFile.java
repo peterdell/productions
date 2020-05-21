@@ -56,7 +56,7 @@ public final class ExecutableFile {
 	    } else {
 		return false; // Too short, no header
 	    }
-	    if (i + 5 < data.length) {
+	    if (i + 4 < data.length) {
 
 		int startAddress = (data[i] & 0xff) + 256
 			* (data[i + 1] & 0xff);

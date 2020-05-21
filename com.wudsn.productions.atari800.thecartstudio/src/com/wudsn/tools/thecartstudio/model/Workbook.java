@@ -690,7 +690,7 @@ public final class Workbook {
 	    }
 	}
 
-	// Detect ATR files.
+	// Detect non-ROM files.
 	if (AtrFile.isHeader(content)) {
 	    entry.setContentType(ContentType.FILE_ATR);
 	} else if (ExecutableFile.isHeader(content, 0)) {
@@ -698,8 +698,6 @@ public final class Workbook {
 	} else if (SAPFile.isHeader(content)) {
 	    entry.setContentType(ContentType.FILE_SAP);
 	}
-
-	// TODO: Detect XEX and SAP files
 
 	// Special defaults for modules with known menus.
 	List<ContentType> contentTypes;
