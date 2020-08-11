@@ -157,7 +157,7 @@ public final class WorkbookEntry implements Comparable<WorkbookEntry> {
 		 *         non-negative integer in hex notation, <code>false</code>
 		 *         otherwise.
 		 */
-		private boolean isInteger(String value) {
+		private static boolean isInteger(String value) {
 			if (value == null) {
 				throw new IllegalArgumentException(
 						"Parameter 'value' must not be null.");

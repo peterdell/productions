@@ -58,7 +58,7 @@ public final class MaxflashMenu extends ImportableMenu {
 	 *            The ROM content,not <code>null</code>.
 	 * @return The index where the menu entries start or <code>-1</code>.
 	 */
-	private int getMenuEntryIndex(byte[] content) {
+	private static int getMenuEntryIndex(byte[] content) {
 		if (content == null) {
 			throw new IllegalArgumentException(
 					"Parameter 'content' must not be null.");

@@ -157,7 +157,7 @@ public final class AtrFileMenu extends ImportableMenu {
 		return result;
 	}
 
-	private void addPatchedSectors(AtrFile atrFile, List<Integer> usedSectors,
+	private static void addPatchedSectors(AtrFile atrFile, List<Integer> usedSectors,
 			List<PatchRange> patchRanges) {
 		if (atrFile == null) {
 			throw new IllegalArgumentException(
