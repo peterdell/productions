@@ -26,7 +26,6 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import com.wudsn.tools.base.repository.ValueSet;
-import com.wudsn.tools.base.atari.ValueSets;
 
 /**
  * Value set representing all known content types, including all cartridge

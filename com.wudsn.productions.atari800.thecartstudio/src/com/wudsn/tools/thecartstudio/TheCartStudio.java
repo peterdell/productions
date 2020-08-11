@@ -129,6 +129,7 @@ import com.wudsn.tools.thecartstudio.ui.WorkbookOptionsDialog;
  * 
  * Achja: Das CartMenu verwendet die EEPROM Adressen ab $F0, der Rest darunter
  * ist frei.<br/>
+ * TODO: Have Google like filter in tables (esp. for entries)
  * 
  * @author Peter Dell
  */
