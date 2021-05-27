@@ -1,5 +1,0 @@
-The original main icons are in .ico and .png format and contain transparency.
-The ".icns" file was created using https://cloudconvert.com/png-to-icns.
-The main-48x48.png file is used as application icon in TheCartStudio.java.
-The main-48x48.ico file is used as application icon in TheCartStudio.launch4j.xml.
-The main-48x48.icns file is used as application icon in TheCartStudio-Makefile.ant.
