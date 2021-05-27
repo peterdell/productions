@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <launchConfiguration type="org.eclipse.jdt.launching.localJavaApplication">
-<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
-<listEntry value="/com.wudsn.productions.atari800.atariromchecker/src/com/wudsn/productions/atari800/atariromchecker/AtariROMChecker.java"/>
-</listAttribute>
-<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
-<listEntry value="1"/>
-</listAttribute>
-<stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="com.wudsn.productions.atari800.atariromchecker.AtariROMChecker"/>
-<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="&quot;C:\jac\system\Atari800\Programming\AtariRoms&quot;"/>
-<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="com.wudsn.productions.atari800.atariromchecker"/>
-<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Duser.language=en"/>
+    <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
+        <listEntry value="/com.wudsn.productions.atari800.atariromchecker/src/com/wudsn/productions/atari800/atariromchecker/AtariROMChecker.java"/>
+    </listAttribute>
+    <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
+        <listEntry value="1"/>
+    </listAttribute>
+    <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="com.wudsn.productions.atari800.atariromchecker.AtariROMChecker"/>
+    <stringAttribute key="org.eclipse.jdt.launching.MODULE_NAME" value="com.wudsn.productions.atari800.atariromchecker"/>
+    <stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="&quot;C:\jac\system\Atari800\Programming\AtariRoms&quot;"/>
+    <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="com.wudsn.productions.atari800.atariromchecker"/>
+    <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Duser.language=en"/>
 </launchConfiguration>

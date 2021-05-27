@@ -65,8 +65,8 @@ public final class ROMVersionWriter {
 	List<CartridgeDatabaseEntry> cartridgeDatabaseEntries = cartridgeDatabase
 		.getEntries();
 	for (CartridgeDatabaseEntry cartridgeDatabaseEntry : cartridgeDatabaseEntries) {
-	    romVersions.add(ROMVersionFactory
-		    .createCartridgeDatabaseEntryROMVersion(
+	    romVersions.add(
+		    ROMVersionFactory.createCartridgeDatabaseEntryROMVersion(
 			    cartridgeDatabaseEntry, ""));
 	}
 
@@ -85,17 +85,18 @@ public final class ROMVersionWriter {
 
 	for (ROMVersion romVersion : romVersions) {
 	    writer.beginTableRow();
-	    writer.writeTableCell(TextUtility.formatAsMemorySize(romVersion
-		    .getFileSize()));
+	    writer.writeTableCell(
+		    TextUtility.formatAsMemorySize(romVersion.getFileSize()));
 	    writer.writeTableCell(romVersion.getCRC32());
 	    writer.writeTableCell(romVersion.getMD5());
 	    writer.writeTableCell(romVersion.getType());
 	    writer.writeTableCell(romVersion.getId());
-	    writer.writeTableCell(romVersion.getRevision());
+	    writer.writeTableCell(romVersion.getPublisher());
 	    writer.writeTableCell(romVersion.getDate());
+	    writer.writeTableCell(romVersion.getRevision());
 	    writer.writeTableCell(romVersion.getNorm());
-	    writer.writeTableCell(romVersion.getComment());
 	    writer.writeTableCell(romVersion.getParts());
+	    writer.writeTableCell(romVersion.getComment());
 	    writer.end();
 	}
 	writer.end();
@@ -103,7 +104,8 @@ public final class ROMVersionWriter {
 
     }
 
-    private static void writerTableHeader(HTMLWriter writer, Attribute attribute) {
+    private static void writerTableHeader(HTMLWriter writer,
+	    Attribute attribute) {
 	if (writer == null) {
 	    throw new IllegalArgumentException(
 		    "Parameter 'writer' must not be null.");
@@ -112,8 +114,8 @@ public final class ROMVersionWriter {
 	    throw new IllegalArgumentException(
 		    "Parameter 'attribute' must not be null.");
 	}
-	writer.writeTableHeader(attribute.getDataType()
-		.getLabelWithoutMnemonics());
+	writer.writeTableHeader(
+		attribute.getDataType().getLabelWithoutMnemonics());
 
     }
 }

@@ -27,7 +27,7 @@ File Size;MD5;CRC32;Type;Id;Publisher;Year;Month;Day;Revision;Norm;Parts;Comment
 32768;0x42CBD989802C17D0AC3731D33270D835;0xD50260D1;Atari OS;n/a;Atari;1987;5;7;REV. 4;PAL/NTSC;C101687;Production ROM, OS from Atari XEGS with Atari BASIC REV. C and Missle Command in single 32k ROM;
 4096;0xA46EDA0A250293807C1D2659DFD708BA;0x29F64E17;Atari OS;n/a;Atari;1979;Unknown;Unknown;OS-A;NTSC;C012499A;Production ROM, OS (low part) from early NTSC Atari 400/800;
 4096;0xB9FB42E37114BF183E33C8CC878100AF;0xBC533F0C;Atari OS;n/a;Atari;1979;Unknown;Unknown;OS-A;NTSC;C014599A;Production ROM, OS (high part) from early NTSC Atari 400/800;
-2048;0xC8D7C68889E673BCDAA142C254F3B1DC;0x6A5D766E;Atari OS;n/a;Atari;1979;Unknown;Unknown;FPP;n/a;C012399B;Production ROM, Floating Point Package for all 8-bit Ataris;
+2048;0xC8D7C68889E673BCDAA142C254F3B1DC;0x6A5D766E;Atari OS;n/a;Atari;1979;Unknown;Unknown;FPP;n/a;C012399B;Production ROM, Floating-Point Package for all 8-bit Ataris;
 4096;0x2FA859481CA3326390926EA530AB2A4E;0x8E547F56;Atari OS;n/a;Atari;1979;Unknown;Unknown;OS-A;PAL;C015199;Production ROM, OS (low part) from PAL Atari 400/800;
 4096;0xBEE2298491120EB41DA8DCA4C0060447;0xBE55B413;Atari OS;n/a;Atari;1979;Unknown;Unknown;OS-A;PAL;C015299;Production ROM, OS (high part) from PAL Atari 400/800;
 4096;0x2DDB91A764CF7A5C6756A95BFAAC1A7D;0xD818F3E8;Atari OS;n/a;Atari;1981;Unknown;Unknown;OS-B;NTSC;C012499B;Production ROM, OS (low part) from late NTSC Atari 400/800, LINBUG version with incorrect checksums;

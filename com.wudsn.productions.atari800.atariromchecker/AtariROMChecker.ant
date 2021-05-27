@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project default="create_run_jar" name="Create Runnable .jar for Project atariromchecker">
+<project default="create_run_jar" name="Create Runnable .jar for Project atariromchecker" basedir = ".">
 	<!--ANT 1.7 is required                                        -->
 	<target name="create_run_jar">
 
@@ -8,7 +8,7 @@
 		<property name="project.name" value="Atari ROM Checker" />
 		<property name="project.filename" value="AtariROMChecker" />
 		<property name="project.filename.lowercase" value="atariromchecker" />
-		<property name="project.copyright" value="(c) 2015-2018 Peter Dell" />
+		<property name="project.copyright" value="(c) 2015-2021 Peter Dell" />
 		<property name="productions.folder" value="C:\jac\system\WWW\Sites\www.wudsn.com\productions" />
 
 		<!-- Start build -->
@@ -19,6 +19,7 @@
 		<!-- Remove unwanted files -->
 		<delete dir="tst/out" />
 		<mkdir dir="tst/out" />
+		<property name="wudsn.base.folder" value="C:\jac\system\Java\Programming\Repositories\WUDSN-Base"/>
 
 		<!-- Create .version file in bin folder -->
 		<property name="project.version.file" value="bin\com\wudsn\productions\${project.platform}\${project.filename.lowercase}\${project.filename}.version" />
@@ -30,15 +31,16 @@
 		<!-- Create JAR file -->
 		<property name="project.jarfile" value="tst/out/${project.filename}.jar" />
 		<jar destfile="${project.jarfile}" filesetmanifest="mergewithoutmain">
-			<fileset dir="../com.wudsn.tools.base/bin" />
-			<fileset dir="../com.wudsn.tools.base.atari/bin" />
-			<fileset dir="../com.wudsn.tools.base.atari.cartridge/bin" />
+			<fileset dir="${wudsn.base.folder}/com.wudsn.tools.base/bin" />
+			<fileset dir="${wudsn.base.folder}/com.wudsn.tools.base.atari/bin" />
+			<fileset dir="${wudsn.base.folder}/com.wudsn.tools.base.atari.cartridge/bin" />
 		    <fileset dir="bin" />
 		</jar>
 
 		<!-- Copy the ZIP code and source from Eclipse workspace to productions folder -->
 		<copy todir="tst/out" overwrite="true">
 			<fileset file="build/AtariROMDumper.atr" />
+			<fileset file="build/AtariROMPatcher.atr" />
 		</copy>
 
 		<!-- ZIP code and source from Eclipse workspace to productions folder -->
@@ -46,9 +48,9 @@
 			<fileset dir="tst/out" />
 		</zip>
 		<zip destfile="${productions.project.file}-source.zip">
-			<fileset dir="../com.wudsn.tools.base" excludes="bin/**" />
-			<fileset dir="../com.wudsn.tools.base.atari" excludes="bin/**" />
-			<fileset dir="../com.wudsn.tools.base.atari.cartridge" excludes="bin/**" />
+			<fileset dir="${wudsn.base.folder}/com.wudsn.tools.base" excludes="bin/**" />
+			<fileset dir="${wudsn.base.folder}/com.wudsn.tools.base.atari" excludes="bin/**" />
+			<fileset dir="${wudsn.base.folder}/com.wudsn.tools.base.atari.cartridge" excludes="bin/**" />
 		    <fileset dir="../com.wudsn.productions.${project.platform}.${project.filename.lowercase}" excludes="bin/**, tst/**" />
 		</zip>
 
@@ -67,13 +69,14 @@
 
 
 		<!-- Merge version from .romVersions file into help file -->
+		<property name="romVersionsFile" location="tst/out/AtariROMWriter.romVersions"/>
 		<java classname="com.wudsn.productions.atari800.atariromchecker.model.ROMVersionWriter">
-			<arg value="tst/out/AtariROMWriter.romVersions" />
+			<arg value="${romVersionsFile}" />
 			<classpath>
 				<pathelement path="tst/out/AtariROMChecker.jar" />
 			</classpath>
 		</java>
-		<loadfile property="romVersions" srcFile="tst/out/AtariROMWriter.romVersions" />
+		<loadfile property="romVersions" srcFile="${romVersionsFile}" />
 		<replace file="${productions.help.file}">
 			<replacefilter token="$${romVersions}" value="${romVersions}" />
 		</replace>
