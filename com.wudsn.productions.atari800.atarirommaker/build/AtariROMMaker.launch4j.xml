@@ -3,17 +3,17 @@
   <dontWrapJar>true</dontWrapJar>
   <headerType>gui</headerType>
   <jar>.\AtariROMMaker.jar</jar>
-  <outfile>C:\jac\system\Java\Programming\Workspaces\Productions\com.wudsn.productions.atari800.atarirommaker\tst\out\AtariROMMaker.exe</outfile>
+  <outfile>C:\jac\system\Java\Programming\Repositories\Productions\com.wudsn.productions.atari800.atarirommaker\tst\out\AtariROMMaker.exe</outfile>
   <errTitle></errTitle>
   <cmdLine></cmdLine>
   <chdir></chdir>
   <priority>normal</priority>
   <downloadUrl>http://java.com/download</downloadUrl>
-  <supportUrl>http://www.wudsn.com/index.php/productions-atari800/tools/atarirommaker</supportUrl>
+  <supportUrl>https://www.wudsn.com/index.php/productions-atari800/tools/atarirommaker</supportUrl>
   <stayAlive>false</stayAlive>
   <restartOnCrash>false</restartOnCrash>
   <manifest></manifest>
-  <icon>C:\jac\system\Java\Programming\Workspaces\Productions\com.wudsn.productions.atari800.atarirommaker\src\icons\main-16x16.ico</icon>
+  <icon>C:\jac\system\Java\Programming\Repositories\Productions\com.wudsn.productions.atari800.atarirommaker\src\icons\main-16x16.ico</icon>
   <jre>
     <path></path>
     <bundledJre64Bit>false</bundledJre64Bit>
