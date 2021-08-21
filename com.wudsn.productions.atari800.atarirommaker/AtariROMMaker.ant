@@ -29,18 +29,19 @@
 
 		<!-- Create JAR file -->
 		<property name="project.jarfile" value="tst/out/${project.filename}.jar" />
-		<jar destfile="${project.jarfile}" filesetmanifest="mergewithoutmain">
-			<fileset dir="../com.wudsn.tools.base/bin" />
-			<fileset dir="../com.wudsn.tools.base.atari/bin" />
+		<jar destfile="${project.jarfile}" filesetmanifest="merge">
+			<fileset dir="../../WUDSN-Base/com.wudsn.tools.base/bin" />
+			<fileset dir="../../WUDSN-Base/com.wudsn.tools.base.atari/bin" />
 			<fileset dir="bin" />
 		</jar>
 
 		<!-- Create Mac OS X app folder -->
 		<!-- The ".icns" file was created using https://cloudconvert.com/png-to-icns -->
+		<!-- TODO: DISABLED until new script works
 		<jarbundler dir="tst/out" name="${project.filename}" copyright="${project.copyright}" mainclass="com.wudsn.tools.${project.filename.lowercase}.${project.filename}" jar="${project.jarfile}" jvmversion="1.6+" vmoptions="-Xms256M -Xmx1024M" shortname="${project.name}" build="$${version}" icon="src/icons/main-16x16.icns" />
 		<copy todir="tst/out/${project.filename}.app/Contents/MacOS" overwrite="true">
 			<fileset file="build/JavaApplicationStub" />
-		</copy>
+		</copy> -->
 
 		<!-- Create Windows executable -->
 		<exec executable="C:\jac\system\Java\Tools\RUN\launch4j\launch4jc.exe">
@@ -57,7 +58,8 @@
 			<fileset dir="tst/out" />
 		</zip>
 		<zip destfile="${productions.project.file}-source.zip">
-			<fileset dir="../com.wudsn.tools.base" excludes="bin/**" />
+			<fileset dir="../../WUDSN-Base/com.wudsn.tools.base" excludes="bin/**" />
+			<fileset dir="../../WUDSN-Base/com.wudsn.tools.base.atari" excludes="bin/**" />
 			<fileset dir="../com.wudsn.productions.${project.platform}.${project.filename.lowercase}" excludes="bin/**, tst/**" />
 		</zip>
 
