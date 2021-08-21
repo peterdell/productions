@@ -69,285 +69,269 @@ import com.wudsn.tools.base.gui.UIManager;
 
 public final class AtariROMChecker implements ActionListener, Listener {
 
-    public final class Commands {
-	public static final String EXIT = "exit";
-	public static final String SHOW_ENTRY = "showEntry";
-	public static final String COMPARE_ENTRIES = "compareEntries";
-	public static final String HELP_CONTENTS = "helpContents";
-    }
-
-    // Static instance
-    static AtariROMChecker instance;
-
-    // Message queue
-    private MessageQueue messageQueue;
-
-    // AttributeTablePreferences
-    private Preferences preferences;
-
-    private WorkbookLogic workbookLogic;
-    private Workbook workbook;
-
-    private JFrame mainWindowFrame;
-    private MainMenu mainMenu;
-    private WorkbookEntriesPanel entriesPanel;
-    private StatusBar statusBar;
-
-    // Dialogs
-    private HelpDialog helpDialog;
-
-    @SuppressWarnings("unused")
-    private FileDrop fileDrop;
-
-    public static void main(final String[] args) {
-	if (args == null) {
-	    throw new IllegalArgumentException(
-		    "Parameter 'args' must not be null.");
+	public final class Commands {
+		public static final String EXIT = "exit";
+		public static final String SHOW_ENTRY = "showEntry";
+		public static final String COMPARE_ENTRIES = "compareEntries";
+		public static final String HELP_CONTENTS = "helpContents";
 	}
 
-	// Use the event dispatch thread for Swing components
-	EventQueue.invokeLater(new Runnable() {
+	// Static instance
+	static AtariROMChecker instance;
 
-	    @Override
-	    public void run() {
+	// Message queue
+	private MessageQueue messageQueue;
 
-		Application
-			.createInstance(
-				"http://www.wudsn.com/productions/atari800/atariromchecker/atariromchecker.zip",
-				"AtariROMChecker.jar",
-				"com/wudsn/tools/atariromchecker/AtariROMChecker.version");
-		instance = new AtariROMChecker();
-		instance.run(args);
-	    }
-	});
-    }
+	// AttributeTablePreferences
+	private Preferences preferences;
 
-    AtariROMChecker() {
-    }
+	private WorkbookLogic workbookLogic;
+	private Workbook workbook;
 
-    void run(String[] args) {
-	if (args == null) {
-	    throw new IllegalArgumentException(
-		    "Parameter 'args' must not be null.");
-	}
+	private JFrame mainWindowFrame;
+	private MainMenu mainMenu;
+	private WorkbookEntriesPanel entriesPanel;
+	private StatusBar statusBar;
 
-	UIManager.init();
+	// Dialogs
+	private HelpDialog helpDialog;
 
-	messageQueue = new MessageQueue();
-	preferences = new Preferences();
+	@SuppressWarnings("unused")
+	private FileDrop fileDrop;
 
-	ROMVersionDatabase romVersionDatabase = new ROMVersionDatabase();
-	romVersionDatabase.load();
-
-	CartridgeDatabase cartridgeDatabase = new CartridgeDatabase();
-	cartridgeDatabase.load();
-
-	workbookLogic = new WorkbookLogic(romVersionDatabase, cartridgeDatabase);
-	workbook = new Workbook();
-
-	createUI();
-
-	// INFO: Welcome to the Atari ROM Checker Version {0} by JAC!. Drop your
-	// folders or files on the window.
-	messageQueue.sendMessage(null, null, Messages.I100, Application
-		.getInstance().getLocalVersion());
-	dataToUI();
-
-	List<File> filesList = new ArrayList<File>();
-	for (String arg : args) {
-	    filesList.add(new File(arg));
-	}
-	if (!filesList.isEmpty()) {
-	    performFilesDropped(filesList);
-	}
-    }
-
-    private void createUI() {
-	mainWindowFrame = new JFrame(Texts.MainWindow_Title);
-	mainWindowFrame.setSize(800, 600);
-	mainWindowFrame.setLocationRelativeTo(null);
-
-	mainWindowFrame
-		.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
-	mainWindowFrame.addWindowListener(new WindowAdapter() {
-	    @Override
-	    public void windowClosing(WindowEvent e) {
-		actionPerformed(new ActionEvent(this, 0, Commands.EXIT));
-	    }
-	});
-
-	mainWindowFrame.setLayout(new BorderLayout());
-
-	mainMenu = new MainMenu(this, preferences);
-	mainWindowFrame.add(mainMenu.menuBar, BorderLayout.NORTH);
-	entriesPanel = new WorkbookEntriesPanel(preferences, workbook);
-	mainWindowFrame.add(entriesPanel, BorderLayout.CENTER);
-	entriesPanel.getTable().addMouseListener(new MouseAdapter() {
-	    @Override
-	    public void mousePressed(MouseEvent mouseEvent) {
-		JTable table = (JTable) mouseEvent.getSource();
-		if (mouseEvent.getClickCount() == 2
-			&& table.getSelectedRow() != -1) {
-		    performShowEntry();
+	public static void main(final String[] args) {
+		if (args == null) {
+			throw new IllegalArgumentException("Parameter 'args' must not be null.");
 		}
-	    }
-	});
-	statusBar = new StatusBar();
-	messageQueue.setMessageQueueRenderer(statusBar);
-	mainWindowFrame.add(statusBar.getComponent(), BorderLayout.SOUTH);
 
-	mainWindowFrame.setVisible(true);
-	fileDrop = new FileDrop(mainWindowFrame, true, this);
-    }
-
-    public void dataFromUI() {
-
-    }
-
-    public void dataToUI() {
-	entriesPanel.dataToUI();
-	statusBar.displayMessageQueue(messageQueue);
-    }
-
-    public void performFilesDropped(List<File> filesList) {
-	if (filesList == null) {
-	    throw new IllegalArgumentException(
-		    "Parameter 'filesList' must not be null.");
-	}
-	dataFromUI();
-	messageQueue.clear();
-	try {
-	    workbookLogic.checkFiles(workbook, filesList);
-	    // INFO: {0} files found and analyzed.
-	    messageQueue.sendMessage(null, null, Messages.I102, TextUtility
-		    .formatAsDecimal(workbook.getResolvedFilesCount()));
-
-	} catch (RuntimeException ex) {
-	    // ERROR: Exception occurred: {0}
-	    messageQueue
-		    .sendMessage(null, null, Messages.E101, ex.getMessage());
-	    Log.logError("Exception while checking files.", null, ex);
-	}
-	dataToUI();
-    }
-
-    @Override
-    public boolean isDropAllowed() {
-	return true;
-    }
-
-    @Override
-    public void filesDropped(File[] files) {
-	if (files == null) {
-	    throw new IllegalArgumentException(
-		    "Parameter 'files' must not be null.");
-	}
-	performFilesDropped(Arrays.asList(files));
-    }
-
-    @Override
-    public void actionPerformed(ActionEvent actionEvent) {
-	if (actionEvent == null) {
-	    throw new IllegalArgumentException(
-		    "Parameter 'actionEvent' must not be null.");
-	}
-	dataFromUI();
-
-	String command = actionEvent.getActionCommand();
-	messageQueue.clear();
-	statusBar.displayMessageQueue(messageQueue);
-
-	if (command.equals(Commands.EXIT)) {
-	    performExit();
-	} else if (command.equals(Commands.SHOW_ENTRY)
-		&& mainMenu.showEntryMenuItem.isEnabled()) {
-	    performShowEntry();
-	} else if (command.equals(Commands.COMPARE_ENTRIES)
-		&& mainMenu.compareEntriesMenuItem.isEnabled()) {
-	    performCompareEntries();
-	} else if (command.equals(Commands.HELP_CONTENTS)) {
-	    performHelpDialog();
-	}
-	dataToUI();
-    }
-
-    @SuppressWarnings("static-method")
-    private void performExit() {
-	System.exit(0);
-	return;
-    }
-
-    private void performHelpDialog() {
-	if (helpDialog == null) {
-	    final String path = "help/AtariROMChecker.html";
-	    helpDialog = new HelpDialog(mainWindowFrame, path, 640, 320,
-		    new ResourceModifier() {
+		// Use the event dispatch thread for Swing components
+		EventQueue.invokeLater(new Runnable() {
 
 			@Override
-			public byte[] modifyResource(URL url, byte[] data) {
-			    if (url.getPath().endsWith(path)) {
-				try {
-				    final String charset = "UTF-8";
-				    String content = new String(data, charset);
-				    String html = ROMVersionWriter.getHTML();
-				    content = content.replace("${romVersions}",
-					    html);
-				    data = content.getBytes(charset);
-				} catch (UnsupportedEncodingException ex) {
-				    data = ex.getMessage().getBytes();
-				}
-			    }
-			    return data;
+			public void run() {
+
+				Application.createInstance(
+						"https://www.wudsn.com/productions/atari800/atariromchecker/atariromchecker.zip",
+						"AtariROMChecker.jar", AtariROMChecker.class);
+				instance = new AtariROMChecker();
+				instance.run(args);
 			}
-		    });
+		});
 	}
 
-	helpDialog.show();
-    }
-
-    private int[] getSelectedRowIndexes() {
-	AttributeTable entriesTable = entriesPanel.getTable();
-	int[] selectedViewRowIndexes = entriesTable.getSelectedRows();
-	int[] selectedModelRowIndexes = new int[selectedViewRowIndexes.length];
-	for (int i = 0; i < selectedViewRowIndexes.length; i++) {
-	    selectedModelRowIndexes[i] = entriesTable
-		    .convertRowIndexToModel(selectedViewRowIndexes[i]);
-	}
-	return selectedModelRowIndexes;
-    }
-
-    private List<WorkbookEntry> getSelectedWorkbookEntries() {
-	int[] selectedModelRowIndexes = getSelectedRowIndexes();
-	List<WorkbookEntry> entries = workbook.getUnmodifiableEntriesList();
-	List<WorkbookEntry> selectedEntries = new ArrayList<WorkbookEntry>();
-	for (int i = 0; i < selectedModelRowIndexes.length; i++) {
-	    selectedEntries.add(entries.get(selectedModelRowIndexes[i]));
-	}
-	return selectedEntries;
-    }
-
-    private void performShowEntry() {
-	int[] selectedModelRowIndexes = getSelectedRowIndexes();
-	if (selectedModelRowIndexes.length == 1) {
-	    int selectedRow = selectedModelRowIndexes[0];
-	    WorkbookEntryDialog dialog = new WorkbookEntryDialog(
-		    mainWindowFrame, entriesPanel, selectedRow);
-	    dialog.showModal(messageQueue);
-	} else {
-	    // ERROR: Select exactly only entry.
-	    messageQueue.sendMessage(null, null, Messages.E106);
-	}
-    }
-
-    private void performCompareEntries() {
-	List<WorkbookEntry> selectedEntries = getSelectedWorkbookEntries();
-	Comparison comparison = workbookLogic.compareEntries(workbook,
-		selectedEntries, messageQueue);
-	if (comparison != null) {
-	    ComparisonDialog dialog = new ComparisonDialog(mainWindowFrame,
-		    preferences, comparison);
-	    dialog.showModal(messageQueue);
+	AtariROMChecker() {
 	}
 
-    }
+	void run(String[] args) {
+		if (args == null) {
+			throw new IllegalArgumentException("Parameter 'args' must not be null.");
+		}
+
+		UIManager.init();
+
+		messageQueue = new MessageQueue();
+		preferences = new Preferences();
+
+		ROMVersionDatabase romVersionDatabase = new ROMVersionDatabase();
+		romVersionDatabase.load();
+
+		CartridgeDatabase cartridgeDatabase = new CartridgeDatabase();
+		cartridgeDatabase.load();
+
+		workbookLogic = new WorkbookLogic(romVersionDatabase, cartridgeDatabase);
+		workbook = new Workbook();
+
+		createUI();
+
+		// INFO: Welcome to the Atari ROM Checker Version {0} by JAC!. Drop your
+		// folders or files on the window.
+		messageQueue.sendMessage(null, null, Messages.I100, Application.getInstance().getLocalVersion());
+		dataToUI();
+
+		List<File> filesList = new ArrayList<File>();
+		for (String arg : args) {
+			filesList.add(new File(arg));
+		}
+		if (!filesList.isEmpty()) {
+			performFilesDropped(filesList);
+		}
+	}
+
+	private void createUI() {
+		mainWindowFrame = new JFrame(Texts.MainWindow_Title);
+		mainWindowFrame.setSize(800, 600);
+		mainWindowFrame.setLocationRelativeTo(null);
+
+		mainWindowFrame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+		mainWindowFrame.addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				actionPerformed(new ActionEvent(this, 0, Commands.EXIT));
+			}
+		});
+
+		mainWindowFrame.setLayout(new BorderLayout());
+
+		mainMenu = new MainMenu(this, preferences);
+		mainWindowFrame.add(mainMenu.menuBar, BorderLayout.NORTH);
+		entriesPanel = new WorkbookEntriesPanel(preferences, workbook);
+		mainWindowFrame.add(entriesPanel, BorderLayout.CENTER);
+		entriesPanel.getTable().addMouseListener(new MouseAdapter() {
+			@Override
+			public void mousePressed(MouseEvent mouseEvent) {
+				JTable table = (JTable) mouseEvent.getSource();
+				if (mouseEvent.getClickCount() == 2 && table.getSelectedRow() != -1) {
+					performShowEntry();
+				}
+			}
+		});
+		statusBar = new StatusBar();
+		messageQueue.setMessageQueueRenderer(statusBar);
+		mainWindowFrame.add(statusBar.getComponent(), BorderLayout.SOUTH);
+
+		mainWindowFrame.setVisible(true);
+		fileDrop = new FileDrop(mainWindowFrame, true, this);
+	}
+
+	public void dataFromUI() {
+
+	}
+
+	public void dataToUI() {
+		entriesPanel.dataToUI();
+		statusBar.displayMessageQueue(messageQueue);
+	}
+
+	public void performFilesDropped(List<File> filesList) {
+		if (filesList == null) {
+			throw new IllegalArgumentException("Parameter 'filesList' must not be null.");
+		}
+		dataFromUI();
+		messageQueue.clear();
+		try {
+			workbookLogic.checkFiles(workbook, filesList);
+			// INFO: {0} files found and analyzed.
+			messageQueue.sendMessage(null, null, Messages.I102,
+					TextUtility.formatAsDecimal(workbook.getResolvedFilesCount()));
+
+		} catch (RuntimeException ex) {
+			// ERROR: Exception occurred: {0}
+			messageQueue.sendMessage(null, null, Messages.E101, ex.getMessage());
+			Log.logError("Exception while checking files.", null, ex);
+		}
+		dataToUI();
+	}
+
+	@Override
+	public boolean isDropAllowed() {
+		return true;
+	}
+
+	@Override
+	public void filesDropped(File[] files) {
+		if (files == null) {
+			throw new IllegalArgumentException("Parameter 'files' must not be null.");
+		}
+		performFilesDropped(Arrays.asList(files));
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent actionEvent) {
+		if (actionEvent == null) {
+			throw new IllegalArgumentException("Parameter 'actionEvent' must not be null.");
+		}
+		dataFromUI();
+
+		String command = actionEvent.getActionCommand();
+		messageQueue.clear();
+		statusBar.displayMessageQueue(messageQueue);
+
+		if (command.equals(Commands.EXIT)) {
+			performExit();
+		} else if (command.equals(Commands.SHOW_ENTRY) && mainMenu.showEntryMenuItem.isEnabled()) {
+			performShowEntry();
+		} else if (command.equals(Commands.COMPARE_ENTRIES) && mainMenu.compareEntriesMenuItem.isEnabled()) {
+			performCompareEntries();
+		} else if (command.equals(Commands.HELP_CONTENTS)) {
+			performHelpDialog();
+		}
+		dataToUI();
+	}
+
+	@SuppressWarnings("static-method")
+	private void performExit() {
+		System.exit(0);
+		return;
+	}
+
+	private void performHelpDialog() {
+		if (helpDialog == null) {
+			final String path = "help/AtariROMChecker.html";
+			List<ResourceModifier> resourceModifierList = new ArrayList<ResourceModifier>(1);
+			resourceModifierList.add(new ResourceModifier() {
+
+				@Override
+				public byte[] modifyResource(URL url, byte[] data) {
+					if (url.getPath().endsWith(path)) {
+						try {
+							final String charset = "UTF-8";
+							String content = new String(data, charset);
+							String html = ROMVersionWriter.getHTML();
+							content = content.replace("${romVersions}", html);
+							data = content.getBytes(charset);
+						} catch (UnsupportedEncodingException ex) {
+							data = ex.getMessage().getBytes();
+						}
+					}
+					return data;
+				}
+			});
+			helpDialog = new HelpDialog(mainWindowFrame, path, 640, 320, resourceModifierList);
+
+		}
+
+		helpDialog.show();
+	}
+
+	private int[] getSelectedRowIndexes() {
+		AttributeTable entriesTable = entriesPanel.getTable();
+		int[] selectedViewRowIndexes = entriesTable.getSelectedRows();
+		int[] selectedModelRowIndexes = new int[selectedViewRowIndexes.length];
+		for (int i = 0; i < selectedViewRowIndexes.length; i++) {
+			selectedModelRowIndexes[i] = entriesTable.convertRowIndexToModel(selectedViewRowIndexes[i]);
+		}
+		return selectedModelRowIndexes;
+	}
+
+	private List<WorkbookEntry> getSelectedWorkbookEntries() {
+		int[] selectedModelRowIndexes = getSelectedRowIndexes();
+		List<WorkbookEntry> entries = workbook.getUnmodifiableEntriesList();
+		List<WorkbookEntry> selectedEntries = new ArrayList<WorkbookEntry>();
+		for (int i = 0; i < selectedModelRowIndexes.length; i++) {
+			selectedEntries.add(entries.get(selectedModelRowIndexes[i]));
+		}
+		return selectedEntries;
+	}
+
+	private void performShowEntry() {
+		int[] selectedModelRowIndexes = getSelectedRowIndexes();
+		if (selectedModelRowIndexes.length == 1) {
+			int selectedRow = selectedModelRowIndexes[0];
+			WorkbookEntryDialog dialog = new WorkbookEntryDialog(mainWindowFrame, entriesPanel, selectedRow);
+			dialog.showModal(messageQueue);
+		} else {
+			// ERROR: Select exactly only entry.
+			messageQueue.sendMessage(null, null, Messages.E106);
+		}
+	}
+
+	private void performCompareEntries() {
+		List<WorkbookEntry> selectedEntries = getSelectedWorkbookEntries();
+		Comparison comparison = workbookLogic.compareEntries(workbook, selectedEntries, messageQueue);
+		if (comparison != null) {
+			ComparisonDialog dialog = new ComparisonDialog(mainWindowFrame, preferences, comparison);
+			dialog.showModal(messageQueue);
+		}
+
+	}
 }

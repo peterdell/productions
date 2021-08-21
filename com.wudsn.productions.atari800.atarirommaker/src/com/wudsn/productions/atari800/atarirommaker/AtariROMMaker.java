@@ -61,294 +61,295 @@ import com.wudsn.tools.base.repository.Message;
 
 public final class AtariROMMaker implements FileDrop.Listener {
 
-    public final class Commands {
-	public static final String LOAD = "load";
-	public static final String CONVERT_TO_CAR = "convertToCAR";
-	public static final String CONVERT_TO_ROM = "convertToROM";
-	public static final String SAVE = "save";
-    }
-
-    // Constants
-    static final int FOLDER_MODE_UNDEFINED = 0;
-    static final int FOLDER_MODE_YES = 1;
-    static final int FOLDER_MODE_NO = 2;
-
-    // Static instance
-    static AtariROMMaker instance;
-
-    // Message queue
-    private MessageQueue messageQueue;
-    private ROM rom;
-
-    // UI
-    private MainWindow mainWindow;
-    private JFrame mainWindowFrame;
-    private JLabel logLabel;
-    private String logText;
-
-    // Main window: Drag & drop
-    @SuppressWarnings("unused")
-    private FileDrop fileDrop;
-
-    private boolean cancelled;
-
-    public static void main(final String[] args) {
-	if (args == null) {
-	    throw new IllegalArgumentException("Parameter 'args' must not be null.");
+	public final class Commands {
+		public static final String LOAD = "load";
+		public static final String CONVERT_TO_CAR = "convertToCAR";
+		public static final String CONVERT_TO_ROM = "convertToROM";
+		public static final String SAVE = "save";
 	}
 
-	// Use the event dispatch thread for Swing components
-	EventQueue.invokeLater(new Runnable() {
+	// Constants
+	static final int FOLDER_MODE_UNDEFINED = 0;
+	static final int FOLDER_MODE_YES = 1;
+	static final int FOLDER_MODE_NO = 2;
 
-	    @Override
-	    public void run() {
+	// Static instance
+	static AtariROMMaker instance;
 
-		Application.createInstance("http://www.wudsn.com/productions/atari800/atarirommaker/atarirommaker.zip",
-			"AtariROMMaker.jar", "com/wudsn/tools/atarirommaker/AtariROMMaker.version");
-		instance = new AtariROMMaker();
-		instance.run(args);
-	    }
-	});
-    }
+	// Message queue
+	private MessageQueue messageQueue;
+	private ROM rom;
 
-    AtariROMMaker() {
-    }
+	// UI
+	private MainWindow mainWindow;
+	private JFrame mainWindowFrame;
+	private JLabel logLabel;
+	private String logText;
 
-    void run(String[] args) {
-	if (args == null) {
-	    throw new IllegalArgumentException("Parameter 'args' must not be null.");
-	}
+	// Main window: Drag & drop
+	@SuppressWarnings("unused")
+	private FileDrop fileDrop;
 
-	messageQueue = new MessageQueue();
-	rom = new ROM();
+	private boolean cancelled;
 
-	// Handle command line.
-	AtariROMMakerConsole console = new AtariROMMakerConsole();
-	if (console.runConsoleCommands(args, false, rom, messageQueue)) {
-	    return;
-	}
-
-	// There was no command line, so start UI.
-	createUI();
-    }
-
-    private void createUI() {
-
-	mainWindow = new MainWindow();
-	mainWindowFrame = mainWindow.getFrame();
-
-	// Make sure the program exits when the frame is closed.
-	mainWindowFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-
-	mainWindowFrame.setTitle(TextUtility
-		.format(Texts.MainWindow_Title, Application.getInstance().getLocalVersion()));
-	ImageIcon imageIcon = ElementFactory.createImageIcon("icons/main-16x16.png");
-	mainWindowFrame.setIconImage(imageIcon.getImage());
-	mainWindowFrame.setLayout(new BorderLayout());
-
-	JPanel topPanel = new JPanel(new BorderLayout());
-	Border labelBorder = new EmptyBorder(0, 5, 5, 5);
-
-	String content = Texts.MainWindow_Text;
-	JLabel contentLabel = new JLabel(content);
-	contentLabel.setBorder(labelBorder);
-	topPanel.add(contentLabel, BorderLayout.NORTH);
-
-	String link = Texts.MainWindow_Link.replace("$url$", Texts.MainWindow_URL);
-	JLabel linkLabel = new JLabel(link);
-	linkLabel.setBorder(labelBorder);
-	linkLabel.addMouseListener(new MouseAdapter() {
-	    @Override
-	    public void mouseClicked(MouseEvent e) {
-		if (e.getClickCount() > 0) {
-		    Desktop.openBrowser(Texts.MainWindow_URL);
+	public static void main(final String[] args) {
+		if (args == null) {
+			throw new IllegalArgumentException("Parameter 'args' must not be null.");
 		}
-	    }
-	});
-	topPanel.add(linkLabel, BorderLayout.SOUTH);
 
-	mainWindowFrame.add(topPanel, BorderLayout.NORTH);
-	logLabel = new JLabel();
-	logLabel.setBorder(labelBorder);
-	logLabel.setVerticalAlignment(SwingConstants.TOP);
+		// Use the event dispatch thread for Swing components
+		EventQueue.invokeLater(new Runnable() {
 
-	mainWindowFrame.add(new JScrollPane(logLabel), BorderLayout.CENTER);
+			@Override
+			public void run() {
 
-	// Make main window visible and register global drag & drop.
-	mainWindowFrame.pack();
-	mainWindowFrame.setLocationRelativeTo(null);
-	mainWindowFrame.setVisible(true);
-
-	fileDrop = new FileDrop(mainWindowFrame, true, this);
-
-    }
-
-    @Override
-    public boolean isDropAllowed() {
-	return true;
-    }
-
-    @Override
-    public void filesDropped(File[] files) {
-	if (files == null) {
-	    throw new IllegalArgumentException("Parameter 'files' must not be null.");
-	}
-	clearLog();
-	cancelled = false;
-	convertToCAR(files, FOLDER_MODE_UNDEFINED);
-    }
-
-    private void convertToCAR(File[] files, int folderMode) {
-	if (files == null || files.length == 0) {
-	    return;
-	}
-	if (cancelled) {
-	    return;
-	}
-	for (int i = 0; i < files.length; i++) {
-	    convertToCAR(files[i], folderMode);
-	}
-    }
-
-    private void convertFolderToCAR(File sourceFolder, int folderMode) {
-	if (sourceFolder == null) {
-	    throw new IllegalArgumentException("Parameter 'sourceFolder' must not be null.");
+				Application.createInstance("https://www.wudsn.com/productions/atari800/atarirommaker/atarirommaker.zip",
+						"AtariROMMaker.jar", AtariROMMaker.class);
+				instance = new AtariROMMaker();
+				instance.run(args);
+			}
+		});
 	}
 
-	File[] files = sourceFolder.listFiles();
-	if (files == null) {
-	    files = new File[0];
+	AtariROMMaker() {
 	}
-	// INFO: Converting {0} sub-folders and files in '{1}'.
-	logInfo(Messages.I204, TextUtility.formatAsDecimal(files.length), sourceFolder.getAbsolutePath());
-	convertToCAR(files, folderMode);
 
-    }
+	void run(String[] args) {
+		if (args == null) {
+			throw new IllegalArgumentException("Parameter 'args' must not be null.");
+		}
 
-    private void convertToCAR(File sourceFile, int folderMode) {
-	if (sourceFile == null) {
-	    throw new IllegalArgumentException("Parameter 'sourceFile' must not be null.");
+		messageQueue = new MessageQueue();
+		rom = new ROM();
+
+		// Handle command line.
+		AtariROMMakerConsole console = new AtariROMMakerConsole();
+		if (console.runConsoleCommands(args, false, rom, messageQueue)) {
+			return;
+		}
+
+		// There was no command line, so start UI.
+		createUI();
 	}
-	if (cancelled) {
-	    return;
+
+	private void createUI() {
+
+		mainWindow = new MainWindow();
+		mainWindowFrame = mainWindow.getFrame();
+
+		// Make sure the program exits when the frame is closed.
+		mainWindowFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+
+		mainWindowFrame
+				.setTitle(TextUtility.format(Texts.MainWindow_Title, Application.getInstance().getLocalVersion()));
+		ImageIcon imageIcon = ElementFactory.createImageIcon("icons/main-16x16.png");
+		mainWindowFrame.setIconImage(imageIcon.getImage());
+		mainWindowFrame.setLayout(new BorderLayout());
+
+		JPanel topPanel = new JPanel(new BorderLayout());
+		Border labelBorder = new EmptyBorder(0, 5, 5, 5);
+
+		String content = Texts.MainWindow_Text;
+		JLabel contentLabel = new JLabel(content);
+		contentLabel.setBorder(labelBorder);
+		topPanel.add(contentLabel, BorderLayout.NORTH);
+
+		String link = Texts.MainWindow_Link.replace("$url$", Texts.MainWindow_URL);
+		JLabel linkLabel = new JLabel(link);
+		linkLabel.setBorder(labelBorder);
+		linkLabel.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				if (e.getClickCount() > 0) {
+					Desktop.openBrowser(Texts.MainWindow_URL);
+				}
+			}
+		});
+		topPanel.add(linkLabel, BorderLayout.SOUTH);
+
+		mainWindowFrame.add(topPanel, BorderLayout.NORTH);
+		logLabel = new JLabel();
+		logLabel.setBorder(labelBorder);
+		logLabel.setVerticalAlignment(SwingConstants.TOP);
+
+		mainWindowFrame.add(new JScrollPane(logLabel), BorderLayout.CENTER);
+
+		// Make main window visible and register global drag & drop.
+		mainWindowFrame.pack();
+		mainWindowFrame.setLocationRelativeTo(null);
+		mainWindowFrame.setVisible(true);
+
+		fileDrop = new FileDrop(mainWindowFrame, true, this);
+
 	}
-	if (sourceFile.isDirectory()) {
 
-	    switch (folderMode) {
+	@Override
+	public boolean isDropAllowed() {
+		return true;
+	}
 
-	    case FOLDER_MODE_UNDEFINED:
-		Action yesAction = com.wudsn.tools.base.Actions.ButtonBar_Yes;
-		Action noAction = com.wudsn.tools.base.Actions.ButtonBar_No;
-		Action result = StandardDialog.showConfirmation(mainWindowFrame,
-			TextUtility.format(Texts.FolderDialog_Title, sourceFile.getAbsolutePath()),
-			Texts.FolderDialog_Action, null, new Action[] { yesAction, noAction }, yesAction, noAction)[StandardDialog.BUTTON_ACTION];
-		if (result == yesAction) {
-		    folderMode = FOLDER_MODE_YES;
-		    convertFolderToCAR(sourceFile, FOLDER_MODE_YES);
+	@Override
+	public void filesDropped(File[] files) {
+		if (files == null) {
+			throw new IllegalArgumentException("Parameter 'files' must not be null.");
+		}
+		clearLog();
+		cancelled = false;
+		convertToCAR(files, FOLDER_MODE_UNDEFINED);
+	}
+
+	private void convertToCAR(File[] files, int folderMode) {
+		if (files == null || files.length == 0) {
+			return;
+		}
+		if (cancelled) {
+			return;
+		}
+		for (int i = 0; i < files.length; i++) {
+			convertToCAR(files[i], folderMode);
+		}
+	}
+
+	private void convertFolderToCAR(File sourceFolder, int folderMode) {
+		if (sourceFolder == null) {
+			throw new IllegalArgumentException("Parameter 'sourceFolder' must not be null.");
+		}
+
+		File[] files = sourceFolder.listFiles();
+		if (files == null) {
+			files = new File[0];
+		}
+		// INFO: Converting {0} sub-folders and files in '{1}'.
+		logInfo(Messages.I204, TextUtility.formatAsDecimal(files.length), sourceFolder.getAbsolutePath());
+		convertToCAR(files, folderMode);
+
+	}
+
+	private void convertToCAR(File sourceFile, int folderMode) {
+		if (sourceFile == null) {
+			throw new IllegalArgumentException("Parameter 'sourceFile' must not be null.");
+		}
+		if (cancelled) {
+			return;
+		}
+		if (sourceFile.isDirectory()) {
+
+			switch (folderMode) {
+
+			case FOLDER_MODE_UNDEFINED:
+				Action yesAction = com.wudsn.tools.base.Actions.ButtonBar_Yes;
+				Action noAction = com.wudsn.tools.base.Actions.ButtonBar_No;
+				Action result = StandardDialog.showConfirmation(mainWindowFrame,
+						TextUtility.format(Texts.FolderDialog_Title, sourceFile.getAbsolutePath()),
+						Texts.FolderDialog_Action, null, new Action[] { yesAction, noAction }, yesAction,
+						noAction)[StandardDialog.BUTTON_ACTION];
+				if (result == yesAction) {
+					folderMode = FOLDER_MODE_YES;
+					convertFolderToCAR(sourceFile, FOLDER_MODE_YES);
+				} else {
+					// INFO: Skipping folder {1}'.
+					logInfo(Messages.I205, sourceFile.getAbsolutePath());
+				}
+				return;
+
+			case FOLDER_MODE_YES:
+				convertFolderToCAR(sourceFile, folderMode);
+				return;
+
+			case FOLDER_MODE_NO:
+				return;
+			}
+		}
+
+		long fileSize = sourceFile.length();
+
+		// INFO: Opening ROM image file '{0}'.
+		logInfo(Messages.I200, sourceFile.getAbsolutePath());
+		messageQueue.clear();
+		rom.load(sourceFile, messageQueue);
+		if (messageQueue.containsError()) {
+			logError(messageQueue.getFirstError().getMessage());
+			return;
+		}
+
+		if (rom.isValidCAR()) {
+			// INFO: File is already a valid cartridge image file.
+			logInfo(Messages.I206);
+			return;
+		}
+		List<CartridgeTypeWrapper> possibleCartridgeTypes = new ArrayList<CartridgeTypeWrapper>();
+		for (CartridgeType cartridgeType : CartridgeType.getValues()) {
+			if (cartridgeType.getSizeInKB() * 1024 == fileSize) {
+				possibleCartridgeTypes.add(new CartridgeTypeWrapper(cartridgeType));
+			}
+		}
+		if (possibleCartridgeTypes.isEmpty()) {
+			// ERROR: ROM image file size of {0} does not match any supported
+			// cartridge type.
+			logError(Messages.E201, TextUtility.formatAsMemorySize(fileSize));
+			return;
+
+		}
+
+		CartridgeTypeWrapper cartridgeType;
+		if (possibleCartridgeTypes.size() == 1) {
+			cartridgeType = possibleCartridgeTypes.get(0);
 		} else {
-		    // INFO: Skipping folder {1}'.
-		    logInfo(Messages.I205, sourceFile.getAbsolutePath());
+
+			CartridgeTypeWrapper[] cartridgeTypesArray = possibleCartridgeTypes
+					.toArray(new CartridgeTypeWrapper[possibleCartridgeTypes.size()]);
+			String title = TextUtility.format(Texts.CartridgeTypeDialog_Title, sourceFile.getName());
+			String action = Texts.CartridgeTypeDialog_Action;
+			cartridgeType = (CartridgeTypeWrapper) JOptionPane.showInputDialog(null, action, title,
+					JOptionPane.QUESTION_MESSAGE, null, // Use default icon
+					cartridgeTypesArray, // Array of choices
+					cartridgeTypesArray[1]); // Initial choice
+			if (cartridgeType == null) {
+				cancelled = true;
+				// ERROR: Conversion cancelled by user
+				logError(Messages.E202);
+				return;
+			}
 		}
-		return;
 
-	    case FOLDER_MODE_YES:
-		convertFolderToCAR(sourceFile, folderMode);
-		return;
+		rom.convertToCAR(cartridgeType.GetCartridgeType(), messageQueue);
+		if (messageQueue.containsError()) {
+			logError(messageQueue.getFirstError().getMessage());
+			return;
+		}
+		File destinationFile = FileUtility.normalizeFileExtension(sourceFile, ".car");
+		logInfo(Messages.I203, destinationFile.getAbsolutePath(), cartridgeType.toString());
 
-	    case FOLDER_MODE_NO:
-		return;
-	    }
+		rom.save(destinationFile, messageQueue);
+		if (messageQueue.containsError()) {
+			logError(messageQueue.getFirstError().getMessage());
+			return;
+		}
 	}
 
-	long fileSize = sourceFile.length();
-
-	// INFO: Opening ROM image file '{0}'.
-	logInfo(Messages.I200, sourceFile.getAbsolutePath());
-	messageQueue.clear();
-	rom.load(sourceFile, messageQueue);
-	if (messageQueue.containsError()) {
-	    logError(messageQueue.getFirstError().getMessage());
-	    return;
-	}
-	
-	if (rom.isValidCAR()){
-	    // INFO: File is already a valid cartridge image file.
-	    logInfo(Messages.I206);
-	    return;
-	}
-	List<CartridgeTypeWrapper> possibleCartridgeTypes = new ArrayList<CartridgeTypeWrapper>();
-	for (CartridgeType cartridgeType : CartridgeType.getValues()) {
-	    if (cartridgeType.getSizeInKB() * 1024 == fileSize) {
-		possibleCartridgeTypes.add(new CartridgeTypeWrapper(cartridgeType));
-	    }
-	}
-	if (possibleCartridgeTypes.isEmpty()) {
-	    // ERROR: ROM image file size of {0} does not match any supported
-	    // cartridge type.
-	    logError(Messages.E201, TextUtility.formatAsMemorySize(fileSize));
-	    return;
-
+	private void clearLog() {
+		logText = "";
+		logLabel.setText("");
 	}
 
-	CartridgeTypeWrapper cartridgeType;
-	if (possibleCartridgeTypes.size() == 1) {
-	    cartridgeType = possibleCartridgeTypes.get(0);
-	} else {
-
-	    CartridgeTypeWrapper[] cartridgeTypesArray = possibleCartridgeTypes
-		    .toArray(new CartridgeTypeWrapper[possibleCartridgeTypes.size()]);
-	    String title = TextUtility.format(Texts.CartridgeTypeDialog_Title, sourceFile.getName());
-	    String action = Texts.CartridgeTypeDialog_Action;
-	    cartridgeType = (CartridgeTypeWrapper) JOptionPane.showInputDialog(null, action, title,
-		    JOptionPane.QUESTION_MESSAGE, null, // Use default icon
-		    cartridgeTypesArray, // Array of choices
-		    cartridgeTypesArray[1]); // Initial choice
-	    if (cartridgeType == null) {
-		cancelled = true;
-		// ERROR: Conversion cancelled by user
-		logError(Messages.E202);
-		return;
-	    }
+	private void logInternal(String line) {
+		logText = logText + line + "<br>";
+		logLabel.setText("<html>" + logText + "</html>");
+		mainWindowFrame.pack();
 	}
 
-	rom.convertToCAR(cartridgeType.GetCartridgeType(), messageQueue);
-	if (messageQueue.containsError()) {
-	    logError(messageQueue.getFirstError().getMessage());
-	    return;
+	private void logInfo(Message message, String... parameters) {
+		if (message == null) {
+			throw new IllegalArgumentException("Parameter 'message' must not be null.");
+		}
+		logInternal(message.format(parameters));
 	}
-	File destinationFile = FileUtility.normalizeFileExtension(sourceFile, ".car");
-	logInfo(Messages.I203, destinationFile.getAbsolutePath(), cartridgeType.toString());
 
-	rom.save(destinationFile, messageQueue);
-	if (messageQueue.containsError()) {
-	    logError(messageQueue.getFirstError().getMessage());
-	    return;
+	private void logError(Message message, String... parameters) {
+		if (message == null) {
+			throw new IllegalArgumentException("Parameter 'message' must not be null.");
+		}
+		logInternal("<font color='red'>" + message.format(parameters) + "</font>");
 	}
-    }
-
-    private void clearLog() {
-	logText = "";
-	logLabel.setText("");
-    }
-
-    private void logInternal(String line) {
-	logText = logText + line + "<br>";
-	logLabel.setText("<html>" + logText + "</html>");
-	mainWindowFrame.pack();
-    }
-
-    private void logInfo(Message message, String... parameters) {
-	if (message == null) {
-	    throw new IllegalArgumentException("Parameter 'message' must not be null.");
-	}
-	logInternal(message.format(parameters));
-    }
-
-    private void logError(Message message, String... parameters) {
-	if (message == null) {
-	    throw new IllegalArgumentException("Parameter 'message' must not be null.");
-	}
-	logInternal("<font color='red'>" + message.format(parameters) + "</font>");
-    }
 
 }
