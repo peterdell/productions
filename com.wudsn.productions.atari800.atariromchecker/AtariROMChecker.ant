@@ -30,7 +30,7 @@
 
 		<!-- Create JAR file -->
 		<property name="project.jarfile" value="tst/out/${project.filename}.jar" />
-		<jar destfile="${project.jarfile}" filesetmanifest="mergewithoutmain">
+		<jar destfile="${project.jarfile}" filesetmanifest="merge">
 			<fileset dir="${wudsn.base.folder}/com.wudsn.tools.base/bin" />
 			<fileset dir="${wudsn.base.folder}/com.wudsn.tools.base.atari/bin" />
 			<fileset dir="${wudsn.base.folder}/com.wudsn.tools.base.atari.cartridge/bin" />
