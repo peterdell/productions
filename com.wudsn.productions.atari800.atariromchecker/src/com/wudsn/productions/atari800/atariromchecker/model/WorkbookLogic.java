@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2014 <a href="http://www.wudsn.com" target="_top">Peter Dell</a>
+ * Copyright (C) 2014 <a href="https://www.wudsn.com" target="_top">Peter Dell</a>
  *
  * This file is part of the Atari ROM Checker.
  * 
@@ -46,7 +46,7 @@ import com.wudsn.tools.base.common.TextUtility;
  * 
  * FROM: http://mixinc.net/atari/books/XL-OS_Full_Searchable.pdf
  * 
- * REV·LEVEL DETERMINATION
+ * REVï¿½LEVEL DETERMINATION
  * 
  * To allow program products to determine which Atari Home Computer and Operating System Revision level it is operating with,
  * the follOwing tests are recommended,

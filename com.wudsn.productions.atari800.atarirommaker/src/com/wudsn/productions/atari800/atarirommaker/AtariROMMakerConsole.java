@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 - 2016 <a href="http://www.wudsn.com" target="_top">Peter Dell</a>
+ * Copyright (C) 2013 - 2016 <a href="https://www.wudsn.com" target="_top">Peter Dell</a>
  *
  * This file is part of the Atari ROM Maker.
  * 
