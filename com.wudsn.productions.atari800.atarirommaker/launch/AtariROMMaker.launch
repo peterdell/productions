@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <launchConfiguration type="org.eclipse.jdt.launching.localJavaApplication">
-<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
-<listEntry value="/com.wudsn.productions.atari800.atarirommaker/src/com/wudsn/productions/atari800/atarirommaker/AtariROMMaker.java"/>
-</listAttribute>
-<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
-<listEntry value="1"/>
-</listAttribute>
-<stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="com.wudsn.productions.atari800.atarirommaker.AtariROMMaker"/>
-<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="-convertToCAR:&#13;&#10;-load:&quot;tst/rom/OSS two chip 16 KB (M091) (15).rom&quot; -convertToCAR:15 -save:&quot;tst/rom/OSS two chip 16 KB (M091) (15)-out.car&quot;&#13;&#10;-load:&quot;tst/rom/OSS two chip 16 KB (M091) (15)-out.car&quot; -convertToROM -save:&quot;tst/rom/OSS two chip 16 KB (M091) (15)-out.rom&quot;"/>
-<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="com.wudsn.productions.atari800.atarirommaker"/>
+    <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
+        <listEntry value="/com.wudsn.productions.atari800.atarirommaker/src/com/wudsn/productions/atari800/atarirommaker/AtariROMMaker.java"/>
+    </listAttribute>
+    <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
+        <listEntry value="1"/>
+    </listAttribute>
+    <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="com.wudsn.productions.atari800.atarirommaker.AtariROMMaker"/>
+    <stringAttribute key="org.eclipse.jdt.launching.MODULE_NAME" value="com.wudsn.productions.atari800.atarirommaker"/>
+    <stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="-load:&quot;tst/rom/OSS two chip 16 KB (M091) (15).rom&quot; -convertToCAR:15 -save:&quot;tst/rom/OSS two chip 16 KB (M091) (15)-out.car&quot;&#13;&#10;-load:&quot;tst/rom/OSS two chip 16 KB (M091) (15)-out.car&quot; -convertToROM -save:&quot;tst/rom/OSS two chip 16 KB (M091) (15)-out.rom&quot;"/>
+    <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="com.wudsn.productions.atari800.atarirommaker"/>
 </launchConfiguration>
