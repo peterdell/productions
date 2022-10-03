@@ -41,81 +41,71 @@ import com.wudsn.tools.base.repository.Attribute;
  */
 public final class ROMVersionWriter {
 
-    public static void main(String args[]) throws CoreException {
-	if (args.length != 1) {
-	    throw new IllegalArgumentException(
-		    "Output file name must be specified");
-	}
-	String content = getHTML();
-	FileUtility.writeString(new File(args[0]), content);
-    }
-
-    public static String getHTML() {
-	HTMLWriter writer = new HTMLWriter();
-	writer.beginTable();
-	ROMVersionDatabase romVersionDatabase = new ROMVersionDatabase();
-	romVersionDatabase.load();
-
-	CartridgeDatabase cartridgeDatabase = new CartridgeDatabase();
-	cartridgeDatabase.load();
-
-	// Create combined list.
-	List<ROMVersion> romVersions = new ArrayList<ROMVersion>(
-		romVersionDatabase.getEntries());
-	List<CartridgeDatabaseEntry> cartridgeDatabaseEntries = cartridgeDatabase
-		.getEntries();
-	for (CartridgeDatabaseEntry cartridgeDatabaseEntry : cartridgeDatabaseEntries) {
-	    romVersions.add(
-		    ROMVersionFactory.createCartridgeDatabaseEntryROMVersion(
-			    cartridgeDatabaseEntry, ""));
+	public static void main(String args[]) throws CoreException {
+		if (args.length != 1) {
+			throw new IllegalArgumentException("Output file name must be specified");
+		}
+		String content = getHTML();
+		FileUtility.writeString(new File(args[0]), content);
 	}
 
-	// Create header
-	writerTableHeader(writer, ROMVersion.Attributes.FILE_SIZE);
-	writerTableHeader(writer, ROMVersion.Attributes.CRC32);
-	writerTableHeader(writer, ROMVersion.Attributes.MD5);
-	writerTableHeader(writer, ROMVersion.Attributes.TYPE);
-	writerTableHeader(writer, ROMVersion.Attributes.ID);
-	writerTableHeader(writer, ROMVersion.Attributes.PUBLISHER);
-	writerTableHeader(writer, ROMVersion.Attributes.DATE);
-	writerTableHeader(writer, ROMVersion.Attributes.REVISION);
-	writerTableHeader(writer, ROMVersion.Attributes.NORM);
-	writerTableHeader(writer, ROMVersion.Attributes.PARTS);
-	writerTableHeader(writer, ROMVersion.Attributes.COMMENT);
+	public static String getHTML() {
+		HTMLWriter writer = new HTMLWriter();
+		writer.beginTable();
+		ROMVersionDatabase romVersionDatabase = new ROMVersionDatabase();
+		romVersionDatabase.load();
 
-	for (ROMVersion romVersion : romVersions) {
-	    writer.beginTableRow();
-	    writer.writeTableCell(
-		    TextUtility.formatAsMemorySize(romVersion.getFileSize()));
-	    writer.writeTableCell(romVersion.getCRC32());
-	    writer.writeTableCell(romVersion.getMD5());
-	    writer.writeTableCell(romVersion.getType());
-	    writer.writeTableCell(romVersion.getId());
-	    writer.writeTableCell(romVersion.getPublisher());
-	    writer.writeTableCell(romVersion.getDate());
-	    writer.writeTableCell(romVersion.getRevision());
-	    writer.writeTableCell(romVersion.getNorm());
-	    writer.writeTableCell(romVersion.getParts());
-	    writer.writeTableCell(romVersion.getComment());
-	    writer.end();
+		CartridgeDatabase cartridgeDatabase = new CartridgeDatabase();
+		cartridgeDatabase.load();
+
+		// Create combined list.
+		List<ROMVersion> romVersions = new ArrayList<ROMVersion>(romVersionDatabase.getEntries());
+		List<CartridgeDatabaseEntry> cartridgeDatabaseEntries = cartridgeDatabase.getEntries();
+		for (CartridgeDatabaseEntry cartridgeDatabaseEntry : cartridgeDatabaseEntries) {
+			romVersions.add(ROMVersionFactory.createCartridgeDatabaseEntryROMVersion(cartridgeDatabaseEntry, ""));
+		}
+
+		// Create header
+		writerTableHeader(writer, ROMVersion.Attributes.FILE_SIZE);
+		writerTableHeader(writer, ROMVersion.Attributes.CRC32);
+		writerTableHeader(writer, ROMVersion.Attributes.MD5);
+		writerTableHeader(writer, ROMVersion.Attributes.TYPE);
+		writerTableHeader(writer, ROMVersion.Attributes.ID);
+		writerTableHeader(writer, ROMVersion.Attributes.PUBLISHER);
+		writerTableHeader(writer, ROMVersion.Attributes.DATE);
+		writerTableHeader(writer, ROMVersion.Attributes.REVISION);
+		writerTableHeader(writer, ROMVersion.Attributes.NORM);
+		writerTableHeader(writer, ROMVersion.Attributes.PARTS);
+		writerTableHeader(writer, ROMVersion.Attributes.COMMENT);
+
+		for (ROMVersion romVersion : romVersions) {
+			writer.beginTableRow();
+			writer.writeTableCell(TextUtility.formatAsMemorySize(romVersion.getFileSize()));
+			writer.writeTableCell(romVersion.getCRC32());
+			writer.writeTableCell(romVersion.getMD5());
+			writer.writeTableCell(romVersion.getType());
+			writer.writeTableCell(romVersion.getId());
+			writer.writeTableCell(romVersion.getPublisher());
+			writer.writeTableCell(romVersion.getDate());
+			writer.writeTableCell(romVersion.getRevision());
+			writer.writeTableCell(romVersion.getNorm());
+			writer.writeTableCell(romVersion.getParts());
+			writer.writeTableCell(romVersion.getComment());
+			writer.end();
+		}
+		writer.end();
+		return writer.toHTML();
+
 	}
-	writer.end();
-	return writer.toHTML();
 
-    }
+	private static void writerTableHeader(HTMLWriter writer, Attribute attribute) {
+		if (writer == null) {
+			throw new IllegalArgumentException("Parameter 'writer' must not be null.");
+		}
+		if (attribute == null) {
+			throw new IllegalArgumentException("Parameter 'attribute' must not be null.");
+		}
+		writer.writeTableHeader(attribute.getDataType().getLabelWithoutMnemonics());
 
-    private static void writerTableHeader(HTMLWriter writer,
-	    Attribute attribute) {
-	if (writer == null) {
-	    throw new IllegalArgumentException(
-		    "Parameter 'writer' must not be null.");
 	}
-	if (attribute == null) {
-	    throw new IllegalArgumentException(
-		    "Parameter 'attribute' must not be null.");
-	}
-	writer.writeTableHeader(
-		attribute.getDataType().getLabelWithoutMnemonics());
-
-    }
 }

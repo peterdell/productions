@@ -1,130 +1,132 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
         "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
-	<head>
-		<title>Atari ROM Checker by JAC!</title>
-		<meta http-equiv="Content-Type"
-			content="text/html; charset=UTF-8" />
-		<meta name="author" content="Peter Dell, JAC!" />
-		<style type="text/css"> body { font-family: Arial, sans-serif; font-size:
-			10px; } table tr { vertical-align: top } table th { border-style:
-			solid; border-width: 1px; margin: 0px; text-align: left;
-			background-color: #ffc6cc; } table td { border-style: solid;
-			border-width: 1px; margin: 0px; background-color: #eeeeee; } 
-		</style>
-		<script type="javacript" src="sorttable.js"></script>
-	</head>
-	<body>
-		<h1>
-			<a name="ROMChecker">Atari ROM Checker</a>
-		</h1>
-		<p>
-			The purpose of
-			<a
-				href="https://www.wudsn.com/index.php/productions-atari800/tools/atariromchecker"
-				target="_blank">Atari ROM Checker</a>
-			is to analyze and identify Atari 8-bit operating system ROMs based on
-			their size and checksums. It contains a database of all known shipped
-			or prototypes Atari operating system ROMs. The download also contains
-			a simple automatic ROM dumper in Atari BASIC that runs on all Atari
-			8-bit machines with BASIC. Just boot the "AtariROMDumper.atr" with
-			BASIC enabled. It will create a 16k file "D1:OS.ROM" and an 8k file
-			"D1:BASIC.ROM" you can analyze then.
-		</p>
-		<p>In addition, the included "AtariROMPatcher.atr" disk image can be
-			used to display, compute and fix OS ROM checksums of Atari XL
-			computers. It also includes the option to replace the built-in
-			floating-point ROM with any 2k replacement ROM you have available. 
-		</p>
-		<h2>
-			<a name="DownloadingTheProgram">Downloading the Program</a>
-		</h2>
-		<p>
-			This is version ${version} of the program. Click
-			<a
-				href="https://www.wudsn.com/productions/atari800/atariromchecker/atariromchecker.zip"
-				target="_blank">here</a>
-			to download the latest version of the program. The download is a
-			single ".zip" archive file which contains the actual program. Simply
-			extract the files from the archive into a folder of your choice.
-		</p>
-		<h2>
-			<a name="StartingTheProgram">Starting the Program</a>
-		</h2>
-		<p> "Atari ROM Checker" is implemented in Java which makes is
-			compatible with all popular operating systems. In order to run the
-			program you need has Java Runtime Environment (JRE) or Java
-			Development Kit (JDK/SDK) with version 1.6 or newer versions
-			installed. 
-		</p>
-		<h2>
-			<a name="Usage">Usage</a>
-		</h2>
-		<p> You can use drag &amp; drop to drop folders or files onto the
-			window. You can drop multiple folders and files at the same time.
-			Folders will be scanned recursively for files with file extension
-			".bin" or ".rom". For every file, an entry in the result list is
-			created with it's details like the check sums contain in the file. If
-			the check sum in the file do not match the computed check sums, an
-			additional entry with the correct check sums is added in the result.
-			You can compare multiple entries in the result by selecting them and
-			pressing "Edit/Compare Entries...". 
-		</p>
-		<h2>ROM Definitions</h2>
-		<p> For every known ROM version, the file size, the CRC32 check sum,
-			optionally the MD5 checksum and other information is available. The
-			ROM version definitions are stored the "ROMVersions.csv" as ".CSV"
-			inside the "AtariROMChecker.jar" file. The file is in ".CSV" format
-			with separator ";" and encoding UTF-8. 
-		</p>
-		<p>ID: The listed IDs are not official Atari IDs but references to the
-			existing Atari800 implementation and the related Atari OS source code
-			by by Kr0tki (Tomasz Krasuski). 
-		</p>
-		<p>Part Numbers: The Atari part numbers all start with the letter "C"
-			for "chip" followed by a number. Hence the second character is the
-			digit zero "0", not the letter "O", though this was sometimes mixed
-			up in certain areas of the other documentation. 
-		</p>
-		${romVersions}
-		<h2>
-			<a name="RelatedInformation">Related information</a>
-		</h2>
-		<ul>
-			<li>
-				<a
-					href="http://atariage.com/forums/topic/201133-os-source-code-all-revisions/#entry2667627"
-					target="_blank">Recreated source codes of all known official revisions of
-					the Atari OS by Kr0tki (Tomasz Krasuski)</a>
-			</li>
-			<li>
-				<a href="http://mixinc.net/atari/books/XL-OS_Full_Searchable.pdf"
-					target="_blank"> Atari XL Addendum- Operating System Manual 
-				</a>
-			</li>
-			<li>
-				<a
-					href="http://www.ataripreservation.org/websites/freddy.offenga/osromv36.zip"
-					target="_blank">Freddy Offenga's OS-ROM FAQ</a>
-			</li>
-			<li>
-				<a
-					href="http://www.ataripreservation.org/websites/freddy.offenga/basroms.zip"
-					target="_blank">Freddy Offenga's BASIC-ROM FAQ</a>
-			</li>
-			<li>
-				<a href="http://www.savetz.com/vintagecomputers/arabic65xe"
-					target="_blank">Kevin Savetz' Arabic 65XE OS-ROM</a>
-			</li>
-			<li>
-				<a href="http://ftp.pigwa.net/stuff/collections/nir_dary_cds/ROMS"
-					target="_blank">Nir Dary's ROM collection</a>
-			</li>
-			<li>
-				<a
-					href="http://ftp.pigwa.net/stuff/collections/nir_dary_cds/ROMS/HEB%20FONT%20ATARIXL%20ROM"
-					target="_blank">Nir Dary's Hebrew OS-ROM</a>
-			</li>
-		</ul>
-	</body>
+ <head>
+  <title>Atari ROM Checker by JAC!</title>
+  <meta http-equiv="Content-Type"
+   content="text/html; charset=UTF-8" />
+  <meta name="author" content="Peter Dell, JAC!" />
+  <meta name="viewport" content="width=device-width, initial-scale=2.0">
+   <style type="text/css"> body { font-family: Arial, sans-serif; font-size:
+    12px; } table tr { vertical-align: top } table th { border-style:
+    solid; border-width: 1px; margin: 0px; text-align: left;
+    background-color: #ffc6cc; } table td { border-style: solid;
+    border-width: 1px; margin: 0px; background-color: #eeeeee; } 
+   </style>
+   <script type="javacript" src="sorttable.js"></script>
+ </head>
+ <body>
+  <h1>
+   <a name="ROMChecker">Atari ROM Checker</a>
+  </h1>
+  <p>
+   The purpose of
+   <a
+    href="https://www.wudsn.com/index.php/productions-atari800/tools/atariromchecker"
+    target="_blank">Atari ROM Checker</a>
+   is to analyze and identify Atari 8-bit operating system ROMs based on
+   their size and checksums. It contains a database of all known shipped
+   or prototypes Atari operating system ROMs. The download also contains
+   a simple automatic ROM dumper in Atari BASIC that runs on all Atari
+   8-bit machines with BASIC. Just boot the "AtariROMDumper.atr" with
+   BASIC enabled. It will create a 16k file "D1:OS.ROM" and an 8k file
+   "D1:BASIC.ROM" you can analyze then.
+  </p>
+  <p>In addition, the included "AtariROMPatcher.atr" disk image can be
+   used to display, compute and fix OS ROM checksums of Atari XL
+   computers. It also includes the option to replace the built-in
+   floating-point ROM with any 2k replacement ROM you have available. 
+  </p>
+  <h2>
+   <a name="DownloadingTheProgram">Downloading the Program</a>
+  </h2>
+  <p>
+   This is version ${version} of the program. Click
+   <a
+    href="https://www.wudsn.com/productions/atari800/atariromchecker/atariromchecker.zip"
+    target="_blank">here</a>
+   to download the latest version of the program. The download is a
+   single ".zip" archive file which contains the actual program. Simply
+   extract the files from the archive into a folder of your choice.
+  </p>
+  <h2>
+   <a name="StartingTheProgram">Starting the Program</a>
+  </h2>
+  <p> "Atari ROM Checker" is implemented in Java which makes is
+   compatible with all popular operating systems. In order to run the
+   program you need has Java Runtime Environment (JRE) or Java
+   Development Kit (JDK/SDK) with version 1.6 or newer versions
+   installed. 
+  </p>
+  <h2>
+   <a name="Usage">Usage</a>
+  </h2>
+  <p> You can use drag &amp; drop to drop folders or files onto the
+   window. You can drop multiple folders and files at the same time.
+   Folders will be scanned recursively for files with file extension
+   ".bin" or ".rom". For every file, an entry in the result list is
+   created with it's details like the check sums contain in the file. If
+   the check sum in the file do not match the computed check sums, an
+   additional entry with the correct check sums is added in the result.
+   You can compare multiple entries in the result by selecting them and
+   pressing "Edit/Compare Entries...". 
+  </p>
+  <h2>ROM Definitions</h2>
+  <p> For every known ROM version, the file size, the CRC32 check sum,
+   optionally the MD5 checksum and other information is available. The
+   ROM version definitions are stored the "ROMVersions.csv" as ".CSV"
+   inside the "AtariROMChecker.jar" file. The file is in ".CSV" format
+   with separator ";" and encoding UTF-8. 
+  </p>
+  <p>ID: The listed IDs are not official Atari IDs but references to the
+   existing Atari800 implementation and the related Atari OS source code
+   by by Kr0tki (Tomasz Krasuski). 
+  </p>
+  <p>Part Numbers: The Atari part numbers all start with the letter "C"
+   for "chip" followed by a number. Hence the second character is the
+   digit zero "0", not the letter "O", though this was sometimes mixed
+   up in certain areas of the other documentation. 
+  </p>
+  ${romVersions}
+  <h2>
+   <a name="RelatedInformation">Related information</a>
+  </h2>
+  <ul>
+   <li>
+    <a
+     href="http://atariage.com/forums/topic/201133-os-source-code-all-revisions/#entry2667627"
+     target="_blank">Recreated source codes of all known official revisions of
+     the Atari OS by Kr0tki (Tomasz Krasuski)</a>
+   </li>
+   <li>
+   <!-- was http://mixinc.net/atari/books/XL-OS_Full_Searchable.pdf -->
+    <a href="https://seriouscomputerist.atariverse.com/media/pdf/book/Atari%20XL%20Addendum%20-%20Operating%20System%20Manual.pdf"
+     target="_blank">Atari XL Addendum- Operating System Manual 
+    </a>
+   </li>
+   <li>
+    <a
+     href="https://web.archive.org/web/20140813134706/http://www.ataripreservation.org/websites/freddy.offenga/osromv36.zip"
+     target="_blank">Freddy Offenga's OS-ROM FAQ (Backup on archive.org)</a>
+   </li>
+   <li>
+    <a
+     href="https://web.archive.org/web/20140813134706/http://www.ataripreservation.org/websites/freddy.offenga/basroms.zip"
+     target="_blank">Freddy Offenga's BASIC-ROM FAQ (Backup on archive.org)</a>
+   </li>
+   <li>
+    <a href="http://www.savetz.com/vintagecomputers/arabic65xe"
+     target="_blank">Kevin Savetz' Arabic 65XE OS-ROM</a>
+   </li>
+   <li>
+    <a href="http://ftp.pigwa.net/stuff/collections/nir_dary_cds/ROMS"
+     target="_blank">Nir Dary's ROM collection</a>
+   </li>
+   <li>
+    <a
+     href="http://ftp.pigwa.net/stuff/collections/nir_dary_cds/ROMS/HEB%20FONT%20ATARIXL%20ROM"
+     target="_blank">Nir Dary's Hebrew OS-ROM</a>
+   </li>
+  </ul>
+ </body>
 </html>
