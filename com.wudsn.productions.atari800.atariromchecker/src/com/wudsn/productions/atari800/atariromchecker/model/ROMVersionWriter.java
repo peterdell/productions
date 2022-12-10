@@ -83,7 +83,7 @@ public final class ROMVersionWriter {
 			writer.writeTableCell(TextUtility.formatAsMemorySize(romVersion.getFileSize()));
 			writer.writeTableCell(romVersion.getCRC32());
 			writer.writeTableCell(romVersion.getMD5());
-			writer.writeTableCell(romVersion.getType());
+			writer.writeTableCell(romVersion.getType(), "white-space:nowrap");
 			writer.writeTableCell(romVersion.getId());
 			writer.writeTableCell(romVersion.getPublisher());
 			writer.writeTableCell(romVersion.getDate());
