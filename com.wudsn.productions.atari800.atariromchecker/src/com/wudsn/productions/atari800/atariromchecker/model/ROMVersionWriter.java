@@ -107,7 +107,7 @@ public final class ROMVersionWriter {
 		if (attribute == null) {
 			throw new IllegalArgumentException("Parameter 'attribute' must not be null.");
 		}
-		writer.writeTableHeader(attribute.getDataType().getLabelWithoutMnemonics());
+		writer.writeEncodedTableHeader(attribute.getDataType().getLabelWithoutMnemonics());
 
 	}
 }
