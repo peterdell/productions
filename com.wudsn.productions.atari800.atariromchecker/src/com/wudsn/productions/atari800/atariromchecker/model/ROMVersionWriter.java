@@ -66,6 +66,7 @@ public final class ROMVersionWriter {
 		}
 
 		// Create header
+		writer.beginTableRow();
 		writerTableHeader(writer, ROMVersion.Attributes.FILE_SIZE);
 		writerTableHeader(writer, ROMVersion.Attributes.CRC32);
 		writerTableHeader(writer, ROMVersion.Attributes.MD5);
@@ -77,20 +78,21 @@ public final class ROMVersionWriter {
 		writerTableHeader(writer, ROMVersion.Attributes.NORM);
 		writerTableHeader(writer, ROMVersion.Attributes.PARTS);
 		writerTableHeader(writer, ROMVersion.Attributes.COMMENT);
+		writer.end();
 
 		for (ROMVersion romVersion : romVersions) {
 			writer.beginTableRow();
-			writer.writeTableCell(TextUtility.formatAsMemorySize(romVersion.getFileSize()));
-			writer.writeTableCell(romVersion.getCRC32());
-			writer.writeTableCell(romVersion.getMD5());
-			writer.writeTableCell(romVersion.getType(), "white-space:nowrap");
-			writer.writeTableCell(romVersion.getId());
-			writer.writeTableCell(romVersion.getPublisher());
-			writer.writeTableCell(romVersion.getDate());
-			writer.writeTableCell(romVersion.getRevision());
-			writer.writeTableCell(romVersion.getNorm());
-			writer.writeTableCell(romVersion.getParts());
-			writer.writeTableCell(romVersion.getComment());
+			writer.writeEncodedTableCell(TextUtility.formatAsMemorySize(romVersion.getFileSize()));
+			writer.writeEncodedTableCell(romVersion.getCRC32());
+			writer.writeEncodedTableCell(romVersion.getMD5());
+			writer.writeEncodedTableCell(romVersion.getType(), "white-space:nowrap");
+			writer.writeEncodedTableCell(romVersion.getId());
+			writer.writeEncodedTableCell(romVersion.getPublisher());
+			writer.writeEncodedTableCell(romVersion.getDate());
+			writer.writeEncodedTableCell(romVersion.getRevision());
+			writer.writeEncodedTableCell(romVersion.getNorm());
+			writer.writeEncodedTableCell(romVersion.getParts());
+			writer.writeEncodedTableCell(romVersion.getComment());
 			writer.end();
 		}
 		writer.end();
