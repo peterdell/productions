@@ -37,13 +37,14 @@
 		    <fileset dir="bin" />
 		</jar>
 
-		<!-- Copy the ZIP code and source from Eclipse workspace to productions folder -->
+		<!-- Copy the code and source from the Eclipse workspace to the productions folder -->
 		<copy todir="tst/out" overwrite="true">
+                        <fileset file="build/AtariROMChecker.bat" />
 			<fileset file="build/AtariROMDumper.atr" />
 			<fileset file="build/AtariROMPatcher.atr" />
 		</copy>
 
-		<!-- ZIP code and source from Eclipse workspace to productions folder -->
+		<!-- ZIP code and source from the Eclipse workspace to the productions folder -->
 		<zip destfile="${productions.project.file}.zip">
 			<fileset dir="tst/out" />
 		</zip>
