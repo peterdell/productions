@@ -1,0 +1,34 @@
+TODO: Wrong CART header types in the test data (found 2026-10-04)
+
+The .car files in rom/ROM-Correct (git-ignored, see .gitignore) have CART
+header type numbers (bytes 4-7) that do not match the cartridge type number
+in their file names. It looks like the headers were written with the first
+type of matching size instead of the named type: every 16 KB file has
+type 6, every 32 KB file type 4, every 128 KB file type 41.
+
+The .rom files with the same names are fine; only the headers are wrong.
+Fix: rewrite each header with the type from the file name, e.g. with
+CartridgeFileUtility.createCartridgeHeaderWithCheckSum.
+
+File                                       Name  Header
+Atrax 128 K (17).car                        17     41
+Atrax SDX 128 KB (49).car                   49     41
+Blizzard 16 KB (40).car                     40      6
+Blizzard 32 KB (60).car                     60      4
+Blizzard 4 KB (46).car                      46     20
+Bounty Bob Strikes Back 40 KB (18).car      18      7
+DB 32 KB (5).car                             5      4
+Diamond 64 KB (10).car                      10     48
+Express 64 KB (9).car                        9     48
+Low bank 8 KB (53).car                      53     19
+MegaCart 1 MB (32).car                      32     42
+MegaCart 16 KB (26).car                     26      6
+MegaCart 2 MB (64).car                      64     61
+MegaCart 32 KB (27).car                     27      4
+MegaCart 64 KB (28).car                     28     10
+OSS two chip 16 KB (043M) (45).car          45      6
+OSS two chip 16 KB (M091) (15).car          15      6
+
+Correct: Atrax SDX 64 KB (48), Bounty Bob 40 KB 5200 (7), Flash MegaCart
+4 MB (63), The!Cart 128 MB (62), The!Cart 32 MB (65), and
+rom/OSS two chip 16 KB (M091) (15)-out.car.
